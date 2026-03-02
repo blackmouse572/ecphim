@@ -6,7 +6,7 @@ import { createContext, use, useCallback, useId, useMemo, useState } from "react
 import type { LinkProps } from "react-aria-components"
 import { Link } from "react-aria-components"
 import { twJoin, twMerge } from "tailwind-merge"
-import { useIsMobile } from "@repo/hooks/use-mobile"
+import { useIsMobile } from "@repo/design-system/hooks/use-mobile"
 import { cx } from "@repo/design-system/lib/primitive"
 import { Button, type ButtonProps } from "./button"
 import { Separator } from "./separator"
@@ -166,7 +166,7 @@ const Navbar = ({
         className={twMerge(
           "relative isolate hidden py-(--navbar-gutter) [--navbar-gutter:--spacing(2.5)] md:block",
           intent === "float" &&
-            "rounded-xl bg-bg py-0 *:data-[navbar=content]:max-w-7xl *:data-[navbar=content]:rounded-xl *:data-[navbar=content]:border *:data-[navbar=content]:bg-navbar *:data-[navbar=content]:px-4 *:data-[navbar=content]:py-(--navbar-gutter) *:data-[navbar=content]:shadow-xs",
+          "rounded-xl bg-bg/70 backdrop-blur-lg py-0 *:data-[navbar=content]:max-w-7xl *:data-[navbar=content]:rounded-xl *:data-[navbar=content]:border *:data-[navbar=content]:bg-navbar/70 *:data-[navbar=content]:px-4 *:data-[navbar=content]:py-(--navbar-gutter) *:data-[navbar=content]:shadow-xs",
           ["default", "inset"].includes(intent) && "px-4",
           intent === "default" && "border-b bg-navbar",
           className,

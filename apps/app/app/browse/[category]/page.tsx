@@ -19,6 +19,7 @@ import {
 import { cn } from "@repo/design-system/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { PublicLayout } from "../../components/public-layout";
 
 // Mock data based on different categories
 const CATEGORY_DATA = {
@@ -72,9 +73,10 @@ export default function BrowsePage({ params }: { params: { category?: string } }
   const CategoryIcon = categoryInfo.icon;
 
   return (
-    <MotionPage className="min-h-screen bg-black">
+    <PublicLayout>
+      <MotionPage className="min-h-screen bg-black">
       {/* Hero Header */}
-      <section className="relative pt-32 pb-16 overflow-hidden">
+      <section className="relative pt-48 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-black" />
         <div className={cn(
           "absolute inset-0 bg-gradient-to-br opacity-20",
@@ -92,7 +94,7 @@ export default function BrowsePage({ params }: { params: { category?: string } }
                   <CategoryIcon className="h-8 w-8 text-white" weight="bold" />
                 </div>
                 <div>
-                  <h1 className="text-display-lg font-100 text-white tracking-tighter leading-tight">
+                  <h1 className="text-display font-100 text-white tracking-tighter leading-tight">
                     {categoryInfo.title}
                   </h1>
                   <p className="text-body-lg font-200 text-white/70">
@@ -154,7 +156,7 @@ export default function BrowsePage({ params }: { params: { category?: string } }
                       </div>
                     </div>
 
-                    <h2 className="text-headline-xl font-900 text-white tracking-tight leading-tight">
+                    <h2 className="text-headline font-900 text-white tracking-tight leading-tight">
                       {MOVIES[0].name}
                     </h2>
 
@@ -283,6 +285,7 @@ export default function BrowsePage({ params }: { params: { category?: string } }
           </MotionFadeIn>
         </div>
       </section>
-    </MotionPage>
+      </MotionPage>
+    </PublicLayout>
   );
 }

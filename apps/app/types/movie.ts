@@ -33,6 +33,7 @@ export interface MovieDetail {
   };
   imdb: {
     id: string | null;
+    vote_average?: number;
   };
   created: {
     time: string;

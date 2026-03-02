@@ -53,7 +53,7 @@ export function HeroSection({ featuredMovie}: HeroSectionProps) {
                 <h1 className="text-4xl font-bold leading-[1.05] text-white mb-4 tracking-tight">
               {featuredMovie.name}
             </h1>
-            <h2 className="text-title-lg text-white/70 mb-6">
+            <h2 className="text-title text-white/70 mb-6">
               {featuredMovie.origin_name} ({featuredMovie.year})
             </h2>
           </MotionItem>

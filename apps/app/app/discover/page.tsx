@@ -1,3 +1,5 @@
+"use client";
+
 import {
   MagnifyingGlass,
   Funnel,
@@ -22,9 +24,8 @@ import {
 import { cn } from "@repo/design-system/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-"use client";
-
 import { useState } from "react";
+import { PublicLayout } from "../components/public-layout";
 
 // Mock data
 const FEATURED_CATEGORIES = [
@@ -71,19 +72,20 @@ const SORT_OPTIONS = [
 
 export default function DiscoverPage() {
   return (
-    <MotionPage className="min-h-screen bg-gradient-to-br from-black via-zinc-950 to-black">
+    <PublicLayout>
+      <MotionPage className="min-h-screen bg-gradient-to-br from-black via-zinc-950 to-black">
       {/* Hero Search Section */}
-      <section className="pt-32 pb-16">
+      <section className="pt-48 pb-16">
         <div className="container mx-auto max-w-4xl px-6 text-center">
           <MotionList className="space-y-8">
             <MotionItem>
-              <h1 className="text-display-xl font-100 text-white mb-6 tracking-tighter">
+              <h1 className="text-display font-100 text-white mb-6 tracking-tighter">
                 Discover Your Next
                 <span className="block text-gradient bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                   Favorite Film
                 </span>
               </h1>
-              <p className="text-body-xl font-200 text-white/70 max-w-2xl mx-auto">
+              <p className="text-body-lg font-200 text-white/70 max-w-2xl mx-auto">
                 Explore thousands of movies and series across all genres, languages, and decades
               </p>
             </MotionItem>
@@ -130,7 +132,7 @@ export default function DiscoverPage() {
       <section className="py-16 border-y border-white/5">
         <div className="container mx-auto max-w-7xl px-6">
           <MotionFadeIn>
-            <h2 className="text-headline-xl font-900 text-white mb-12 text-center">
+            <h2 className="text-headline font-900 text-white mb-12 text-center">
               Browse by Genre
             </h2>
           </MotionFadeIn>
@@ -155,7 +157,7 @@ export default function DiscoverPage() {
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-title-lg font-900 text-white mb-1">
+                      <h3 className="text-title font-900 text-white mb-1">
                         {category.name}
                       </h3>
                     </div>
@@ -283,6 +285,7 @@ export default function DiscoverPage() {
           </MotionFadeIn>
         </div>
       </section>
-    </MotionPage>
+      </MotionPage>
+    </PublicLayout>
   );
 }

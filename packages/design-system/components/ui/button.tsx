@@ -54,6 +54,16 @@ export const buttonStyles = tv({
         "*:data-[slot=icon]:size-5 sm:*:data-[slot=icon]:size-4.5",
         "*:data-[slot=loader]:size-5 sm:*:data-[slot=loader]:size-4.5",
       ],
+      xl: [
+        "min-h-11 gap-x-3 px-[calc(--spacing(4)-1px)] py-[calc(--spacing(3)-1px)] sm:min-h-10 sm:px-[calc(--spacing(3.5)-1px)] sm:py-[calc(--spacing(2.5)-1px)] sm:text-base",
+        "*:data-[slot=icon]:size-6 sm:*:data-[slot=icon]:size-5",
+        "*:data-[slot=loader]:size-6 sm:*:data-[slot=loader]:size-5",
+      ],
+      '2xl': [
+        "min-h-14 gap-x-4 px-[calc(--spacing(5)-1px)] py-[calc(--spacing(3)-1px)] sm:min-h-11 sm:px-[calc(--spacing(4)-1px)] sm:py-[calc(--spacing(3)-1px)] sm:text-lg",
+        "*:data-[slot=icon]:size-6 sm:*:data-[slot=icon]:size-5",
+        "*:data-[slot=loader]:size-6 sm:*:data-[slot=loader]:size-5",
+      ],
       "sq-xs": [
         "touch-target size-8 sm:size-7",
         "*:data-[slot=icon]:size-3.5 sm:*:data-[slot=icon]:size-3",
