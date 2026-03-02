@@ -1,6 +1,5 @@
 "use client";
 
-import { OrganizationSwitcher, UserButton } from "@repo/auth/client";
 import { ModeToggle } from "@repo/design-system/components/mode-toggle";
 import { Button } from "@repo/design-system/components/ui/button";
 import {
@@ -33,7 +32,6 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@repo/design-system/components/ui/sidebar";
-import { cn } from "@repo/design-system/lib/utils";
 import { NotificationsTrigger } from "@repo/notifications/components/trigger";
 import {
   AnchorIcon,
@@ -195,23 +193,6 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
   return (
     <>
       <Sidebar variant="inset">
-        <SidebarHeader>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <div
-                className={cn(
-                  "h-[36px] overflow-hidden transition-all [&>div]:w-full",
-                  sidebar.open ? "" : "-mx-1"
-                )}
-              >
-                <OrganizationSwitcher
-                  afterSelectOrganizationUrl="/"
-                  hidePersonal
-                />
-              </div>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarHeader>
         <Search />
         <SidebarContent>
           <SidebarGroup>
@@ -326,16 +307,6 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem className="flex items-center gap-2">
-              <UserButton
-                appearance={{
-                  elements: {
-                    rootBox: "flex overflow-hidden w-full",
-                    userButtonBox: "flex-row-reverse",
-                    userButtonOuterIdentifier: "truncate pl-0",
-                  },
-                }}
-                showName
-              />
               <div className="flex shrink-0 items-center gap-px">
                 <ModeToggle />
                 <Button

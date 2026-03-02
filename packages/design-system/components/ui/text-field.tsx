@@ -1,0 +1,12 @@
+"use client"
+
+import type { TextFieldProps } from "react-aria-components"
+import { TextField as TextFieldPrimitive } from "react-aria-components"
+import { cx } from "@repo/design-system/lib/primitive"
+import { fieldStyles } from "./field"
+
+export function TextField({ className, ...props }: TextFieldProps) {
+  return (
+    <TextFieldPrimitive data-slot="control" className={cx(fieldStyles(), className)} {...props} />
+  )
+}

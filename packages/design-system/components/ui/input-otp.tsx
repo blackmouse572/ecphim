@@ -1,77 +1,88 @@
 "use client"
 
-import * as React from "react"
+import { MinusIcon } from "@heroicons/react/20/solid"
 import { OTPInput, OTPInputContext } from "input-otp"
-import { MinusIcon } from "lucide-react"
+import { use } from "react"
+import { twMerge } from "tailwind-merge"
+import { fieldStyles, Label } from "@repo/components/ui/field"
 
-import { cn } from "@repo/design-system/lib/utils"
-
-function InputOTP({
+export function InputOTP({
   className,
   containerClassName,
   ...props
-}: React.ComponentProps<typeof OTPInput> & {
-  containerClassName?: string
-}) {
+}: React.ComponentPropsWithoutRef<typeof OTPInput>) {
   return (
-    <OTPInput
-      data-slot="input-otp"
-      containerClassName={cn(
-        "flex items-center gap-2 has-disabled:opacity-50",
-        containerClassName
-      )}
-      className={cn("disabled:cursor-not-allowed", className)}
+    <span data-slot="control" className="relative block">
+      <OTPInput
+        data-slot="input-otp"
+        containerClassName={twMerge(
+          fieldStyles({ className: "has-[:disabled]:opacity-50" }),
+          containerClassName,
+        )}
+        {...props}
+      />
+    </span>
+  )
+}
+
+export function InputOTPControl({ className, ...props }: React.ComponentProps<"span">) {
+  return (
+    <span
+      data-slot="control"
+      className={twMerge("flex items-center gap-2 has-disabled:opacity-50", className)}
       {...props}
     />
   )
 }
 
-function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
+export function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="input-otp-group"
-      className={cn("flex items-center", className)}
+      className={twMerge("flex items-center", className)}
       {...props}
     />
   )
 }
 
-function InputOTPSlot({
+export function InputOTPSlot({
   index,
   className,
   ...props
 }: React.ComponentProps<"div"> & {
   index: number
 }) {
-  const inputOTPContext = React.useContext(OTPInputContext)
+  const inputOTPContext = use(OTPInputContext)
   const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {}
 
   return (
     <div
       data-slot="input-otp-slot"
       data-active={isActive}
-      className={cn(
-        "data-[active=true]:border-ring data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:ring-destructive/20 dark:data-[active=true]:aria-invalid:ring-destructive/40 aria-invalid:border-destructive data-[active=true]:aria-invalid:border-destructive dark:bg-input/30 border-input relative flex h-9 w-9 items-center justify-center border-y border-r text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md data-[active=true]:z-10 data-[active=true]:ring-[3px]",
-        className
+      className={twMerge(
+        "relative flex size-9 items-center justify-center border-input border-y border-r shadow-xs outline-none transition-all [--input-otp-radius:calc(var(--radius-lg)-1px)] first:rounded-s-(--input-otp-radius) first:border-l last:rounded-e-(--input-otp-radius) aria-invalid:border-danger data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:bg-primary-subtle/10 data-[active=true]:ring-3 data-[active=true]:ring-ring/20 data-[active=true]:aria-invalid:border-danger-subtle-fg/70 data-[active=true]:aria-invalid:ring-danger-subtle-fg/20 sm:text-sm/6 dark:data-[active=true]:aria-invalid:ring-danger-subtle-fg/70",
+        className,
       )}
       {...props}
     >
       {char}
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="animate-caret-blink bg-foreground h-4 w-px duration-1000" />
+          <div className="h-4 w-px animate-caret-blink bg-fg duration-1000" />
         </div>
       )}
     </div>
   )
 }
 
-function InputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
+export function InputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
   return (
-    <div data-slot="input-otp-separator" role="separator" {...props}>
-      <MinusIcon />
+    <div data-slot="input-otp-separator" {...props}>
+      <MinusIcon className="size-4" />
     </div>
   )
 }
 
-export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator }
+export function InputOTPLabel(props: React.ComponentProps<typeof Label>) {
+  return <Label elementType="span" {...props} />
+}

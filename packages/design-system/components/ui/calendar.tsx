@@ -1,216 +1,209 @@
 "use client"
 
-import * as React from "react"
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid"
+import { type CalendarDate, getLocalTimeZone, today } from "@internationalized/date"
+import { useDateFormatter } from "@react-aria/i18n"
+import { use } from "react"
 import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from "lucide-react"
-import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker"
+  CalendarCell,
+  CalendarGrid,
+  CalendarGridBody,
+  CalendarGridHeader as CalendarGridHeaderPrimitive,
+  CalendarHeaderCell,
+  Calendar as CalendarPrimitive,
+  type CalendarProps as CalendarPrimitiveProps,
+  CalendarStateContext,
+  composeRenderProps,
+  type DateValue,
+  Heading,
+  RangeCalendarStateContext,
+  useLocale,
+} from "react-aria-components"
+import { twMerge } from "tailwind-merge"
+import { Button } from "./button"
+import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger } from "./select"
 
-import { cn } from "@repo/design-system/lib/utils"
-import { Button, buttonVariants } from "@repo/design-system/components/ui/button"
+interface CalendarProps<T extends DateValue>
+  extends Omit<CalendarPrimitiveProps<T>, "visibleDuration"> {
+  className?: string
+}
 
-function Calendar({
-  className,
-  classNames,
-  showOutsideDays = true,
-  captionLayout = "label",
-  buttonVariant = "ghost",
-  formatters,
-  components,
-  ...props
-}: React.ComponentProps<typeof DayPicker> & {
-  buttonVariant?: React.ComponentProps<typeof Button>["variant"]
-}) {
-  const defaultClassNames = getDefaultClassNames()
+const Calendar = <T extends DateValue>({ className, ...props }: CalendarProps<T>) => {
+  const now = today(getLocalTimeZone())
 
   return (
-    <DayPicker
-      showOutsideDays={showOutsideDays}
-      className={cn(
-        "bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
-        String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
-        String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
-        className
-      )}
-      captionLayout={captionLayout}
-      formatters={{
-        formatMonthDropdown: (date) =>
-          date.toLocaleString("default", { month: "short" }),
-        ...formatters,
-      }}
-      classNames={{
-        root: cn("w-fit", defaultClassNames.root),
-        months: cn(
-          "flex gap-4 flex-col md:flex-row relative",
-          defaultClassNames.months
-        ),
-        month: cn("flex flex-col w-full gap-4", defaultClassNames.month),
-        nav: cn(
-          "flex items-center gap-1 w-full absolute top-0 inset-x-0 justify-between",
-          defaultClassNames.nav
-        ),
-        button_previous: cn(
-          buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none",
-          defaultClassNames.button_previous
-        ),
-        button_next: cn(
-          buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none",
-          defaultClassNames.button_next
-        ),
-        month_caption: cn(
-          "flex items-center justify-center h-(--cell-size) w-full px-(--cell-size)",
-          defaultClassNames.month_caption
-        ),
-        dropdowns: cn(
-          "w-full flex items-center text-sm font-medium justify-center h-(--cell-size) gap-1.5",
-          defaultClassNames.dropdowns
-        ),
-        dropdown_root: cn(
-          "relative has-focus:border-ring border border-input shadow-xs has-focus:ring-ring/50 has-focus:ring-[3px] rounded-md",
-          defaultClassNames.dropdown_root
-        ),
-        dropdown: cn(
-          "absolute bg-popover inset-0 opacity-0",
-          defaultClassNames.dropdown
-        ),
-        caption_label: cn(
-          "select-none font-medium",
-          captionLayout === "label"
-            ? "text-sm"
-            : "rounded-md pl-2 pr-1 flex items-center gap-1 text-sm h-8 [&>svg]:text-muted-foreground [&>svg]:size-3.5",
-          defaultClassNames.caption_label
-        ),
-        table: "w-full border-collapse",
-        weekdays: cn("flex", defaultClassNames.weekdays),
-        weekday: cn(
-          "text-muted-foreground rounded-md flex-1 font-normal text-[0.8rem] select-none",
-          defaultClassNames.weekday
-        ),
-        week: cn("flex w-full mt-2", defaultClassNames.week),
-        week_number_header: cn(
-          "select-none w-(--cell-size)",
-          defaultClassNames.week_number_header
-        ),
-        week_number: cn(
-          "text-[0.8rem] select-none text-muted-foreground",
-          defaultClassNames.week_number
-        ),
-        day: cn(
-          "relative w-full h-full p-0 text-center [&:last-child[data-selected=true]_button]:rounded-r-md group/day aspect-square select-none",
-          props.showWeekNumber
-            ? "[&:nth-child(2)[data-selected=true]_button]:rounded-l-md"
-            : "[&:first-child[data-selected=true]_button]:rounded-l-md",
-          defaultClassNames.day
-        ),
-        range_start: cn(
-          "rounded-l-md bg-accent",
-          defaultClassNames.range_start
-        ),
-        range_middle: cn("rounded-none", defaultClassNames.range_middle),
-        range_end: cn("rounded-r-md bg-accent", defaultClassNames.range_end),
-        today: cn(
-          "bg-accent text-accent-foreground rounded-md data-[selected=true]:rounded-none",
-          defaultClassNames.today
-        ),
-        outside: cn(
-          "text-muted-foreground aria-selected:text-muted-foreground",
-          defaultClassNames.outside
-        ),
-        disabled: cn(
-          "text-muted-foreground opacity-50",
-          defaultClassNames.disabled
-        ),
-        hidden: cn("invisible", defaultClassNames.hidden),
-        ...classNames,
-      }}
-      components={{
-        Root: ({ className, rootRef, ...props }) => {
-          return (
-            <div
-              data-slot="calendar"
-              ref={rootRef}
-              className={cn(className)}
-              {...props}
+    <CalendarPrimitive data-slot="calendar" {...props}>
+      <CalendarHeader />
+      <CalendarGrid>
+        <CalendarGridHeader />
+        <CalendarGridBody>
+          {(date) => (
+            <CalendarCell
+              date={date}
+              className={composeRenderProps(className, (className, { isSelected, isDisabled }) =>
+                twMerge(
+                  "relative flex size-11 cursor-default items-center justify-center rounded-lg text-fg tabular-nums outline-hidden hover:bg-secondary-fg/15 sm:size-9 sm:text-sm/6 forced-colors:text-[ButtonText] forced-colors:outline-0",
+                  isSelected &&
+                    "bg-primary pressed:bg-primary text-primary-fg hover:bg-primary/90 data-invalid:bg-danger data-invalid:text-danger-fg forced-colors:bg-[Highlight] forced-colors:text-[Highlight] forced-colors:data-invalid:bg-[Mark]",
+                  isDisabled && "text-muted-fg forced-colors:text-[GrayText]",
+                  date.compare(now) === 0 &&
+                    "after:pointer-events-none after:absolute after:start-1/2 after:bottom-1 after:z-10 after:size-0.75 after:-translate-x-1/2 after:rounded-full after:bg-primary selected:after:bg-primary-fg focus-visible:after:bg-primary-fg",
+                  className,
+                ),
+              )}
             />
-          )
-        },
-        Chevron: ({ className, orientation, ...props }) => {
-          if (orientation === "left") {
-            return (
-              <ChevronLeftIcon className={cn("size-4", className)} {...props} />
-            )
-          }
-
-          if (orientation === "right") {
-            return (
-              <ChevronRightIcon
-                className={cn("size-4", className)}
-                {...props}
-              />
-            )
-          }
-
-          return (
-            <ChevronDownIcon className={cn("size-4", className)} {...props} />
-          )
-        },
-        DayButton: CalendarDayButton,
-        WeekNumber: ({ children, ...props }) => {
-          return (
-            <td {...props}>
-              <div className="flex size-(--cell-size) items-center justify-center text-center">
-                {children}
-              </div>
-            </td>
-          )
-        },
-        ...components,
-      }}
-      {...props}
-    />
+          )}
+        </CalendarGridBody>
+      </CalendarGrid>
+    </CalendarPrimitive>
   )
 }
 
-function CalendarDayButton({
+const CalendarHeader = ({
+  isRange,
   className,
-  day,
-  modifiers,
   ...props
-}: React.ComponentProps<typeof DayButton>) {
-  const defaultClassNames = getDefaultClassNames()
-
-  const ref = React.useRef<HTMLButtonElement>(null)
-  React.useEffect(() => {
-    if (modifiers.focused) ref.current?.focus()
-  }, [modifiers.focused])
-
+}: React.ComponentProps<"header"> & { isRange?: boolean }) => {
+  const { direction } = useLocale()
   return (
-    <Button
-      ref={ref}
-      variant="ghost"
-      size="icon"
-      data-day={day.date.toLocaleDateString()}
-      data-selected-single={
-        modifiers.selected &&
-        !modifiers.range_start &&
-        !modifiers.range_end &&
-        !modifiers.range_middle
-      }
-      data-range-start={modifiers.range_start}
-      data-range-end={modifiers.range_end}
-      data-range-middle={modifiers.range_middle}
-      className={cn(
-        "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-ring/50 dark:hover:text-accent-foreground flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md [&>span]:text-xs [&>span]:opacity-70",
-        defaultClassNames.day,
-        className
+    <header
+      data-slot="calendar-header"
+      className={twMerge(
+        "flex w-full justify-between gap-1.5 ps-1.5 pe-1 pt-1 pb-5 sm:pb-4",
+        className,
       )}
       {...props}
-    />
+    >
+      <div className="flex items-center gap-1.5">
+        <SelectMonth />
+        <SelectYear />
+      </div>
+      <Heading className="sr-only" />
+      <div className="flex items-center gap-1">
+        <Button
+          size="sq-sm"
+          className="size-8 **:data-[slot=icon]:text-fg sm:size-7"
+          isCircle
+          intent="plain"
+          slot="previous"
+        >
+          {direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+        </Button>
+        <Button
+          size="sq-sm"
+          className="size-8 **:data-[slot=icon]:text-fg sm:size-7"
+          isCircle
+          intent="plain"
+          slot="next"
+        >
+          {direction === "rtl" ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+        </Button>
+      </div>
+    </header>
   )
 }
 
-export { Calendar, CalendarDayButton }
+interface CalendarDropdown {
+  id: number
+  date: CalendarDate
+  formatted: string
+}
+
+const SelectMonth = () => {
+  const calendarState = use(CalendarStateContext)
+  const rangeCalendarState = use(RangeCalendarStateContext)
+  const state = calendarState || rangeCalendarState!
+  const formatter = useDateFormatter({
+    month: "short",
+    timeZone: state.timeZone,
+  })
+
+  const months: CalendarDropdown[] = []
+  const numMonths = state.focusedDate.calendar.getMonthsInYear(state.focusedDate)
+  for (let i = 1; i <= numMonths; i++) {
+    const date = state.focusedDate.set({ month: i })
+    months.push({
+      id: i,
+      date,
+      formatted: formatter.format(date.toDate(state.timeZone)),
+    })
+  }
+
+  return (
+    <Select
+      className="[popover-width:8rem]"
+      aria-label="Month"
+      style={{ flex: 1, width: "fit-content" }}
+      value={state.focusedDate.month}
+      onChange={(key) => {
+        if (typeof key === "number") {
+          state.setFocusedDate(months[key - 1].date)
+        }
+      }}
+    >
+      <SelectTrigger className="w-22 text-sm/5 **:data-[slot=select-value]:inline-block **:data-[slot=select-value]:truncate sm:px-2.5 sm:py-1.5 sm:*:text-sm/5" />
+      <SelectContent className="min-w-0" items={months}>
+        {(item) => (
+          <SelectItem>
+            <SelectLabel>{item.formatted}</SelectLabel>
+          </SelectItem>
+        )}
+      </SelectContent>
+    </Select>
+  )
+}
+
+const SelectYear = () => {
+  const calendarState = use(CalendarStateContext)
+  const rangeCalendarState = use(RangeCalendarStateContext)
+  const state = calendarState || rangeCalendarState!
+  const formatter = useDateFormatter({
+    year: "numeric",
+    timeZone: state.timeZone,
+  })
+
+  const years: CalendarDropdown[] = []
+  for (let i = -20; i <= 20; i++) {
+    const date = state.focusedDate.add({ years: i })
+    years.push({
+      id: years.length,
+      date,
+      formatted: formatter.format(date.toDate(state.timeZone)),
+    })
+  }
+  return (
+    <Select
+      aria-label="Year"
+      value={20}
+      onChange={(key) => {
+        if (typeof key === "number") {
+          state.setFocusedDate(years[key].date)
+        }
+      }}
+    >
+      <SelectTrigger className="text-sm/5 sm:px-2.5 sm:py-1.5 sm:*:text-sm/5" />
+      <SelectContent items={years}>
+        {(item) => (
+          <SelectItem>
+            <SelectLabel>{item.formatted}</SelectLabel>
+          </SelectItem>
+        )}
+      </SelectContent>
+    </Select>
+  )
+}
+
+const CalendarGridHeader = () => {
+  return (
+    <CalendarGridHeaderPrimitive>
+      {(day) => (
+        <CalendarHeaderCell className="pb-2 text-center font-semibold text-muted-fg text-sm/6 sm:px-0 sm:py-0.5 lg:text-xs">
+          {day}
+        </CalendarHeaderCell>
+      )}
+    </CalendarGridHeaderPrimitive>
+  )
+}
+
+export type { CalendarProps }
+export { Calendar, SelectMonth, SelectYear, CalendarHeader, CalendarGridHeader }
