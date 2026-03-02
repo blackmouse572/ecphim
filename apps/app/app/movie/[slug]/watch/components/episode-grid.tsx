@@ -26,7 +26,7 @@ export function EpisodeGrid({
     return (
         <div>
             <h3 className="text-title font-700 text-white mb-6 flex items-center gap-3">
-                <div className="w-1 h-6 bg-blue-500 rounded-full" />
+                <div className="w-1 h-6 bg-accent-foreground rounded-full" />
                 Episodes ({episodeCount})
             </h3>
 
@@ -37,9 +37,9 @@ export function EpisodeGrid({
                         intent={currentEpisodeSlug === episode.slug ? "primary" : "outline"}
                         onClick={() => onEpisodeSelect(episode)}
                         className={`
-              aspect-square border-white/20 text-white hover:border-blue-400 hover:bg-blue-400/10 hover:text-blue-400 transition-all hover:scale-110 rounded-xl font-mono font-700 text-sm
+              aspect-square border-white/20 text-white hover:border-primary hover:bg-blue-400/10 hover:text-primary transition-all hover:scale-110 rounded-xl font-mono font-700 text-sm
               ${currentEpisodeSlug === episode.slug
-                                ? "bg-blue-500 border-blue-500 text-white"
+                                ? "bg-primary border-primary text-white"
                                 : ""
                             }
             `}

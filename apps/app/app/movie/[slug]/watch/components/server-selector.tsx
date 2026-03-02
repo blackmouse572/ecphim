@@ -32,13 +32,13 @@ export function ServerSelector({
                     <Button
                         key={server.server_name}
                         intent={
-                            currentServerName === server.server_name ? "primary" : "outline"
+                            currentServerName === server.server_name ? "primary" : "secondary"
                         }
                         onClick={() => onServerSelect(index)}
                         className={`
-              w-full border-white/20 text-white hover:border-blue-400 hover:bg-blue-400/10 hover:text-blue-400 transition-all rounded-xl font-600 justify-start
+              w-full border-white/20 text-white hover:border-primary hover:bg-primary/10 hover:text-primary transition-all rounded-xl font-600 justify-start
               ${currentServerName === server.server_name
-                                ? "bg-blue-500 border-blue-500 text-white"
+                                ? "bg-primary border-primary text-white"
                                 : ""
                             }
             `}

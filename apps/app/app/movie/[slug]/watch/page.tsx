@@ -11,6 +11,7 @@ import {
   VideoPlayerSection,
   WatchControlsPanel,
 } from "./components";
+import { SpinnerBallIcon } from "@phosphor-icons/react/dist/ssr";
 
 interface Episode {
   name: string;
@@ -53,6 +54,7 @@ export default function MovieWatchPage() {
   useEffect(() => {
     if (playerRef.current) {
       playerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      playerRef.current.focus();
     }
   }, [episodeSlug, serverName]);
 
@@ -78,13 +80,14 @@ export default function MovieWatchPage() {
     return (
       <PublicLayout>
         <div className="min-h-screen bg-black flex items-center justify-center">
-          <div className="text-white text-center">
-            <h2 className="text-headline mb-4">Loading...</h2>
+          <div className="text-white text-center flex flex-col items-center">
+            <SpinnerBallIcon className="animate-spin mb-4 text-muted-fg" size={48} />
             <p className="text-body text-white/70">
               Preparing your video experience
             </p>
           </div>
         </div>
+
       </PublicLayout>
     );
   }
@@ -92,19 +95,6 @@ export default function MovieWatchPage() {
   return (
     <PublicLayout>
       <div className="min-h-screen bg-black">
-        {/* Navigation */}
-        <div className="absolute top-4 left-4 z-50">
-          <Button
-            intent="plain"
-            className="bg-black/50 border border-white/20 text-white backdrop-blur-sm hover:bg-black/70 hover:scale-105 transition-all"
-          >
-            <Link href={`/movie/${movieSlug}`}>
-              <ArrowLeft className="mr-2 h-5 w-5" />
-              Back to Movie
-            </Link>
-          </Button>
-        </div>
-
         {/* Video Player */}
         <VideoPlayerSection
           ref={playerRef}

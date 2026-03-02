@@ -4,7 +4,7 @@ import { Button } from "@repo/design-system/components/ui/button";
 import { ArrowsOut, ArrowsIn } from "@phosphor-icons/react";
 import { useRef, useState, ComponentType, forwardRef } from "react";
 import dynamic from "next/dynamic";
-import { VideoPlayerProps } from "@ntxmjs/react-custom-video-player";
+import { type VideoPlayerProps } from "@ntxmjs/react-custom-video-player";
 import {
     PlayIcon,
     PauseIcon,
@@ -21,6 +21,7 @@ import {
     CheckIcon,
     HighDefinitionIcon,
     TimerIcon,
+    SpinnerBallIcon,
 } from "@phosphor-icons/react/dist/ssr";
 
 const playerIcons = {
@@ -59,8 +60,8 @@ const VideoPlayer = dynamic(
         ssr: false,
         loading: () => (
             <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white text-center">
-                    <h2 className="text-headline mb-4">Loading Player...</h2>
+                <div className="text-white text-center flex flex-col items-center">
+                    <SpinnerBallIcon className="animate-spin mb-4 text-muted-fg" size={48} />
                     <p className="text-body text-white/70">
                         Preparing your video experience
                     </p>

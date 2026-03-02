@@ -74,6 +74,11 @@ export function WatchControlsPanel({
 
                     {/* Sidebar - Server Selection & Info */}
                     <div className="space-y-6">
+                        {/* Continue Watching Suggestions */}
+                        <NextEpisodeSection
+                            nextEpisode={nextEpisode}
+                            onPlayNext={(ep) => onEpisodeSelect(ep as Episode)}
+                        />
                         {/* Server Selector */}
                         <ServerSelector
                             servers={servers}
@@ -89,11 +94,6 @@ export function WatchControlsPanel({
                             status={movieStatus}
                         />
 
-                        {/* Continue Watching Suggestions */}
-                        <NextEpisodeSection
-                            nextEpisode={nextEpisode}
-                            onPlayNext={(ep) => onEpisodeSelect(ep as Episode)}
-                        />
                     </div>
                 </div>
             </div>
