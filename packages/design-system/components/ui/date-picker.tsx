@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarDaysIcon } from "@heroicons/react/24/outline"
+import { CalendarDots } from "@phosphor-icons/react"
 import type { DateDuration } from "@internationalized/date"
 import type {
   DatePickerProps as DatePickerPrimitiveProps,
@@ -103,7 +103,7 @@ export function DatePickerTrigger({ className, ...props }: GroupProps) {
           "*:size-5 sm:*:size-4",
         )}
       >
-        <CalendarDaysIcon />
+        <CalendarDots />
       </Button>
     </InputGroup>
   )

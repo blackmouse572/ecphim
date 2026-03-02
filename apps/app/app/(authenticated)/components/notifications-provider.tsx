@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 
 type NotificationsProviderProperties = {
   children: ReactNode;
-  userId: string;
+  userId?: string;
 };
 
 export const NotificationsProvider = ({
@@ -14,6 +14,10 @@ export const NotificationsProvider = ({
   userId,
 }: NotificationsProviderProperties) => {
   const { resolvedTheme } = useTheme();
+
+  if (!userId) {
+    return <>{children}</>;
+  }
 
   return (
     <RawNotificationsProvider

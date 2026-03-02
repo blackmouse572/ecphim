@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckIcon } from "@heroicons/react/20/solid"
+import { Check } from "@phosphor-icons/react"
 import type { ListBoxItemProps, ListBoxProps, ListBoxSectionProps } from "react-aria-components"
 import {
   composeRenderProps,
@@ -89,7 +89,7 @@ const ListBoxItem = <T extends object>({ children, className, ...props }: ListBo
               </svg>
             )}
             {isSelected && (
-              <CheckIcon
+              <Check
                 className="-mx-0.5 me-2 h-lh w-5 shrink-0 group-allows-dragging:col-start-2 sm:w-4"
                 data-slot="check-icon"
               />

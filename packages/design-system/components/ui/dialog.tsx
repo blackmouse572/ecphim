@@ -1,6 +1,6 @@
 "use client"
 
-import { XMarkIcon } from "@heroicons/react/24/solid"
+import { X } from "@phosphor-icons/react"
 import type { HeadingProps, TextProps } from "react-aria-components"
 import {
   Heading,
@@ -131,7 +131,7 @@ const DialogCloseIcon = ({ className, ...props }: CloseButtonIndicatorProps) => 
         className,
       )}
     >
-      <XMarkIcon className="size-4" />
+      <X className="size-4" />
     </PrimitiveButton>
   ) : null
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRightIcon } from "@heroicons/react/24/solid"
+import { CaretRight } from "@phosphor-icons/react"
 import { createContext, use } from "react"
 import type { BreadcrumbProps, BreadcrumbsProps, LinkProps } from "react-aria-components"
 import { Breadcrumb, Breadcrumbs as BreadcrumbsPrimitive } from "react-aria-components"
@@ -69,7 +69,7 @@ const Separator = ({
 }) => {
   return (
     <span className="*:shrink-0 *:text-muted-fg *:data-[slot=icon]:size-3.5">
-      {separator === "chevron" && <ChevronRightIcon />}
+      {separator === "chevron" && <CaretRight />}
       {separator === "slash" && <span className="text-muted-fg">/</span>}
     </span>
   )

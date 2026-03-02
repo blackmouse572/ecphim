@@ -1,6 +1,6 @@
 "use client"
 
-import { XCircleIcon } from "@heroicons/react/16/solid"
+import { XCircle } from "@phosphor-icons/react"
 import type { TagGroupProps, TagListProps, TagProps } from "react-aria-components"
 import {
   Button,
@@ -48,7 +48,7 @@ export function Tag({ children, className, ...props }: TagProps) {
           {children}
           {allowsRemoving && (
             <Button slot="remove" className="">
-              <XCircleIcon className="-me-1 size-4" />
+              <XCircle className="-me-1 size-4" />
             </Button>
           )}
         </>

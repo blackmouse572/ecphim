@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRightIcon } from "@heroicons/react/20/solid"
+import { CaretRight } from "@phosphor-icons/react"
 import type {
   TreeItemContentProps,
   TreeItemContentRenderProps,
@@ -106,7 +106,7 @@ const TreeIndicator = ({
         values.isExpanded && "text-fg",
       )}
     >
-      <ChevronRightIcon
+      <CaretRight
         data-slot="chevron"
         className={twJoin(
           "size-4 transition-transform duration-200 ease-in-out sm:size-5",

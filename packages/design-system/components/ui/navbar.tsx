@@ -1,6 +1,6 @@
 "use client"
 
-import { Bars2Icon } from "@heroicons/react/20/solid"
+import { List } from "@phosphor-icons/react"
 import { LayoutGroup, motion } from "motion/react"
 import { createContext, use, useCallback, useId, useMemo, useState } from "react"
 import type { LinkProps } from "react-aria-components"
@@ -321,7 +321,7 @@ const NavbarTrigger = ({ className, onPress, ref, ...props }: NavbarTriggerProps
       }}
       {...props}
     >
-      <Bars2Icon />
+      <List />
       <span className="sr-only">Toggle Navbar</span>
     </Button>
   )

@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarDateRangeIcon } from "@heroicons/react/24/outline"
+import { CalendarBlank } from "@phosphor-icons/react"
 import type { DateDuration } from "@internationalized/date"
 import {
   Button,
@@ -78,7 +78,7 @@ export function DateRangePickerTrigger({
           "*:-me-px *:-mt-0.5 *:size-5 sm:*:size-4",
         )}
       >
-        <CalendarDateRangeIcon />
+        <CalendarBlank />
       </Button>
     </InputGroup>
   )

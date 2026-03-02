@@ -1,6 +1,6 @@
 "use client"
 
-import { MinusIcon, PlusIcon } from "@heroicons/react/20/solid"
+import { Minus, Plus } from "@phosphor-icons/react"
 import type { ButtonProps, InputProps, NumberFieldProps } from "react-aria-components"
 import { Button, NumberField as NumberFieldPrimitive } from "react-aria-components"
 import { Input, InputGroup } from "@repo/components/ui/input"
@@ -55,9 +55,9 @@ const StepperButton = ({
       {...props}
     >
       {slot === "increment" ? (
-        <PlusIcon data-slot="stepper-icon" />
+        <Plus data-slot="stepper-icon" />
       ) : (
-        <MinusIcon data-slot="stepper-icon" />
+        <Minus data-slot="stepper-icon" />
       )}
     </Button>
   )

@@ -6,7 +6,6 @@ import type { ReactNode } from "react";
 import { env } from "@/env";
 import { NotificationsProvider } from "./components/notifications-provider";
 import { GlobalSidebar } from "./components/sidebar";
-import { redirect } from "next/navigation";
 
 type AppLayoutProperties = {
   readonly children: ReactNode;
@@ -20,14 +19,10 @@ const AppLayout = async ({ children }: AppLayoutProperties) => {
   const user = await currentUser();
   const betaFeature = await showBetaFeature();
 
-  if (!user) {
-    redirect("/sign-in");
-  }
-
   return (
-    <NotificationsProvider userId={user.id}>
+    <NotificationsProvider userId={user?.id}>
       <SidebarProvider>
-        <GlobalSidebar>
+        <GlobalSidebar user={user}>
           {betaFeature && (
             <div className="m-4 rounded-full bg-blue-500 p-1.5 text-center text-sm text-white">
               Beta feature now available

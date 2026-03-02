@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDownIcon } from "@heroicons/react/20/solid"
+import { CaretDown } from "@phosphor-icons/react"
 import { createContext, use } from "react"
 import type {
   CellProps,
@@ -152,7 +152,7 @@ const TableColumn = ({ isResizable = false, className, ...props }: TableColumnPr
                 values.isHovered ? "bg-secondary-fg/10" : "",
               )}
             >
-              <ChevronDownIcon
+              <CaretDown
                 className={values.sortDirection === "ascending" ? "rotate-180" : ""}
               />
             </span>

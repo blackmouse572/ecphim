@@ -1,6 +1,6 @@
 "use client"
 
-import { EyeDropperIcon } from "@heroicons/react/24/solid"
+import { Eyedropper } from "@phosphor-icons/react"
 import { parseColor } from "@react-stately/color"
 import { use } from "react"
 import {
@@ -48,7 +48,7 @@ const EyeDropper = () => {
         eyeDropper?.open().then((result) => state.setColor(parseColor(result.sRGBHex)))
       }}
     >
-      <EyeDropperIcon />
+      <Eyedropper />
     </Button>
   )
 }

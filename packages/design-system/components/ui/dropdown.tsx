@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckIcon } from "@heroicons/react/16/solid"
+import { Check } from "@phosphor-icons/react"
 import type {
   ListBoxItemProps,
   ListBoxSectionProps,
@@ -125,7 +125,7 @@ const DropdownItem = ({ className, children, intent, ...props }: DropdownItemPro
       {composeRenderProps(children, (children, { isSelected }) => (
         <>
           {isSelected && (
-            <CheckIcon
+            <Check
               className={twJoin(
                 "-ms-0.5 me-1.5 h-lh w-4 shrink-0",
                 "group-has-data-[slot=icon]:absolute group-has-data-[slot=icon]:end-0.5 group-has-data-[slot=icon]:top-1/2 group-has-data-[slot=icon]:-translate-y-1/2",

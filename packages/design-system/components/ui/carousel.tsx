@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid"
+import { CaretLeft, CaretRight } from "@phosphor-icons/react"
 import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react"
 import { createContext, use, useCallback, useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
@@ -205,7 +205,7 @@ const CarouselButton = ({
   const isNext = segment === "next"
   const canScroll = isNext ? canScrollNext : canScrollPrev
   const scroll = isNext ? scrollNext : scrollPrev
-  const Icon = isNext ? ChevronRightIcon : ChevronLeftIcon
+  const Icon = isNext ? CaretRight : CaretLeft
 
   return (
     <Button

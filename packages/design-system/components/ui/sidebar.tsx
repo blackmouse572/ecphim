@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDownIcon } from "@heroicons/react/24/solid"
+import { CaretDown } from "@phosphor-icons/react"
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type {
   ButtonProps,
@@ -23,8 +23,8 @@ import {
   Button as Trigger,
 } from "react-aria-components"
 import { twJoin, twMerge } from "tailwind-merge"
-import { SheetContent } from "@repo/components/ui/sheet"
-import { useIsMobile } from "@repo/hooks/use-mobile"
+import { SheetContent } from "./sheet"
+import { useIsMobile } from "@repo/design-system/hooks/use-mobile"
 import { cx } from "@repo/design-system/lib/primitive"
 import { Button } from "./button"
 import { Link } from "./link"
@@ -584,7 +584,7 @@ const SidebarDisclosureTrigger = ({ className, ref, ...props }: SidebarDisclosur
           <>
             {typeof props.children === "function" ? props.children(values) : props.children}
             {state !== "collapsed" && (
-              <ChevronDownIcon
+              <CaretDown
                 data-slot="chevron"
                 className="z-10 ms-auto size-3.5 transition-transform duration-200 group-aria-expanded/sidebar-disclosure-trigger:rotate-180"
               />

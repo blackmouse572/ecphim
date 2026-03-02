@@ -1,6 +1,6 @@
 "use client"
 
-import { CameraIcon, FolderIcon, PaperClipIcon } from "@heroicons/react/24/outline"
+import { Camera, Folder, Paperclip } from "@phosphor-icons/react"
 import {
   FileTrigger as FileTriggerPrimitive,
   type FileTriggerProps as FileTriggerPrimitiveProps,
@@ -37,11 +37,11 @@ export function FileTrigger({
       >
         {!props.isPending ? (
           props.defaultCamera ? (
-            <CameraIcon />
+            <Camera />
           ) : props.acceptDirectory ? (
-            <FolderIcon />
+            <Folder />
           ) : (
-            <PaperClipIcon />
+            <Paperclip />
           )
         ) : (
           <Loader />

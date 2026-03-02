@@ -1,4 +1,4 @@
-import { ChevronUpDownIcon } from "@heroicons/react/20/solid"
+import { CaretUpDown } from "@phosphor-icons/react"
 import type {
   ListBoxProps,
   PopoverProps,
@@ -111,7 +111,7 @@ const SelectTrigger = ({ children, className, ...props }: SelectTriggerProps) =>
                     "*:mt-0 *:data-[slot=avatar]:[--avatar-size:--spacing(5)] sm:*:data-[slot=avatar]:[--avatar-size:--spacing(4.5)]",
                   ])}
                 />
-                <ChevronUpDownIcon
+                <CaretUpDown
                   data-slot="chevron"
                   className="ms-auto -me-1 size-5 shrink-0 text-muted-fg sm:size-4"
                 />

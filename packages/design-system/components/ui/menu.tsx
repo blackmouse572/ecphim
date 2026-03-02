@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckIcon, ChevronRightIcon } from "@heroicons/react/20/solid"
+import { Check, CaretRight } from "@phosphor-icons/react"
 import type {
   ButtonProps,
   MenuItemProps as MenuItemPrimitiveProps,
@@ -129,13 +129,13 @@ const MenuItem = ({ className, intent, children, ...props }: MenuItemProps) => {
       {(values) => (
         <>
           {values.isSelected && (
-            <>{["single", "multiple"].includes(values.selectionMode) && <CheckIcon />}</>
+            <>{["single", "multiple"].includes(values.selectionMode) && <Check />}</>
           )}
 
           {typeof children === "function" ? children(values) : children}
 
           {values.hasSubmenu && (
-            <ChevronRightIcon data-slot="chevron" className="absolute end-2 size-3.5" />
+            <CaretRight data-slot="chevron" className="absolute end-2 size-3.5" />
           )}
         </>
       )}
