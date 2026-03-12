@@ -15,7 +15,7 @@ const adapter = new PrismaNeon({ connectionString: keys().DATABASE_URL });
 export const database = globalForPrisma.prisma || new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = database;
+	globalForPrisma.prisma = database;
 }
 
 // biome-ignore lint/performance/noBarrelFile: re-exporting

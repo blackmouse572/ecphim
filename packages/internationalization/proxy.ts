@@ -7,25 +7,25 @@ import languine from "./languine.json" with { type: "json" };
 const locales = [languine.locale.source, ...languine.locale.targets];
 
 const I18nMiddleware = createI18nMiddleware({
-  locales,
-  defaultLocale: "en",
-  urlMappingStrategy: "rewriteDefault",
-  resolveLocaleFromRequest: (request: NextRequest) => {
-    const headers = Object.fromEntries(request.headers.entries());
-    const negotiator = new Negotiator({ headers });
-    const acceptedLanguages = negotiator.languages();
+	locales,
+	defaultLocale: "en",
+	urlMappingStrategy: "rewriteDefault",
+	resolveLocaleFromRequest: (request: NextRequest) => {
+		const headers = Object.fromEntries(request.headers.entries());
+		const negotiator = new Negotiator({ headers });
+		const acceptedLanguages = negotiator.languages();
 
-    const matchedLocale = matchLocale(acceptedLanguages, locales, "en");
+		const matchedLocale = matchLocale(acceptedLanguages, locales, "en");
 
-    return matchedLocale;
-  },
+		return matchedLocale;
+	},
 });
 
 export const internationalizationMiddleware = (request: NextRequest) =>
-  I18nMiddleware(request);
+	I18nMiddleware(request);
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+	matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
 
 //https://nextjs.org/docs/app/building-your-application/routing/internationalization

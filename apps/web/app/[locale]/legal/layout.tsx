@@ -2,14 +2,14 @@ import { Toolbar } from "@repo/cms/components/toolbar";
 import type { ReactNode } from "react";
 
 type LegalLayoutProps = {
-  children: ReactNode;
+	children: ReactNode;
 };
 
 const LegalLayout = ({ children }: LegalLayoutProps) => (
-  <>
-    {children}
-    <Toolbar />
-  </>
+	<>
+		{children}
+		<Toolbar />
+	</>
 );
 
 export default LegalLayout;

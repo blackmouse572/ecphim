@@ -9,23 +9,23 @@ const require = createRequire(import.meta.url);
  * It is needed in projects that use Yarn PnP or are set up within a monorepo.
  */
 const getAbsolutePath = (value: string) =>
-  dirname(require.resolve(join(value, "package.json")));
+	dirname(require.resolve(join(value, "package.json")));
 
 const config: StorybookConfig = {
-  stories: [
-    "../stories/**/*.mdx",
-    "../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)",
-  ],
-  addons: [
-    getAbsolutePath("@chromatic-com/storybook"),
-    getAbsolutePath("@storybook/addon-onboarding"),
-    getAbsolutePath("@storybook/addon-themes"),
-  ],
-  framework: {
-    name: getAbsolutePath("@storybook/nextjs"),
-    options: {},
-  },
-  staticDirs: ["../public"],
+	stories: [
+		"../stories/**/*.mdx",
+		"../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)",
+	],
+	addons: [
+		getAbsolutePath("@chromatic-com/storybook"),
+		getAbsolutePath("@storybook/addon-onboarding"),
+		getAbsolutePath("@storybook/addon-themes"),
+	],
+	framework: {
+		name: getAbsolutePath("@storybook/nextjs"),
+		options: {},
+	},
+	staticDirs: ["../public"],
 };
 
 export default config;

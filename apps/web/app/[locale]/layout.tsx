@@ -11,35 +11,35 @@ import { Footer } from "./components/footer";
 import { Header } from "./components/header";
 
 type RootLayoutProperties = {
-  readonly children: ReactNode;
-  readonly params: Promise<{
-    locale: string;
-  }>;
+	readonly children: ReactNode;
+	readonly params: Promise<{
+		locale: string;
+	}>;
 };
 
 const RootLayout = async ({ children, params }: RootLayoutProperties) => {
-  const { locale } = await params;
-  const dictionary = await getDictionary(locale);
+	const { locale } = await params;
+	const dictionary = await getDictionary(locale);
 
-  return (
-    <html
-      className={cn(fonts, "scroll-smooth")}
-      lang="en"
-      suppressHydrationWarning
-    >
-      <body>
-        <AnalyticsProvider>
-          <DesignSystemProvider>
-            <Header dictionary={dictionary} />
-            {children}
-            <Footer />
-          </DesignSystemProvider>
-          <Toolbar />
-          <CMSToolbar />
-        </AnalyticsProvider>
-      </body>
-    </html>
-  );
+	return (
+		<html
+			className={cn(fonts, "scroll-smooth")}
+			lang="en"
+			suppressHydrationWarning
+		>
+			<body>
+				<AnalyticsProvider>
+					<DesignSystemProvider>
+						<Header dictionary={dictionary} />
+						{children}
+						<Footer />
+					</DesignSystemProvider>
+					<Toolbar />
+					<CMSToolbar />
+				</AnalyticsProvider>
+			</body>
+		</html>
+	);
 };
 
 export default RootLayout;

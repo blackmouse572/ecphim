@@ -8,31 +8,31 @@ import { NotificationsProvider } from "./components/notifications-provider";
 import { GlobalSidebar } from "./components/sidebar";
 
 type AppLayoutProperties = {
-  readonly children: ReactNode;
+	readonly children: ReactNode;
 };
 
 const AppLayout = async ({ children }: AppLayoutProperties) => {
-  if (env.ARCJET_KEY) {
-    await secure(["CATEGORY:PREVIEW"]);
-  }
+	if (env.ARCJET_KEY) {
+		await secure(["CATEGORY:PREVIEW"]);
+	}
 
-  const user = await currentUser();
-  const betaFeature = await showBetaFeature();
+	const user = await currentUser();
+	const betaFeature = await showBetaFeature();
 
-  return (
-    <NotificationsProvider userId={user?.id}>
-      <SidebarProvider>
-        <GlobalSidebar user={user}>
-          {betaFeature && (
-            <div className="m-4 rounded-full bg-blue-500 p-1.5 text-center text-sm text-white">
-              Beta feature now available
-            </div>
-          )}
-          {children}
-        </GlobalSidebar>
-      </SidebarProvider>
-    </NotificationsProvider>
-  );
+	return (
+		<NotificationsProvider userId={user?.id}>
+			<SidebarProvider>
+				<GlobalSidebar user={user}>
+					{betaFeature && (
+						<div className="m-4 rounded-full bg-blue-500 p-1.5 text-center text-sm text-white">
+							Beta feature now available
+						</div>
+					)}
+					{children}
+				</GlobalSidebar>
+			</SidebarProvider>
+		</NotificationsProvider>
+	);
 };
 
 export default AppLayout;
