@@ -20,7 +20,7 @@ import {
   TimerIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import dynamic from "next/dynamic";
-import { type ComponentType, forwardRef, useRef, useState } from "react";
+import { type ComponentType, forwardRef, useRef } from "react";
 
 const playerIcons = {
   play: <PlayIcon size={18} />,
@@ -62,7 +62,7 @@ const VideoPlayer = dynamic(
             size={48}
           />
           <p className="text-body text-white/70">
-            Preparing your video experience
+            Preparing your player
           </p>
         </div>
       </div>
@@ -87,20 +87,6 @@ export const VideoPlayerSection = forwardRef<
   ref,
 ) {
   const internalRef = useRef<HTMLDivElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  const toggleFullscreen = () => {
-    if (!isFullscreen) {
-      if (internalRef.current?.requestFullscreen) {
-        internalRef.current.requestFullscreen();
-      }
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
-    }
-    setIsFullscreen(!isFullscreen);
-  };
 
   return (
     <div ref={ref || internalRef} className="relative h-screen w-full bg-black">
@@ -110,7 +96,7 @@ export const VideoPlayerSection = forwardRef<
         poster={poster}
         title={title}
         className="h-full w-full"
-        autoPlay
+        autoPlay={true}
         controls
         playsInline
         crossOrigin="anonymous"

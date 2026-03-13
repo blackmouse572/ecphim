@@ -39,7 +39,7 @@ export const SignUp = (props: SignUpProps) => {
 		if (password.length < 6) {
 			setError(
 				props.i18n?.passwordMinLengthError ||
-					"Password must be at least 6 characters",
+				"Password must be at least 6 characters",
 			);
 			setLoading(false);
 		}
@@ -96,7 +96,7 @@ export const SignUp = (props: SignUpProps) => {
 				type="password"
 				value={confirmPassword}
 			/>
-			<Button disabled={loading} type="submit">
+			<Button isPending={loading} type="submit">
 				{props.i18n?.signUpButton || "Sign Up"}
 			</Button>
 		</form>

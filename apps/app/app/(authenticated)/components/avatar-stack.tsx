@@ -3,8 +3,7 @@
 import { useOthers, useSelf } from "@repo/collaboration/hooks";
 import {
 	Avatar,
-	AvatarFallback,
-	AvatarImage,
+
 } from "@repo/design-system/components/ui/avatar";
 import {
 	Tooltip,
@@ -17,16 +16,16 @@ type PresenceAvatarProps = {
 };
 
 const PresenceAvatar = ({ info }: PresenceAvatarProps) => (
-	<Tooltip delayDuration={0}>
+	<Tooltip >
 		<TooltipTrigger>
-			<Avatar className="h-7 w-7 bg-secondary ring-1 ring-background">
-				<AvatarImage alt={info?.name} src={info?.avatar} />
-				<AvatarFallback className="text-xs">
-					{info?.name?.slice(0, 2)}
-				</AvatarFallback>
-			</Avatar>
+			<Avatar
+				alt={info?.name}
+				src={info?.avatar}
+				initials={info?.name?.slice(0, 2) || ''}
+				className="h-7 w-7 bg-secondary ring-1 ring-background"
+			/>
 		</TooltipTrigger>
-		<TooltipContent collisionPadding={4}>
+		<TooltipContent>
 			<p>{info?.name ?? "Unknown"}</p>
 		</TooltipContent>
 	</Tooltip>

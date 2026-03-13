@@ -2,21 +2,12 @@
 
 import { Play } from "@phosphor-icons/react";
 import { Button } from "@repo/design-system/components/ui/button";
-
-interface Episode {
-  name: string;
-  slug: string;
-}
-
-interface ServerData {
-  server_name: string;
-  server_data: Episode[];
-}
+import type { IStreamServer } from "../../../../../../types/response";
 
 interface ServerSelectorProps {
-  servers: ServerData[];
+  servers: IStreamServer[];
   currentServerName: string;
-  onServerSelect: (serverIndex: number) => void;
+  onServerSelect: (serverIndex: IStreamServer) => void;
 }
 
 export function ServerSelector({
@@ -37,7 +28,7 @@ export function ServerSelector({
             onClick={() =>
               currentServerName === server.server_name
                 ? null
-                : onServerSelect(index)
+                : onServerSelect(server)
             }
             className={`w-full justify-start rounded-xl border-white/20 font-600 text-white transition-all hover:border-primary hover:bg-primary/10 hover:text-primary ${
               currentServerName === server.server_name

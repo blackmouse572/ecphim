@@ -4,9 +4,9 @@ import { MagnifyingGlass, X } from "@phosphor-icons/react"
 import type { InputProps, SearchFieldProps } from "react-aria-components"
 import { Button, SearchField as SearchFieldPrimitive } from "react-aria-components"
 import { twJoin } from "tailwind-merge"
-import { fieldStyles } from "@repo/components/ui/field"
 import { cx } from "@repo/design-system/lib/primitive"
 import { Input, InputGroup } from "./input"
+import { fieldStyles } from "./field"
 
 export function SearchField({ className, ...props }: SearchFieldProps) {
   return (

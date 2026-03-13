@@ -1,3 +1,4 @@
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { env } from "@/env";
 import "./styles.css";
 import { AnalyticsProvider } from "@repo/analytics/provider";
@@ -51,7 +52,7 @@ const RootLayout = ({ children }: RootLayoutProperties) => (
 					).toString()}
 					termsUrl={new URL("/legal/terms", env.NEXT_PUBLIC_WEB_URL).toString()}
 				>
-					{children}
+					<NuqsAdapter>{children}</NuqsAdapter>
 				</DesignSystemProvider>
 			</AnalyticsProvider>
 			<Toolbar />

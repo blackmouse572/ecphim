@@ -1,6 +1,6 @@
+import { ArrowRight, MagnifyingGlass } from "@phosphor-icons/react";
 import { Button } from "@repo/design-system/components/ui/button";
 import { Input } from "@repo/design-system/components/ui/input";
-import { ArrowRight, MagnifyingGlass } from "@phosphor-icons/react";
 
 export const Search = () => (
 	<form action="/search" className="flex items-center gap-2 px-4">
@@ -16,10 +16,10 @@ export const Search = () => (
 			/>
 			<Button
 				className="absolute top-px right-px bottom-px h-8 w-8"
-				size="icon"
-				variant="ghost"
+				size="sm"
+				intent="plain"
 			>
-				<ArrowRight className="text-muted-foreground" size={16} />
+				<ArrowRight className="text-muted-foreground" />
 			</Button>
 		</div>
 	</form>

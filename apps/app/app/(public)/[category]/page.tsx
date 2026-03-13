@@ -1,21 +1,21 @@
 import {
-	Star,
-	Play,
+	ArrowRight,
 	Calendar,
 	Clock,
-	TrendUp,
-	Fire,
 	Crown,
+	Fire,
+	Play,
 	Sparkle,
-	ArrowRight,
+	Star,
+	TrendUp,
 } from "@phosphor-icons/react/ssr";
-import { Button } from "@repo/design-system/components/ui/button";
 import {
 	MotionFadeIn,
 	MotionItem,
 	MotionList,
 	MotionPage,
 } from "@repo/design-system/components/motion";
+import { Button } from "@repo/design-system/components/ui/button";
 import { cn } from "@repo/design-system/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
@@ -91,7 +91,7 @@ export default async function BrowsePage({
 	return (
 		<MotionPage className="min-h-screen bg-black">
 			{/* Hero Header */}
-			<section className="relative pt-48 pb-16 overflow-hidden">
+			<section className="relative overflow-hidden pt-48 pb-16">
 				<div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-black" />
 				<div
 					className={cn(
@@ -103,20 +103,20 @@ export default async function BrowsePage({
 				<div className="container relative mx-auto max-w-7xl px-6">
 					<MotionList className="max-w-3xl space-y-8">
 						<MotionItem>
-							<div className="flex items-center gap-4 mb-6">
+							<div className="mb-6 flex items-center gap-4">
 								<div
 									className={cn(
-										"p-4 rounded-2xl bg-gradient-to-br",
+										"rounded-2xl bg-gradient-to-br p-4",
 										categoryInfo.gradient,
 									)}
 								>
 									<CategoryIcon className="h-8 w-8 text-white" weight="bold" />
 								</div>
 								<div>
-									<h1 className="text-display font-100 text-white tracking-tighter leading-tight">
+									<h1 className="font-100 text-display text-white leading-tight tracking-tighter">
 										{categoryInfo.title}
 									</h1>
-									<p className="text-body-lg font-200 text-white/70">
+									<p className="font-200 text-body-lg text-white/70">
 										{categoryInfo.subtitle}
 									</p>
 								</div>
@@ -127,12 +127,13 @@ export default async function BrowsePage({
 							<div className="flex flex-wrap gap-3">
 								{FILTER_TAGS.map((tag) => (
 									<button
+										type="button"
 										key={tag}
 										className={cn(
-											"px-4 py-2 rounded-full font-400 text-sm transition-all hover:scale-105",
+											"rounded-full px-4 py-2 font-400 text-sm transition-all hover:scale-105",
 											tag === "All"
 												? "bg-white text-black"
-												: "bg-white/10 border border-white/20 text-white hover:bg-white/20",
+												: "border border-white/20 bg-white/10 text-white hover:bg-white/20",
 										)}
 									>
 										{tag}
@@ -148,8 +149,8 @@ export default async function BrowsePage({
 			<section className="py-16">
 				<div className="container mx-auto max-w-7xl px-6">
 					<MotionFadeIn>
-						<div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-black via-zinc-900 to-black border border-white/10">
-							<div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-0">
+						<div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-r from-black via-zinc-900 to-black">
+							<div className="grid grid-cols-1 gap-0 lg:grid-cols-[400px_1fr]">
 								{/* Featured Poster */}
 								<div className="relative aspect-[2/3] lg:aspect-auto">
 									<Image
@@ -163,10 +164,10 @@ export default async function BrowsePage({
 								</div>
 
 								{/* Featured Info */}
-								<div className="p-8 lg:p-12 flex flex-col justify-center space-y-6">
+								<div className="flex flex-col justify-center space-y-6 p-8 lg:p-12">
 									<div className="space-y-4">
 										<div className="flex items-center gap-4">
-											<span className="text-xs font-mono font-900 uppercase tracking-[0.3em] text-blue-400 bg-blue-400/20 border border-blue-400/40 px-3 py-1.5 rounded-full">
+											<span className="rounded-full border border-blue-400/40 bg-blue-400/20 px-3 py-1.5 font-900 font-mono text-blue-400 text-xs uppercase tracking-[0.3em]">
 												Featured
 											</span>
 											<div className="flex items-center gap-2">
@@ -174,13 +175,13 @@ export default async function BrowsePage({
 													weight="fill"
 													className="h-4 w-4 text-yellow-500"
 												/>
-												<span className="font-mono font-700 text-yellow-500">
+												<span className="font-700 font-mono text-yellow-500">
 													{MOVIES[0].rating}
 												</span>
 											</div>
 										</div>
 
-										<h2 className="text-headline font-900 text-white tracking-tight leading-tight">
+										<h2 className="font-900 text-headline text-white leading-tight tracking-tight">
 											{MOVIES[0].name}
 										</h2>
 
@@ -198,7 +199,7 @@ export default async function BrowsePage({
 											</span>
 										</div>
 
-										<p className="text-body-lg font-200 text-white/80 max-w-lg leading-relaxed">
+										<p className="max-w-lg font-200 text-body-lg text-white/80 leading-relaxed">
 											{MOVIES[0].description}
 										</p>
 									</div>
@@ -206,7 +207,7 @@ export default async function BrowsePage({
 									<div className="flex gap-4">
 										<Button
 											size="lg"
-											className="hover:scale-105 transition-all"
+											className="transition-all hover:scale-105"
 										>
 											<Link href={`/movie/${MOVIES[0].slug}`}>
 												<Play weight="fill" className="mr-3 h-6 w-6" />
@@ -216,7 +217,7 @@ export default async function BrowsePage({
 										<Button
 											intent="outline"
 											size="lg"
-											className="hover:scale-105 transition-all"
+											className="transition-all hover:scale-105"
 										>
 											<Link href={`/movie/${MOVIES[0].slug}`}>
 												More Details
@@ -234,11 +235,11 @@ export default async function BrowsePage({
 			{/* Movies Grid */}
 			<section className="py-16">
 				<div className="container mx-auto max-w-7xl px-6">
-					<MotionList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+					<MotionList className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-5">
 						{MOVIES.slice(1).map((movie, index) => (
 							<MotionItem key={movie.id} delay={index * 0.03}>
 								<Link href={`/movie/${movie.slug}`} className="group block">
-									<div className="relative aspect-[2/3] overflow-hidden rounded-2xl bg-zinc-900 border border-white/10 hover:border-white/30 transition-all duration-700 hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/50">
+									<div className="hover:-translate-y-2 relative aspect-[2/3] overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 transition-all duration-700 hover:scale-105 hover:border-white/30 hover:shadow-2xl hover:shadow-black/50">
 										<Image
 											alt={movie.name}
 											className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
@@ -248,49 +249,49 @@ export default async function BrowsePage({
 										/>
 
 										{/* Overlay on hover */}
-										<div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+										<div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
 										{/* Play button */}
-										<div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-											<div className="bg-white/20 backdrop-blur-sm rounded-full p-4 hover:bg-white/30 transition-colors">
+										<div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
+											<div className="rounded-full bg-white/20 p-4 backdrop-blur-sm transition-colors hover:bg-white/30">
 												<Play weight="fill" className="h-8 w-8 text-white" />
 											</div>
 										</div>
 
 										{/* Rating badge */}
-										<div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-full">
+										<div className="absolute top-4 right-4 flex items-center gap-1.5 rounded-full bg-black/70 px-3 py-1.5 backdrop-blur-sm">
 											<Star weight="fill" className="h-3 w-3 text-yellow-400" />
-											<span className="text-xs font-mono font-700 text-white">
+											<span className="font-700 font-mono text-white text-xs">
 												{movie.rating}
 											</span>
 										</div>
 
 										{/* Info overlay */}
-										<div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-											<h3 className="text-body font-600 text-white mb-2 line-clamp-2">
+										<div className="absolute right-0 bottom-0 left-0 translate-y-full transform p-4 transition-transform duration-300 group-hover:translate-y-0">
+											<h3 className="mb-2 line-clamp-2 font-600 text-body text-white">
 												{movie.name}
 											</h3>
-											<div className="flex items-center gap-2 text-xs text-white/70 mb-2">
+											<div className="mb-2 flex items-center gap-2 text-white/70 text-xs">
 												<span className="font-mono">{movie.year}</span>
-												<span className="w-1 h-1 bg-white/40 rounded-full" />
+												<span className="h-1 w-1 rounded-full bg-white/40" />
 												<span className="font-mono uppercase tracking-wider">
 													{movie.category}
 												</span>
 											</div>
-											<p className="text-xs text-white/60 line-clamp-2 leading-relaxed">
+											<p className="line-clamp-2 text-white/60 text-xs leading-relaxed">
 												{movie.description}
 											</p>
 										</div>
 									</div>
 
 									{/* Static title */}
-									<div className="pt-4 space-y-2">
-										<h3 className="text-body font-500 text-white group-hover:text-blue-400 transition-colors line-clamp-2">
+									<div className="space-y-2 pt-4">
+										<h3 className="line-clamp-2 font-500 text-body text-white transition-colors group-hover:text-blue-400">
 											{movie.name}
 										</h3>
-										<div className="flex items-center gap-3 text-xs text-white/50">
+										<div className="flex items-center gap-3 text-white/50 text-xs">
 											<span className="font-mono">{movie.year}</span>
-											<span className="w-1 h-1 bg-white/30 rounded-full" />
+											<span className="h-1 w-1 rounded-full bg-white/30" />
 											<span className="font-mono uppercase tracking-wider">
 												{movie.category}
 											</span>
@@ -303,11 +304,11 @@ export default async function BrowsePage({
 
 					{/* Load More */}
 					<MotionFadeIn delay={1.0}>
-						<div className="text-center mt-16">
+						<div className="mt-16 text-center">
 							<Button
 								size="lg"
 								intent="outline"
-								className="border-white/20 text-white hover:bg-white/10 font-400 px-12 py-4 rounded-2xl backdrop-blur-sm hover:scale-105 transition-all"
+								className="rounded-2xl border-white/20 px-12 py-4 font-400 text-white backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/10"
 							>
 								Load More Films
 							</Button>

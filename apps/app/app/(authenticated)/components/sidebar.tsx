@@ -1,5 +1,22 @@
 "use client";
 
+import {
+	Anchor,
+	BookOpen,
+	ChartPie,
+	DotsThree,
+	Folder,
+	FrameCorners,
+	GearSix,
+	Lifebuoy,
+	MapTrifold,
+	PaperPlaneTilt,
+	Robot,
+	Share,
+	SignIn,
+	Terminal,
+	Trash,
+} from "@phosphor-icons/react";
 import { ModeToggle } from "@repo/design-system/components/mode-toggle";
 import { Button } from "@repo/design-system/components/ui/button";
 import {
@@ -12,37 +29,17 @@ import {
 import {
 	Sidebar,
 	SidebarContent,
-	SidebarFooter,
-	SidebarHeader,
-	SidebarInset,
-	SidebarSection,
-	SidebarItem,
-	useSidebar,
 	SidebarDisclosure,
-	SidebarDisclosureTrigger,
 	SidebarDisclosurePanel,
+	SidebarDisclosureTrigger,
+	SidebarFooter,
+	SidebarInset,
+	SidebarItem,
 	SidebarMenuTrigger,
+	SidebarSection,
+	useSidebar,
 } from "@repo/design-system/components/ui/sidebar";
 import { NotificationsTrigger } from "@repo/notifications/components/trigger";
-import {
-	Anchor,
-	BookOpen,
-	Robot,
-	CaretRight,
-	Folder,
-	FrameCorners,
-	Lifebuoy,
-	MapTrifold,
-	DotsThree,
-	ChartPie,
-	PaperPlaneTilt,
-	GearSix,
-	Share,
-	Terminal,
-	Trash,
-	MagnifyingGlass,
-	SignIn,
-} from "@phosphor-icons/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Search } from "./search";

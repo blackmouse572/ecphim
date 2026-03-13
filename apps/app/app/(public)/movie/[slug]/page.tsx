@@ -1,5 +1,4 @@
 import {
-  ArrowLeft,
   CalendarBlank,
   Clock,
   MonitorPlay,
@@ -25,6 +24,8 @@ import {
   fetchMovieDetail,
   fetchMovieImages,
 } from "@/lib/services/movie";
+import { EpisodeGrid } from "../../../(public-nolayout)/movie/[slug]/watch/components";
+import PureHtmlRender from "../../../components/pure-html-render";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -49,7 +50,7 @@ export default async function MovieDetailPage({ params }: Props) {
   return (
     <MotionPage className="min-h-screen bg-black">
       {/* Cinematic Hero Section */}
-      <section className="relative flex h-screen items-start overflow-hidden pt-16">
+      <section className="relative flex items-start overflow-hidden py-4">
         {/* Background with dramatic gradient */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 z-20 bg-gradient-to-r from-black via-black/40 to-transparent" />
@@ -64,19 +65,8 @@ export default async function MovieDetailPage({ params }: Props) {
           />
         </div>
 
-        {/* Back Navigation */}
-        <div className="absolute top-4 left-8 z-30">
-          <Button
-            intent="outline"
-            className="border-white/20 bg-black/50 text-white backdrop-blur-sm transition-all hover:scale-105 hover:bg-black/70"
-          >
-            <ArrowLeft />
-            <Link href="/">Back</Link>
-          </Button>
-        </div>
-
         {/* Main Content */}
-        <div className="container relative z-30 mx-auto max-w-7xl px-6 pt-16 pb-16">
+        <div className="container relative z-30 mx-auto max-w-7xl px-6 pb-16">
           <div className="grid grid-cols-1 items-end gap-12 lg:grid-cols-[400px_1fr]">
             {/* Poster */}
             <MotionItem className="order-2 lg:order-1">
@@ -85,10 +75,10 @@ export default async function MovieDetailPage({ params }: Props) {
                   <Image
                     alt={movie.name}
                     className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                    height={600}
+                    height={500}
                     priority
                     src={poster}
-                    width={400}
+                    width={300}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
@@ -126,7 +116,7 @@ export default async function MovieDetailPage({ params }: Props) {
 
               {/* Title */}
               <MotionItem>
-                <Display className="text-display">{movie.name}</Display>
+                <Display className="text-display-sm">{movie.name}</Display>
                 <h2 className="mb-2 font-200 text-title text-white/70">
                   {movie.origin_name}
                 </h2>
@@ -173,56 +163,16 @@ export default async function MovieDetailPage({ params }: Props) {
                 <h3 className="mb-8 font-900 text-headline text-white tracking-tight">
                   Synopsis
                 </h3>
-                <p className="font-200 text-body-lg text-white/80 leading-relaxed">
-                  {movie.content}
-                </p>
+
+                <PureHtmlRender
+                  html={movie.content}
+                  className="font-200 text-body-lg text-white/80 leading-relaxed"
+                />
               </MotionItem>
 
               {/* Episodes */}
               <MotionItem>
-                <div className="mb-8 flex items-center justify-between">
-                  <h3 className="font-900 text-headline text-white tracking-tight">
-                    Episodes
-                  </h3>
-                  <div className="font-mono text-body text-white/50">
-                    {movie.episode_current}
-                  </div>
-                </div>
-
-                <div className="space-y-8">
-                  {episodes.map((server, serverIndex) => (
-                    <MotionItem
-                      key={server.server_name}
-                      delay={serverIndex * 0.1}
-                    >
-                      <div className="space-y-4">
-                        <h4 className="flex items-center gap-3 font-600 text-title text-white/90">
-                          <div className="h-2 w-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400" />
-                          {server.server_name}
-                        </h4>
-
-                        <div className="grid grid-cols-4 gap-3 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10">
-                          {server.server_data.map((ep, epIndex) => (
-                            <Link
-                              key={ep.slug}
-                              href={`/movie/${slug}/watch?episode=${ep.slug}&server=${serverIndex}`}
-                            >
-                              <Button
-                                intent="outline"
-                                className="aspect-square w-full rounded-xl border-white/20 font-700 font-mono text-sm text-white transition-all hover:scale-110 hover:border-blue-400 hover:bg-blue-400/10 hover:text-blue-400"
-                                style={{
-                                  animationDelay: `${epIndex * 20}ms`,
-                                }}
-                              >
-                                {ep.name.replace("Tập ", "")}
-                              </Button>
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    </MotionItem>
-                  ))}
-                </div>
+                <EpisodeGrid movie={movie} />
               </MotionItem>
             </div>
 

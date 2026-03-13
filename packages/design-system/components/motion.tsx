@@ -3,10 +3,10 @@
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import {
+	fadeIn,
 	pageTransition,
 	staggerContainer,
 	staggerItem,
-	fadeIn,
 } from "../lib/motion";
 import { cn } from "../lib/utils";
 
@@ -21,7 +21,7 @@ export const MotionPage = ({ children, className }: MotionPageProps) => (
 		animate="visible"
 		exit="exit"
 		variants={pageTransition}
-		className={cn("flex flex-col flex-1 h-full", className)}
+		className={cn("flex h-full flex-1 flex-col", className)}
 	>
 		{children}
 	</motion.div>

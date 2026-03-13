@@ -1,10 +1,10 @@
 "use client";
 
-import { Input } from "@repo/design-system/components/ui/input";
+import { createClient } from "@repo/auth/client";
 import { Button } from "@repo/design-system/components/ui/button";
+import { Input } from "@repo/design-system/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { createClient } from "@repo/auth/client";
 
 export type SignInProps = {
 	i18n?: {
@@ -55,7 +55,7 @@ export const SignInProps = (props: SignInProps) => {
 				type="password"
 				value={password}
 			/>
-			<Button disabled={loading} type="submit">
+			<Button isPending={loading} type="submit">
 				{props.i18n?.login || "Sign in"}
 			</Button>
 		</form>

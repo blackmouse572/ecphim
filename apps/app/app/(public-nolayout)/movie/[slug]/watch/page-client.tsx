@@ -1,40 +1,46 @@
 "use client";
 
 import { SpinnerBallIcon } from "@phosphor-icons/react";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import type { IEpisode, IMovie, IStreamServer } from "@/types/response";
-import { VideoPlayerSection, WatchControlsPanel } from "./components";
+import { parseAsString, useQueryState } from "nuqs";
+import { useEffect, useMemo, useRef } from "react";
+import type { IMovie, IStreamServer } from "@/types/response";
+import {
+  EpisodeGrid,
+  NextEpisodeSection,
+  ServerSelector,
+  VideoInfoPanel,
+  VideoPlayerSection,
+} from "./components";
 
 type Props = {
   params: { slug: string };
   movie: IMovie;
-  episodes: IEpisode[];
+  episodes: IStreamServer[];
 };
 export function MovieWatchClientPage(props: Props) {
   const { params, movie, episodes } = props;
-  const searchParams = useSearchParams();
+
   const movieSlug = params.slug as string;
-  const episodeSlug = searchParams.get("episode") || "tap-01";
-  const serverName = searchParams.get("server") || "0";
+  const [episodeSlug, setEpisodeSlug] = useQueryState("episode", parseAsString);
+  const [serverName, setServerName] = useQueryState("server", parseAsString);
 
-  const [currentEpisode, setCurrentEpisode] = useState<IEpisode | null>(null);
-  const [currentServer, setCurrentServer] = useState<IStreamServer | null>(
-    null,
-  );
   const playerRef = useRef<HTMLDivElement>(null);
-
-  // Find current episode and server
-  useEffect(() => {
-    const serverIndex = parseInt(serverName) || 0;
-    const server = episodes[serverIndex];
-    const episode =
-      server?.server_data.find((ep) => ep.slug === episodeSlug) ||
-      server?.server_data[0];
-
-    setCurrentServer(server);
-    setCurrentEpisode(episode);
-  }, [episodeSlug, serverName, episodes]);
+  const currentServer = useMemo(() => {
+    return episodes.find((s) => s.server_name === serverName) || episodes[0];
+  }, [serverName, episodes]);
+  const currentEpisode = useMemo(() => {
+    return (
+      currentServer?.server_data.find((ep) => ep.slug === episodeSlug) ||
+      currentServer?.server_data[0]
+    );
+  }, [episodeSlug, currentServer]);
+  const nextEpisode = useMemo(() => {
+    if (!currentEpisode) return null;
+    const currentIndex = currentServer.server_data.findIndex(
+      (ep) => ep.slug === currentEpisode.slug,
+    );
+    return currentServer.server_data[currentIndex + 1] || null;
+  }, [currentEpisode, currentServer]);
 
   // Scroll to player when episode/server changes
   useEffect(() => {
@@ -44,25 +50,11 @@ export function MovieWatchClientPage(props: Props) {
     }
   }, [episodeSlug, serverName]);
 
-  const handleEpisodeChange = (episode: IEpisode) => {
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.set("episode", episode.slug);
-    window.history.pushState({}, "", newUrl);
-    setCurrentEpisode(episode);
+  const handleServerChange = (serverIndex: IStreamServer) => {
+    setServerName(serverIndex.server_name);
   };
 
-  const handleServerChange = (serverIndex: number) => {
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.set("server", serverIndex.toString());
-    newUrl.searchParams.set("episode", "tap-01"); // Reset to first episode
-    window.history.pushState({}, "", newUrl);
-
-    const newServer = episodes[serverIndex];
-    setCurrentServer(newServer);
-    setCurrentEpisode(newServer.server_data[0]);
-  };
-
-  if (!currentEpisode || !currentServer) {
+  if (!currentEpisode) {
     return (
       <>
         <div className="flex min-h-screen items-center justify-center bg-black">
@@ -88,24 +80,46 @@ export function MovieWatchClientPage(props: Props) {
         src={currentEpisode.link_m3u8}
         poster={movie.thumb_url}
         title={`${movie.name} - ${currentEpisode.name}`}
-        episodeSlug={episodeSlug}
+        episodeSlug={episodeSlug || "#"}
         movieSlug={movieSlug}
-        serverName={serverName}
+        serverName={serverName || "#"}
       />
-      {/* Watch Controls & Episode Selection */}
-      <WatchControlsPanel
-        movie={movie}
-        movieDescription={movie.content.substring(0, 200) + "..."}
-        currentEpisode={currentEpisode}
-        currentServer={currentServer}
-        servers={episodes}
-        movieQuality={movie.quality}
-        movieLanguage={movie.lang}
-        movieDuration={movie.time}
-        movieStatus={movie.status}
-        onEpisodeSelect={handleEpisodeChange}
-        onServerSelect={handleServerChange}
-      />
+      <div className="border-white/10 border-t bg-linear-to-t from-black via-zinc-950 to-zinc-900">
+        <div className="container mx-auto max-w-7xl px-6 py-8">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr]">
+            {/* Episodes Grid */}
+            <EpisodeGrid
+              movie={movie}
+              currentEpisodeSlug={currentEpisode.slug}
+            />
+
+            {/* Sidebar - Server Selection & Info */}
+            <div className="space-y-6">
+              {/* Continue Watching Suggestions */}
+              {movie.type !== "single" && (
+                <NextEpisodeSection
+                  nextEpisode={nextEpisode}
+                  onPlayNext={(ep) => setEpisodeSlug(ep.slug)}
+                />
+              )}
+              {/* Server Selector */}
+              <ServerSelector
+                servers={movie.episodes}
+                currentServerName={currentServer.server_name}
+                onServerSelect={handleServerChange}
+              />
+
+              {/* Video Quality & Language Info */}
+              <VideoInfoPanel
+                quality={movie.quality}
+                language={movie.lang}
+                duration={movie.time}
+                status={movie.status}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
