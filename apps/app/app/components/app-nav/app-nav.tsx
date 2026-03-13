@@ -1,10 +1,11 @@
 "use client";
-import { Button, buttonStyles } from "@repo/design-system/components/ui/button";
+import { Button } from "@repo/design-system/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuList,
 } from "@repo/design-system/components/ui/navigation-menu";
+import { buttonStyles } from "@repo/design-system/components/variants/buttonVariants";
 import { useScroll } from "@repo/design-system/hooks/use-scroll";
 import { cn } from "@repo/design-system/lib/utils";
 import Link from "next/link";
