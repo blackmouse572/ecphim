@@ -1,14 +1,14 @@
 import {
+	DiscordLogo,
+	EnvelopeSimple,
 	FilmReel,
 	GithubLogo,
-	TwitterLogo,
-	DiscordLogo,
-	InstagramLogo,
-	EnvelopeSimple,
-	Heart,
 	Globe,
-	Shield,
+	Heart,
 	Info,
+	InstagramLogo,
+	Shield,
+	TwitterLogo,
 } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 
@@ -38,8 +38,8 @@ const COUNTRIES = [
 ];
 
 const SUPPORT_LINKS = [
- { name: "About", href: "/about", icon: Info },
-{ name: "Privacy Policy", href: "/privacy", icon: Shield },
+	{ name: "About", href: "/about", icon: Info },
+	{ name: "Privacy Policy", href: "/privacy", icon: Shield },
 	{ name: "Terms of Service", href: "/terms", icon: Shield },
 	{ name: "Contact", href: "/contact", icon: EnvelopeSimple },
 ];
@@ -53,26 +53,26 @@ const SOCIAL_LINKS = [
 
 export function Footer() {
 	return (
-		<footer className="bg-gradient-to-t from-black via-zinc-950 to-zinc-950 border-t border-white/5">
+		<footer className="border-white/5 border-t bg-gradient-to-t from-black via-zinc-950 to-zinc-950">
 			<div className="container mx-auto max-w-7xl px-6 py-16">
 				{/* Main Footer Content */}
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
+				<div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-6">
 					{/* Brand */}
-					<div className="lg:col-span-2 space-y-4">
-						<Link href="/" className="flex items-center space-x-3 group">
-							<div className="bg-gradient-to-r from-blue-500 to-cyan-400 p-3 rounded-2xl group-hover:scale-105 transition-transform">
+					<div className="space-y-4 lg:col-span-2">
+						<Link href="/" className="group flex items-center space-x-3">
+							<div className="rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-400 p-3 transition-transform group-hover:scale-105">
 								<FilmReel className="h-8 w-8 text-white" weight="bold" />
 							</div>
 							<div>
-								<span className="text-headline-sm font-900 text-white tracking-tight">
+								<span className="font-900 text-headline-sm text-white tracking-tight">
 									Ec<span className="text-blue-400">Phim</span>
 								</span>
-								<p className="text-caption text-white/50 font-mono uppercase tracking-wider">
+								<p className="font-mono text-caption text-white/50 uppercase tracking-wider">
 									Premium Cinema Experience
 								</p>
 							</div>
 						</Link>
-						<p className="text-body font-200 text-white/70 leading-relaxed max-w-sm">
+						<p className="max-w-sm font-200 text-body text-white/70 leading-relaxed">
 							Discover and stream the world's greatest films with our premium
 							platform. From blockbusters to indie gems, experience cinema like
 							never before.
@@ -82,7 +82,7 @@ export function Footer() {
 								<Link
 									key={social.name}
 									href={social.href}
-									className="text-white/50 hover:text-blue-400 transition-colors hover:scale-110 transform"
+									className="transform text-white/50 transition-colors hover:scale-110 hover:text-blue-400"
 									aria-label={social.name}
 								>
 									<social.icon className="h-5 w-5" />
@@ -93,7 +93,7 @@ export function Footer() {
 
 					{/* Quick Links */}
 					<div className="space-y-4">
-						<h3 className="text-overline font-mono font-900 uppercase tracking-[0.3em] text-white/50">
+						<h3 className="font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
 							Quick Links
 						</h3>
 						<ul className="space-y-3">
@@ -101,7 +101,7 @@ export function Footer() {
 								<li key={link.name}>
 									<Link
 										href={link.href}
-										className="text-body font-400 text-white/70 hover:text-blue-400 transition-colors"
+										className="font-400 text-body text-white/70 transition-colors hover:text-blue-400"
 									>
 										{link.name}
 									</Link>
@@ -112,7 +112,7 @@ export function Footer() {
 
 					{/* Categories */}
 					<div className="space-y-4">
-						<h3 className="text-overline font-mono font-900 uppercase tracking-[0.3em] text-white/50">
+						<h3 className="font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
 							Categories
 						</h3>
 						<ul className="space-y-3">
@@ -120,7 +120,7 @@ export function Footer() {
 								<li key={category.name}>
 									<Link
 										href={category.href}
-										className="text-body font-400 text-white/70 hover:text-blue-400 transition-colors"
+										className="font-400 text-body text-white/70 transition-colors hover:text-blue-400"
 									>
 										{category.name}
 									</Link>
@@ -131,7 +131,7 @@ export function Footer() {
 
 					{/* Countries */}
 					<div className="space-y-4">
-						<h3 className="text-overline font-mono font-900 uppercase tracking-[0.3em] text-white/50">
+						<h3 className="font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
 							Countries
 						</h3>
 						<ul className="space-y-3">
@@ -139,7 +139,7 @@ export function Footer() {
 								<li key={country.name}>
 									<Link
 										href={country.href}
-										className="text-body font-400 text-white/70 hover:text-blue-400 transition-colors"
+										className="font-400 text-body text-white/70 transition-colors hover:text-blue-400"
 									>
 										{country.name}
 									</Link>
@@ -150,7 +150,7 @@ export function Footer() {
 
 					{/* Support */}
 					<div className="space-y-4">
-						<h3 className="text-overline font-mono font-900 uppercase tracking-[0.3em] text-white/50">
+						<h3 className="font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
 							Support
 						</h3>
 						<ul className="space-y-3">
@@ -158,7 +158,7 @@ export function Footer() {
 								<li key={link.name}>
 									<Link
 										href={link.href}
-										className="flex items-center space-x-2 text-body font-400 text-white/70 hover:text-blue-400 transition-colors"
+										className="flex items-center space-x-2 font-400 text-body text-white/70 transition-colors hover:text-blue-400"
 									>
 										<link.icon className="h-4 w-4" />
 										<span>{link.name}</span>
@@ -170,12 +170,12 @@ export function Footer() {
 				</div>
 
 				{/* Newsletter */}
-				<div className="border-y border-white/10 py-12 mb-8">
+				<div className="mb-8 border-white/10 border-y py-12">
 					<div className="max-w-2xl">
-						<h3 className="text-headline-sm font-900 text-white mb-4 tracking-tight">
+						<h3 className="mb-4 font-900 text-headline-sm text-white tracking-tight">
 							Stay Updated
 						</h3>
-						<p className="text-body font-200 text-white/70 mb-6">
+						<p className="mb-6 font-200 text-body text-white/70">
 							Get the latest movie releases, exclusive content, and updates
 							delivered to your inbox.
 						</p>
@@ -183,9 +183,9 @@ export function Footer() {
 							<input
 								type="email"
 								placeholder="Enter your email address"
-								className="flex-1 bg-white/5 border border-white/20 text-white placeholder:text-white/50 rounded-xl px-4 py-3 focus:border-blue-400 focus:outline-none focus:bg-white/10 transition-colors"
+								className="flex-1 rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-white transition-colors placeholder:text-white/50 focus:border-blue-400 focus:bg-white/10 focus:outline-none"
 							/>
-							<button className="bg-blue-500 hover:bg-blue-600 text-white font-600 px-6 py-3 rounded-xl hover:scale-105 transition-all">
+							<button className="rounded-xl bg-blue-500 px-6 py-3 font-600 text-white transition-all hover:scale-105 hover:bg-blue-600">
 								Subscribe
 							</button>
 						</div>
@@ -193,10 +193,10 @@ export function Footer() {
 				</div>
 
 				{/* Bottom Footer */}
-				<div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 text-sm">
+				<div className="flex flex-col items-center justify-between space-y-4 text-sm md:flex-row md:space-y-0">
 					<div className="flex items-center space-x-6 text-white/50">
 						<p className="font-mono">
-							© {new Date().getFullYear()} EcPhim. All rights reserved.
+							© 2026 EcPhim. All rights reserved.
 						</p>
 						<div className="flex items-center space-x-1">
 							<span>Made with</span>
@@ -214,7 +214,7 @@ export function Footer() {
 						</div>
 						<div className="h-4 w-px bg-white/20" />
 						<div className="flex items-center space-x-2 text-green-400">
-							<div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+							<div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
 							<span className="font-mono text-xs uppercase tracking-wider">
 								All Systems Operational
 							</span>

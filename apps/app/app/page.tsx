@@ -1,10 +1,10 @@
-import { TrendUp, Crown, Sparkle, FilmReel } from "@phosphor-icons/react/ssr";
 import { MotionPage } from "@repo/design-system/components/motion";
+import { fetchCategories, fetchHomeMovies } from "@/lib/services/movie";
+import type { MovieDetail } from "@/types/movie";
 import { PublicLayout } from "./components/public-layout";
-import { MovieDetail } from "@/types/movie";
 import {
-	HeroSection,
 	CategoriesNavigation,
+	HeroSection,
 	TrendingMovies,
 } from "./components/sections";
 
@@ -75,31 +75,19 @@ const FEATURED_MOVIE: MovieDetail = {
 	],
 };
 
-const TRENDING_MOVIES = Array.from({ length: 8 }, (_, i) => ({
-	id: i + 1,
-	slug: `movie-${i + 1}`,
-	name: `Movie Title ${i + 1}`,
-	poster:
-		"https://phimimg.com/upload/vod/20250325-1/6db202d6161c123d96b0180c2da9b1e5.jpg",
-	rating: (7.5 + Math.random() * 1.5).toFixed(1),
-	year: 2023 - Math.floor(Math.random() * 3),
-	category: ["Action", "Drama"][Math.floor(Math.random() * 2)],
-}));
 
-const CATEGORIES = [
-	{ name: "Trending", icon: TrendUp, slug: "trending" },
-	{ name: "Premium", icon: Crown, slug: "premium" },
-	{ name: "New Releases", icon: Sparkle, slug: "new" },
-	{ name: "Classics", icon: FilmReel, slug: "classics" },
-];
+export default async function HomePage() {
+	const [movies, categories] = await Promise.all([
+		fetchHomeMovies(),
+		fetchCategories(),
+	]);
 
-export default function HomePage() {
 	return (
 		<PublicLayout>
 			<MotionPage className="min-h-screen bg-linear-to-br from-black via-zinc-950 to-black">
 				<HeroSection movie={FEATURED_MOVIE} />
-				<CategoriesNavigation categories={CATEGORIES} />
-				<TrendingMovies movies={TRENDING_MOVIES} />
+				<CategoriesNavigation categories={categories} />
+				<TrendingMovies movies={movies} />
 			</MotionPage>
 		</PublicLayout>
 	);

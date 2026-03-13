@@ -1,23 +1,14 @@
-import Link from "next/link";
 import {
 	MotionFadeIn,
-	MotionList,
 	MotionItem,
+	MotionList,
 } from "@repo/design-system/components/motion";
+import Link from "next/link";
+import type { IMovie } from "@/types/response";
 import { MovieCard } from "./movie-card";
 
-interface Movie {
-	id: number;
-	slug: string;
-	name: string;
-	poster: string;
-	rating: string;
-	year: number;
-	category: string;
-}
-
 interface TrendingMoviesProps {
-	movies: Movie[];
+	movies: IMovie[];
 	title?: string;
 	viewAllUrl?: string;
 }
@@ -31,20 +22,20 @@ export function TrendingMovies({
 		<section className="py-24">
 			<div className="container mx-auto max-w-7xl px-6">
 				<MotionFadeIn>
-					<div className="flex items-center justify-between mb-12">
-						<h2 className="text-headline font-900 text-white">{title}</h2>
+					<div className="mb-12 flex items-center justify-between">
+						<h2 className="font-900 text-headline text-white">{title}</h2>
 						<Link
 							href={viewAllUrl}
-							className="text-body font-400 text-white/60 hover:text-white transition-colors border-b border-white/20 hover:border-white/60 pb-1"
+							className="border-white/20 border-b pb-1 font-400 text-body text-white/60 transition-colors hover:border-white/60 hover:text-white"
 						>
 							View All
 						</Link>
 					</div>
 				</MotionFadeIn>
 
-				<MotionList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6">
+				<MotionList className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-4">
 					{movies.map((movie, index) => (
-						<MotionItem key={movie.id} delay={index * 0.05}>
+						<MotionItem key={movie._id} delay={index * 0.05}>
 							<MovieCard movie={movie} />
 						</MotionItem>
 					))}

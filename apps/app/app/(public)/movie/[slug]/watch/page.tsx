@@ -1,32 +1,34 @@
-import { MOCK_MOVIE } from "../data";
+import { createMetadata } from "@repo/seo/metadata";
+import {
+  extractBackdropUrl,
+  fetchMovieDetail,
+  fetchMovieImages,
+} from "../../../../../lib/services/movie";
 import { MovieWatchClientPage } from "./page-client";
 
-interface Episode {
-	name: string;
-	slug: string;
-	filename: string;
-	link_embed: string;
-	link_m3u8: string;
-}
-
-interface ServerData {
-	server_name: string;
-	server_data: Episode[];
-}
-
 type Props = {
-	params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }>;
 };
 export async function generateMetadata({ params }: Props) {
-	const { slug } = await params;
-
-	return MOCK_MOVIE.movie.name + "-" + MOCK_MOVIE.episodes
+  const { slug } = await params;
+  const movie = await fetchMovieDetail(slug);
+  return createMetadata({
+    title: movie.name,
+    description: movie.content,
+  });
 }
 
-export default async function MovieWatchPage(
-	{ params }: Props
-) {
-	const { slug } = await params;
+export default async function MovieWatchPage({ params }: Props) {
+  const { slug } = await params;
+  const movie = await fetchMovieDetail(slug);
+  const imageData = await fetchMovieImages(slug);
+  const backdrop = extractBackdropUrl(imageData, "original");
 
-	return <MovieWatchClientPage params={{ slug }} movie={MOCK_MOVIE.movie} episodes={MOCK_MOVIE.episodes} />;
+  return (
+    <MovieWatchClientPage
+      params={{ slug }}
+      movie={{ ...movie, thumb_url: backdrop }}
+      episodes={movie.episodes}
+    />
+  );
 }
