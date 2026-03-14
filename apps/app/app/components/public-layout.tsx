@@ -14,11 +14,11 @@ interface PublicLayoutProps {
   user?: User | null;
 }
 
-export function PublicLayout({ children, user }: PublicLayoutProps) {
+export async function PublicLayout({ children, user }: PublicLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <NavbarProvider>
-        <Header />
+        <Header user={user} />
         <main className="flex-1">{children}</main>
       </NavbarProvider>
       <Footer />

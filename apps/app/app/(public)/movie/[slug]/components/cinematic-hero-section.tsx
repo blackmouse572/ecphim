@@ -127,7 +127,7 @@ export function CinematicHeroSection({
                   <Play weight="fill" />
                   Xem ngay
                 </Link>
-                <Button intent="plain" size="2xl">
+                <Button intent="secondary" size="2xl">
                   <Plus className="mr-2 h-5 w-5" />
                   My List
                 </Button>
