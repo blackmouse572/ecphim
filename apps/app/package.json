@@ -11,7 +11,6 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@ntxmjs/react-custom-video-player": "^0.1.6",
 		"@phosphor-icons/react": "^2.1.10",
 		"@repo/analytics": "workspace:*",
 		"@repo/auth": "workspace:*",
@@ -28,6 +27,8 @@
 		"@rescale/nemo": "^2.0.2",
 		"@sentry/nextjs": "^10.29.0",
 		"@t3-oss/env-nextjs": "^0.13.8",
+		"@videojs/http-streaming": "^3.17.4",
+		"@videojs/themes": "^1.0.1",
 		"dompurify": "^3.3.3",
 		"fuse.js": "^7.1.0",
 		"hls.js": "^1.6.15",
@@ -38,6 +39,10 @@
 		"react": "19.2.1",
 		"react-dom": "19.2.1",
 		"require-in-the-middle": "8.0.1",
+		"video.js": "^8.23.7",
+		"videojs-contrib-quality-levels": "^4.1.0",
+		"videojs-hls-quality-selector": "^2.0.0",
+		"videojs-hotkeys": "^0.2.30",
 		"zod": "^4.1.13"
 	},
 	"devDependencies": {
@@ -47,6 +52,7 @@
 		"@types/node": "24.10.1",
 		"@types/react": "19.2.7",
 		"@types/react-dom": "19.2.3",
+		"@types/video.js": "^7.3.58",
 		"@vitejs/plugin-react": "^5.1.1",
 		"jsdom": "^27.2.0",
 		"tailwindcss": "^4.1.17",

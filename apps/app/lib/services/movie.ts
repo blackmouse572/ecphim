@@ -94,7 +94,18 @@ export async function fetchMovieImages(slug: string) {
     });
 
     if (!response.ok) {
-      throw new Error(`Movie images API error: ${response.status}`);
+      switch (response.status) {
+        case 404:
+          throw new Error(`Images for movie ${slug} not found (404)`);
+        case 500:
+          throw new Error(`Server error while fetching images for movie ${slug} (500). ${url}`, { cause: response });
+        default:
+          throw new Error(
+            `Unexpected error ${response.status} while fetching images for movie ${slug}. ${url}`, {
+            cause: response,
+          }
+          );
+      }
     }
 
     const data = (await response.json()) as IResponse<{
@@ -136,48 +147,48 @@ export async function fetchMovieImages(slug: string) {
  * Falls back to original if w500 is not available
  */
 export function extractPosterUrl(
-  imageData: Awaited<ReturnType<typeof fetchMovieImages>>,
+  imageData?: Awaited<ReturnType<typeof fetchMovieImages>>,
   size: "w154" | "w185" | "w342" | "w500" | "w780" | "original" = "w500",
 ): string {
   try {
-    const posterImage = imageData.images.find((img) => img.type === "poster");
+    const posterImage = imageData?.images.find((img) => img.type === "poster");
 
     if (!posterImage) {
-      return "/placeholder.png";
+      return "/images/placeholder-poster.webp";
     }
 
     const basePath =
-      imageData.image_sizes.poster.w500 ||
-      imageData.image_sizes.poster.original;
+      imageData?.image_sizes.poster?.[size] ||
+      imageData?.image_sizes.poster?.original;
 
     return basePath + posterImage.file_path;
   } catch (error) {
     console.error("Failed to extract poster URL:", error);
-    return "/placeholder.png";
+    return "/images/placeholder-poster.webp";
   }
 }
 
 export function extractBackdropUrl(
-  imageData: Awaited<ReturnType<typeof fetchMovieImages>>,
+  imageData?: Awaited<ReturnType<typeof fetchMovieImages>>,
   size: "w1280" | "original" = "w1280",
 ): string {
   try {
-    const backdropImage = imageData.images.find(
+    const backdropImage = imageData?.images.find(
       (img) => img.type === "backdrop",
     );
 
     if (!backdropImage) {
-      return "/placeholder-backdrop.png";
+      return "/images/placeholder-thumbnail.webp";
     }
 
-    const basePath =
-      imageData.image_sizes.backdrop.w1280 ||
-      imageData.image_sizes.backdrop.original;
+    const basePath = imageData?.image_sizes.backdrop?.[size] ||
+      imageData?.image_sizes.backdrop?.w1280 ||
+      imageData?.image_sizes.backdrop?.original;
 
     return basePath + backdropImage.file_path;
   } catch (error) {
     console.error("Failed to extract backdrop URL:", error);
-    return "/placeholder-backdrop.png";
+    return "/images/placeholder-thumbnail.webp";
   }
 }
 
@@ -194,7 +205,18 @@ export async function fetchMovieDetail(slug: string) {
     });
 
     if (!response.ok) {
-      throw new Error(`Movie detail API error: ${response.status}`);
+      switch (response.status) {
+        case 404:
+          throw new Error(`Movie with slug ${slug} not found (404)`);
+        case 500:
+          throw new Error(`Server error while fetching movie ${slug} (500)`, { cause: response });
+        default:
+          throw new Error(
+            `Unexpected error ${response.status} while fetching movie ${slug}`, {
+            cause: response,
+          }
+          );
+      }
     }
 
     const data = (await response.json()) as IResponse<{
