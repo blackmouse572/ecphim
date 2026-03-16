@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { forwardRef, useEffect, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
 import "./videojs-react-player.css";
@@ -32,6 +32,7 @@ export interface VideoJSReactPlayerProps {
 
 export interface VideoJSReactPlayerRef {
   player: ReturnType<typeof videojs> | null;
+  setCurrentTime: (time: number) => void;
 }
 
 const VideoJSReactPlayer = forwardRef<
@@ -41,7 +42,6 @@ const VideoJSReactPlayer = forwardRef<
   {
     src,
     poster,
-    title,
     autoPlay = false,
     controls = true,
     fluid = true,
@@ -49,7 +49,6 @@ const VideoJSReactPlayer = forwardRef<
     width,
     height,
     className = "",
-    style,
     onReady,
     onPlay,
     onPause,
@@ -91,7 +90,38 @@ const VideoJSReactPlayer = forwardRef<
         volumeStep: 0.1,
         seekStep: 5,
         enableModifiersForNumbers: false,
+        enableVolumeScroll: false,
+        alwaysCaptureHotkeys: true,
       });
+
+      // Set up event listeners
+      if (onReady) {
+        player.ready(onReady);
+      }
+
+      if (onPlay) {
+        player.on("play", onPlay);
+      }
+
+      if (onPause) {
+        player.on("pause", onPause);
+      }
+
+      if (onEnded) {
+        player.on("ended", onEnded);
+      }
+
+      if (onError) {
+        player.on("error", onError);
+      }
+
+      if (onTimeUpdate) {
+        player.on("timeupdate", () => {
+          const currentTime = player.currentTime() || 0;
+          const duration = player.duration() || 0;
+          onTimeUpdate(currentTime, duration);
+        });
+      }
     } else {
       const player = playerRef.current;
       player.src(src);
@@ -119,6 +149,21 @@ const VideoJSReactPlayer = forwardRef<
     onTimeUpdate,
     ref,
   ]);
+
+  // Expose methods via ref
+  useImperativeHandle(
+    ref,
+    () => ({
+      player: playerRef.current,
+      setCurrentTime: (time: number) => {
+        if (playerRef.current && !playerRef.current.isDisposed()) {
+          console.log("Setting current time to:", time);
+          playerRef.current.currentTime(time);
+        }
+      },
+    }),
+    [],
+  );
 
   useEffect(() => {
     const player = playerRef.current;
