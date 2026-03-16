@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { env } from "@/env";
 import { CACHE_DURATION, CACHE_TAGS } from "@/lib/constants";
 import type {
@@ -17,7 +18,7 @@ import type {
  * Fetch home page data with movies
  * Cached for 24 hours as homepage content updates daily
  */
-export async function fetchHomeMovies() {
+export const fetchHomeMovies = cache(async () => {
   const params = new URLSearchParams({
     sort_field: "_id",
     sort_type: "desc",
@@ -49,8 +50,7 @@ export async function fetchHomeMovies() {
     console.error("Failed to fetch home movies:", error);
     throw error;
   }
-}
-
+});
 export type FetchMovieListParams = {
   slug?:
     | "phim-moi"
@@ -74,7 +74,8 @@ export type FetchMovieListParams = {
   country?: string;
   year?: number;
 };
-export async function fetchMovieList(params: FetchMovieListParams) {
+
+export const fetchMovieList = cache(async (params: FetchMovieListParams) => {
   const options: Record<string, string> = {
     page: params.page?.toString() || "1",
     limit: params.limit?.toString() || "20",
@@ -116,13 +117,13 @@ export async function fetchMovieList(params: FetchMovieListParams) {
     console.error("Failed to fetch latest movies:", error);
     throw error;
   }
-}
+});
 
 /**
  * Fetch all categories
  * Cached for 30 days as categories rarely change
  */
-export async function fetchCategories() {
+export const fetchCategories = cache(async () => {
   const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const url = `${baseUrl}/api/the-loai`;
 
@@ -147,14 +148,15 @@ export async function fetchCategories() {
     console.error("Failed to fetch categories:", error);
     throw error;
   }
-}
+});
 
 /**
- * Fetch movie images/poster
- * Cached for 7 days as these images are stored externally
+ * Fetch movie images/poster with per-request deduplication
+ * Multiple calls to getMovieImages(slug) in same request = 1 API call
+ * Cached for 7 days as these images are stored externally and rarely change
  * @param slug - Movie slug identifier
  */
-export async function fetchMovieImages(slug: string) {
+export const getMovieImages = cache(async (slug: string) => {
   const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const url = `${baseUrl}/api/phim/${slug}/images`;
 
@@ -216,6 +218,14 @@ export async function fetchMovieImages(slug: string) {
     console.error(`Failed to fetch images for movie ${slug}:`, error);
     throw error;
   }
+});
+
+/**
+ * Legacy function for backwards compatibility
+ * @deprecated Use getMovieImages instead
+ */
+export async function fetchMovieImages(slug: string) {
+  return getMovieImages(slug);
 }
 
 /**
@@ -270,7 +280,12 @@ export function extractBackdropUrl(
   }
 }
 
-export async function fetchMovieDetail(slug: string) {
+/**
+ * Fetch movie detail with per-request deduplication
+ * Multiple calls to getMovieDetail(slug) in same request = 1 API call
+ * Cached for 1 day as movie data updates infrequently
+ */
+export const getMovieDetail = cache(async (slug: string) => {
   const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const url = `${baseUrl}/api/phim/${slug}`;
 
@@ -309,6 +324,14 @@ export async function fetchMovieDetail(slug: string) {
     console.error(`Failed to fetch details for movie ${slug}:`, error);
     throw error;
   }
+});
+
+/**
+ * Legacy function for backwards compatibility
+ * @deprecated Use getMovieDetail instead
+ */
+export async function fetchMovieDetail(slug: string) {
+  return getMovieDetail(slug);
 }
 
 /**

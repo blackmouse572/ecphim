@@ -15,7 +15,7 @@ export function NextEpisodeSection({
 }: NextEpisodeSectionProps) {
   return (
     <div className="rounded-2xl border border-blue-500/20 bg-linear-to-br from-blue-500/10 to-cyan-500/10 p-6">
-      <h4 className="mb-3 font-700 text-title text-white">Next Episode</h4>
+      <h4 className="mb-3 font-700 text-title text-white">Tập tiếp theo</h4>
       {nextEpisode ? (
         <Button
           intent="primary"
@@ -23,11 +23,12 @@ export function NextEpisodeSection({
           className="w-full rounded-xl bg-blue-500 font-600 text-white hover:bg-blue-600"
         >
           <Play className="mr-2 h-4 w-4" />
-          Play {nextEpisode.name}
+          Xem tập {nextEpisode.name}
         </Button>
       ) : (
         <p className="text-center font-400 text-body text-white/60">
-          🎉 You've finished this series!
+          🎉 Cày phim xong rồi, không còn tập nào nữa đâu! Hãy chờ đợi mùa tiếp
+          theo nhé!
         </p>
       )}
     </div>

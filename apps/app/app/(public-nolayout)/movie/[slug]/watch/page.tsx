@@ -1,4 +1,5 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
+import { Kbd } from "@repo/design-system/components/ui/kbd";
 import { buttonStyles } from "@repo/design-system/components/variants/buttonVariants";
 import { createMetadata } from "@repo/seo/metadata";
 import Link from "next/link";
@@ -39,7 +40,8 @@ export default async function MovieWatchPage({ params }: Props) {
         href={`/movie/${slug}`}
       >
         <ArrowLeftIcon />
-        Back
+        Quay lại
+        <Kbd className="ml-2">ESC</Kbd>
       </Link>
       <MovieWatchClientPage
         params={{ slug }}

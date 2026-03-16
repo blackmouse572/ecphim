@@ -1,4 +1,4 @@
-import { CheckCircle, WarningCircle, Info } from "@phosphor-icons/react"
+import { CheckCircle, WarningCircle, Info } from "@phosphor-icons/react/ssr"
 import { twJoin, twMerge } from "tailwind-merge"
 
 export interface NoteProps extends React.HtmlHTMLAttributes<HTMLDivElement> {

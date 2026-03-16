@@ -1,7 +1,8 @@
 import { CalendarBlank, Clock, MonitorPlay } from "@phosphor-icons/react/ssr";
 import { MotionItem, MotionPage } from "@repo/design-system/components/motion";
 import { createMetadata } from "@repo/seo/metadata";
-import { fetchMovieDetail, fetchMovieImages } from "@/lib/services/movie";
+import { getMovieDetail, getMovieImages } from "@/lib/services/movie";
+import { CACHE_DURATION } from "../../../../lib/constants";
 import { EpisodeGrid } from "../../../(public-nolayout)/movie/[slug]/watch/components";
 import PureHtmlRender from "../../../components/pure-html-render";
 import { CinematicHeroSection } from "./components/cinematic-hero-section";
@@ -10,9 +11,47 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+// ISR: Revalidate every 1 hour (3600 seconds)
+// First request after interval serves stale content instantly
+// Background revalidation fetches fresh content
+export const revalidate = CACHE_DURATION.DAILY;
+
+/**
+ * Pre-generate popular movies at build time for instant static HTML
+ * Other movies are generated on-demand via ISR
+ */
+export async function generateStaticParams() {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    // Fetch trending/popular movies for pre-generation
+    // Adjust the limit based on your build time constraints
+    const response = await fetch(
+      `${baseUrl}/api/danh-sach/phim-moi?page=1&limit=50`,
+      {
+        next: { revalidate: CACHE_DURATION.WEEKLY },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch popular movies: ${response.status}`);
+    }
+
+    const data = (await response.json()) as {
+      data: { items: { slug: string }[] };
+    };
+    return data.data.items.map((movie) => ({
+      slug: movie.slug,
+    }));
+  } catch (error) {
+    console.error("Failed to generate static params:", error);
+    // Return empty array - on-demand ISR will handle other routes
+    return [];
+  }
+}
+
 export const generateMetadata = async ({ params }: Props) => {
   const { slug } = await params;
-  const movie = await fetchMovieDetail(slug);
+  const movie = await getMovieDetail(slug);
 
   return createMetadata({
     title: `${movie.name} Chất Lượng Cao - Xem Phim Online Miễn Phí`,
@@ -21,8 +60,8 @@ export const generateMetadata = async ({ params }: Props) => {
 };
 export default async function MovieDetailPage({ params }: Props) {
   const { slug } = await params;
-  const movie = await fetchMovieDetail(slug);
-  const imageData = await fetchMovieImages(slug).catch(() => undefined);
+  const movie = await getMovieDetail(slug);
+  const imageData = await getMovieImages(slug).catch(() => undefined);
 
   return (
     <MotionPage className="min-h-screen bg-black">
@@ -61,7 +100,7 @@ export default async function MovieDetailPage({ params }: Props) {
                       <MonitorPlay className="mt-0.5 h-5 w-5 shrink-0 text-white/50" />
                       <div>
                         <div className="mb-1 font-mono text-white/50 uppercase tracking-wider">
-                          Quality
+                          Chất lượng
                         </div>
                         <div className="font-400 text-white">
                           {movie.quality} • {movie.lang}
@@ -73,7 +112,7 @@ export default async function MovieDetailPage({ params }: Props) {
                       <CalendarBlank className="mt-0.5 h-5 w-5 shrink-0 text-white/50" />
                       <div>
                         <div className="mb-1 font-mono text-white/50 uppercase tracking-wider">
-                          Released
+                          Xuất bản
                         </div>
                         <div className="font-400 text-white">
                           {new Date(movie.created.time).toLocaleDateString()}
@@ -85,7 +124,7 @@ export default async function MovieDetailPage({ params }: Props) {
                       <Clock className="mt-0.5 h-5 w-5 shrink-0 text-white/50" />
                       <div>
                         <div className="mb-1 font-mono text-white/50 uppercase tracking-wider">
-                          Duration
+                          Thời lượng
                         </div>
                         <div className="font-400 text-white">{movie.time}</div>
                       </div>
@@ -100,7 +139,7 @@ export default async function MovieDetailPage({ params }: Props) {
                   {/* Director */}
                   <div>
                     <h4 className="mb-4 font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
-                      Director
+                      Đạo diễn
                     </h4>
                     <div className="space-y-2">
                       {movie.director.map((director) => (
@@ -117,7 +156,7 @@ export default async function MovieDetailPage({ params }: Props) {
                   {/* Cast */}
                   <div>
                     <h4 className="mb-4 font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
-                      Cast
+                      Dàn Cast
                     </h4>
                     <div className="space-y-2">
                       {movie.actor.slice(0, 6).map((actor) => (

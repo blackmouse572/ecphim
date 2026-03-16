@@ -7,6 +7,7 @@ import "video.js/dist/video-js.css";
 import "./videojs-react-player.css";
 import "videojs-contrib-quality-levels";
 import "videojs-hls-quality-selector";
+import "videojs-hotkeys";
 import { cn } from "@repo/design-system/lib/utils";
 
 export interface VideoJSReactPlayerProps {
@@ -86,6 +87,11 @@ const VideoJSReactPlayer = forwardRef<
       if (height) player.height(height);
       (player as any).qualityLevels();
       (player as any).hlsQualitySelector();
+      (player as any).hotkeys({
+        volumeStep: 0.1,
+        seekStep: 5,
+        enableModifiersForNumbers: false,
+      });
     } else {
       const player = playerRef.current;
       player.src(src);

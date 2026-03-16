@@ -1,8 +1,7 @@
-import { Play, Plus, ShareNetwork, Star } from "@phosphor-icons/react/ssr";
+import { Star } from "@phosphor-icons/react/ssr";
 import { MotionItem, MotionList } from "@repo/design-system/components/motion";
 import { Badge } from "@repo/design-system/components/ui/badge";
-import { Button } from "@repo/design-system/components/ui/button";
-import { buttonStyles } from "@repo/design-system/components/variants/buttonVariants";
+import { Note } from "@repo/design-system/components/ui/note";
 import { cn } from "@repo/design-system/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,6 +10,7 @@ import { Display } from "@/app/components/typography/display";
 import { extractPosterUrl } from "@/lib/services";
 import { extractBackdropUrl } from "@/lib/services/movie";
 import type { IMovie } from "@/types/response";
+import { WatchNowButton } from "../../../../components/watch-now-button";
 
 export function CinematicHeroSection({
   className,
@@ -25,6 +25,7 @@ export function CinematicHeroSection({
   const backdrop = extractBackdropUrl(imageData, "original");
   const poster = extractPosterUrl(imageData, "original");
   const posterPlaceholder = extractPosterUrl(imageData, "w154");
+
   return (
     <section
       className={cn(
@@ -73,7 +74,7 @@ export function CinematicHeroSection({
                 {/* Play button overlay */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
                   <div className="rounded-full bg-white/20 p-6 backdrop-blur-md transition-colors hover:bg-white/30">
-                    <Play weight="fill" className="h-12 w-12 text-white" />
+                    {/*<Play weight="fill" className="h-12 w-12 text-white" />*/}
                   </div>
                 </div>
               </div>
@@ -116,25 +117,20 @@ export function CinematicHeroSection({
 
             {/* Actions */}
             <MotionItem>
-              <div className="flex flex-wrap gap-4">
-                <Link
-                  href={`/movie/${movie.slug}/watch?episode=tap-01&server=0`}
-                  className={buttonStyles({
-                    intent: "primary",
-                    size: "2xl",
-                  })}
-                >
-                  <Play weight="fill" />
-                  Xem ngay
-                </Link>
-                <Button intent="secondary" size="2xl">
-                  <Plus className="mr-2 h-5 w-5" />
-                  My List
-                </Button>
-                <Button intent="plain" size="2xl">
-                  <ShareNetwork className="h-6 w-6" />
-                </Button>
-              </div>
+              {movie.episode_current === "Trailer" ? (
+                <Note intent="info">
+                  <div className="flex size-full items-center gap-2">
+                    <p>
+                      Phim đang trong giai đoạn trailer, vui lòng quay lại sau
+                      để xem nhé!
+                    </p>
+                  </div>
+                </Note>
+              ) : (
+                <div className="flex flex-wrap gap-4">
+                  <WatchNowButton movie={movie} />
+                </div>
+              )}
             </MotionItem>
           </MotionList>
         </div>

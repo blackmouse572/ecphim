@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { extractPosterUrl, fetchMovieImages } from "@/lib/services/movie";
 import type { IMovie } from "@/types/response";
+import { QualityTag } from "./quality-tag";
 
 interface MovieCardProps {
   movie: IMovie;
@@ -11,7 +12,7 @@ interface MovieCardProps {
 
 export async function MovieCard({ movie, cdnUrl }: MovieCardProps) {
   // Ensure poster URL is available, fetch if needed
-  let posterUrl;
+  let posterUrl: string;
 
   if (cdnUrl) {
     posterUrl = `${cdnUrl}/uploads/movies/${movie.poster_url}`;
@@ -63,6 +64,12 @@ export async function MovieCard({ movie, cdnUrl }: MovieCardProps) {
           <span className="font-mono uppercase tracking-wider">
             {movie.category[0]?.name || "Unknown"}
           </span>
+          <span className="h-1 w-1 rounded-full bg-white/30" />
+          <span className="font-mono uppercase tracking-wider">
+            {movie.episode_current || "Unknown"}
+          </span>
+          <span className="h-1 w-1 rounded-full bg-white/30" />
+          <QualityTag movie={movie} />
         </div>
       </div>
     </Link>

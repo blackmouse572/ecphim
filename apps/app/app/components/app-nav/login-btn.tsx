@@ -1,19 +1,25 @@
-import { Button } from "@repo/design-system/components/ui/button";
 import { Kbd } from "@repo/design-system/components/ui/kbd";
+import { buttonStyles } from "@repo/design-system/components/variants/buttonVariants";
 import { useHotkey } from "@tanstack/react-hotkeys";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 export function LoginBtn() {
   const router = useRouter();
   const location = usePathname();
-  useHotkey("Mod+L", () => {
+  useHotkey("Mod+S", () => {
     if (location === "/sign-in") return;
     router.push("/sign-in");
   });
   return (
-    <Button size="sm">
-      Login
-      <Kbd className="bg-primary text-fg">⌘L</Kbd>
-    </Button>
+    <Link
+      className={buttonStyles({
+        size: "sm",
+      })}
+      href="/sign-in"
+    >
+      Đăng Nhập
+      <Kbd className="bg-primary text-fg">⌘S</Kbd>
+    </Link>
   );
 }

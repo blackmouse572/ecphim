@@ -1,6 +1,8 @@
 "use client";
 
 import { SpinnerBallIcon } from "@phosphor-icons/react";
+import { useHotkey } from "@tanstack/react-hotkeys";
+import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo, useRef } from "react";
 import type { IMovie, IStreamServer } from "@/types/response";
@@ -53,6 +55,11 @@ export function MovieWatchClientPage(props: Props) {
   const handleServerChange = (serverIndex: IStreamServer) => {
     setServerName(serverIndex.server_name);
   };
+
+  const router = useRouter();
+  useHotkey("Escape", () => {
+    router.push(`/movie/${movieSlug}`);
+  });
 
   if (!currentEpisode) {
     return (

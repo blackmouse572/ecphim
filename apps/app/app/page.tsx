@@ -1,9 +1,11 @@
 import { MotionPage } from "@repo/design-system/components/motion";
 import { fetchHomeMovies, fetchMovieList } from "@/lib/services/movie";
+import { CACHE_DURATION } from "../lib/constants";
 import { PublicLayout } from "./components/public-layout";
 import { TrendingMovies } from "./components/sections";
 import { HeroCarouselWrapper } from "./components/sections/hero-carousel-wrapper";
 
+export const revalidate = CACHE_DURATION.DAILY;
 export default async function HomePage() {
   const [movies, latestMovies, updatedMovies, cinemaMovies] = await Promise.all(
     [

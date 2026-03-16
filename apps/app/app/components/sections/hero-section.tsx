@@ -13,8 +13,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { IMovie } from "@/types/response";
-import { Display } from "../typography/display";
 import PureHtmlRender from "../pure-html-render";
+import { Display } from "../typography/display";
 
 interface HeroSectionProps {
   movies: IMovie[];
@@ -108,7 +108,7 @@ export function HeroSection({ movies, movieImages }: HeroSectionProps) {
           </MotionItem>
           <AnimatePresence mode="wait">
             <MotionBlurInOut key={currentMovie._id}>
-              <Display className="text-display-sm mb-2">
+              <Display className="mb-2 text-display-sm">
                 {currentMovie.name}
               </Display>
               <h2 className="text-body text-title text-white/70">
@@ -141,7 +141,7 @@ export function HeroSection({ movies, movieImages }: HeroSectionProps) {
       </div>
 
       {/* Carousel Indicators - Bottom Right */}
-      <div className="absolute right-8 bottom-8 z-20 flex gap-3 ">
+      <div className="absolute right-8 bottom-8 z-20 flex gap-3">
         {movies.map((movie, index) => (
           <button
             type="button"

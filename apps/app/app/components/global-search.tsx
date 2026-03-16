@@ -12,6 +12,7 @@ import {
 import { Kbd } from "@repo/design-system/components/ui/kbd";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import type { IMovie } from "../../types/response";
 import { searchMovies } from "../actions/search-movies";
@@ -21,9 +22,11 @@ export function GlobalSearch() {
   const [search, setSearch] = useState("");
   const [isSearching, startTransition] = useTransition();
   const cdnUrlRef = useRef("");
+  const router = useRouter();
   const [results, setResults] = useState<(IMovie & { id: string })[]>([]);
 
   useHotkey("Mod+K", () => setIsOpen((open) => !open));
+  useHotkey("Escape", () => setIsOpen(false), { enabled: isOpen });
 
   const performSearchMovies = async (query: string) => {
     try {
@@ -81,6 +84,10 @@ export function GlobalSearch() {
         <CommandMenuList items={results}>
           {(movie) => (
             <CommandMenuItem
+              onAction={() => {
+                router.push(`/movie/${movie.slug}`);
+              }}
+              shouldCloseOnSelect
               textValue={movie.name}
               key={movie._id}
               className="space-x-3"
@@ -135,7 +142,7 @@ export function GlobalSearch() {
           <div className="flex items-center gap-2 px-1.5 text-muted-foreground text-xs">
             Sử dụng <Kbd>Enter</Kbd> để xem chi tiết phim. <Kbd>↑</Kbd> và{" "}
             <Kbd>↓</Kbd>
-            để di chuyển qua các kết quả.
+            để di chuyển qua các kết quả.<Kbd>⌘K</Kbd> để đóng menu
           </div>
         </CommandMenuFooter>
       </CommandMenu>
