@@ -61,7 +61,6 @@ export const MotionItem = ({
   className,
   delay,
   whileInView,
-  animate,
 }: MotionItemProps) => (
   <motion.div
     variants={staggerItem}

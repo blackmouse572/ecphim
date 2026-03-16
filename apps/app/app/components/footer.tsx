@@ -1,7 +1,6 @@
 import {
   DiscordLogo,
   EnvelopeSimple,
-  FilmReel,
   GithubLogo,
   Globe,
   Heart,
@@ -11,6 +10,7 @@ import {
   TwitterLogo,
 } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
+import { Logo } from "./logo";
 
 const QUICK_LINKS = [
   { name: "Home", href: "/" },
@@ -59,19 +59,10 @@ export function Footer() {
         <div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-6">
           {/* Brand */}
           <div className="space-y-4 lg:col-span-2">
-            <Link href="/" className="group flex items-center space-x-3">
-              <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-400 p-3 transition-transform group-hover:scale-105">
-                <FilmReel className="h-8 w-8 text-white" weight="bold" />
-              </div>
-              <div>
-                <span className="font-900 text-headline-sm text-white tracking-tight">
-                  Ec<span className="text-blue-400">Phim</span>
-                </span>
-                <p className="font-mono text-caption text-white/50 uppercase tracking-wider">
-                  Premium Cinema Experience
-                </p>
-              </div>
+            <Link href="/">
+              <Logo />
             </Link>
+
             <p className="max-w-sm font-200 text-body text-white/70 leading-relaxed">
               Discover and stream the world's greatest films with our premium
               platform. From blockbusters to indie gems, experience cinema like

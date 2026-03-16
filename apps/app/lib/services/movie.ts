@@ -333,8 +333,8 @@ export async function fetchSearchMovies(
   try {
     const response = await fetch(url, {
       next: {
-        revalidate: CACHE_DURATION.HOURLY,
-        tags: [CACHE_TAGS.SEARCH_RESULTS, CACHE_TAGS.searchResults(keyword)],
+        revalidate: CACHE_DURATION.RECENT,
+        tags: [CACHE_TAGS.SEARCH, CACHE_TAGS.searchResults(keyword)],
       },
     });
 

@@ -4,7 +4,7 @@ import { createClient } from "@repo/auth/client";
 import { Button } from "@repo/design-system/components/ui/button";
 import { Input } from "@repo/design-system/components/ui/input";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export type SignInProps = {
   i18n?: {
@@ -18,11 +18,18 @@ export const SignInProps = (props: SignInProps) => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [supabase, setSupabase] = useState<ReturnType<
+    typeof createClient
+  > | null>(null);
   const router = useRouter();
-  const supabase = createClient();
+
+  useEffect(() => {
+    setSupabase(createClient());
+  }, []);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!supabase) return;
     setLoading(true);
     setError(null);
     const { error: loginError } = await supabase.auth.signInWithPassword({

@@ -1,6 +1,7 @@
 import { ModeToggle } from "@repo/design-system/components/mode-toggle";
-import { Command } from "@phosphor-icons/react";
+import Link from "next/link";
 import type { ReactNode } from "react";
+import { Logo } from "../components/logo";
 
 type AuthLayoutProps = {
   readonly children: ReactNode;
@@ -10,10 +11,10 @@ const AuthLayout = ({ children }: AuthLayoutProps) => (
   <div className="container relative grid h-dvh flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
     <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
       <div className="absolute inset-0 bg-muted" />
-      <div className="relative z-20 flex items-center font-medium text-lg text-primary">
-        <Command className="mr-2 h-6 w-6" />
-        Acme Inc
-      </div>
+      <Link href="/">
+        <Logo />
+      </Link>
+
       <div className="absolute top-4 right-4">
         <ModeToggle />
       </div>
