@@ -10,8 +10,6 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export const revalidate = 0; // Dynamic rendering - fetches at request time
-
 export const generateMetadata = async ({ params }: Props) => {
   const { slug } = await params;
   const movie = await fetchMovieDetail(slug);
