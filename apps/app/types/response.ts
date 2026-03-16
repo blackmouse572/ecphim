@@ -82,6 +82,27 @@ export type IResponse<T> = {
   message: string;
   data: T;
 };
+export type IResponseList<T> = IResponse<
+  T & {
+    params: {
+      type_slug: string;
+      filterCategory: string[];
+      filterCountry: string[];
+      filterYear: string;
+      filterType: string;
+      sortField: "_id" | "modified.time" | "year";
+      sortType: "asc" | "desc";
+      pagination: {
+        totalItems: number;
+        totalItemsPerPage: number;
+        currentPage: number;
+        pageRanges: number;
+      };
+    };
+    APP_DOMAIN_FRONTEND: string;
+    APP_DOMAIN_CDN_IMAGE: string;
+  }
+>;
 
 export interface IData {
   seoOnPage: SeoOnPage;

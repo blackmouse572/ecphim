@@ -8,28 +8,28 @@ import { env } from "@/env";
 let nextConfig: NextConfig = withToolbar(withLogging(config));
 
 nextConfig.images?.remotePatterns?.push({
-	protocol: "https",
-	hostname: "assets.basehub.com",
+  protocol: "https",
+  hostname: "assets.basehub.com",
 });
 
 if (process.env.NODE_ENV === "production") {
-	const redirects: NextConfig["redirects"] = async () => [
-		{
-			source: "/legal",
-			destination: "/legal/privacy",
-			statusCode: 301,
-		},
-	];
+  const redirects: NextConfig["redirects"] = async () => [
+    {
+      source: "/legal",
+      destination: "/legal/privacy",
+      statusCode: 301,
+    },
+  ];
 
-	nextConfig.redirects = redirects;
+  nextConfig.redirects = redirects;
 }
 
 if (env.VERCEL) {
-	nextConfig = withSentry(nextConfig);
+  nextConfig = withSentry(nextConfig);
 }
 
 if (env.ANALYZE === "true") {
-	nextConfig = withAnalyzer(nextConfig);
+  nextConfig = withAnalyzer(nextConfig);
 }
 
 export default withCMS(nextConfig);

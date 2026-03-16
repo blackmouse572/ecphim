@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 import { PublicLayout } from "../components/public-layout";
 
 type RootLayoutProperties = {
-	readonly children: ReactNode;
+  readonly children: ReactNode;
 };
 const RootLayout = ({ children }: RootLayoutProperties) => (
-	<PublicLayout>{children}</PublicLayout>
+  <PublicLayout>{children}</PublicLayout>
 );
 export default RootLayout;

@@ -33,6 +33,7 @@ import { cx } from "@repo/design-system/lib/primitive"
 import { DropdownKeyboard } from "./dropdown"
 import { Loader } from "./loader"
 import { MenuDescription, MenuItem, MenuLabel, type MenuSectionProps, MenuSeparator } from "./menu"
+import { EmptyIcon } from "@phosphor-icons/react/dist/ssr"
 
 interface CommandMenuProviderProps {
   isPending?: boolean
@@ -102,7 +103,7 @@ const CommandMenu = ({
           {...props}
           isDismissable={isDismissable}
           className={cx(
-            "fixed inset-0 z-50 h-(--visual-viewport-height,100vh) w-screen overflow-hidden bg-black/15",
+            "fixed inset-0 z-50 h-(--visual-viewport-height,100vh) w-screen overflow-hidden backdrop-blur-xs bg-black/45",
             "grid grid-rows-[1fr_auto] justify-items-center text-center sm:grid-rows-[1fr_auto_3fr]",
             "entering:fade-in entering:animate-in entering:duration-300 entering:ease-out",
             "exiting:fade-out exiting:animate-out exiting:ease-in",
@@ -234,7 +235,15 @@ const renderer: CollectionRenderer = {
   CollectionRoot(props) {
     if (props.collection.size === 0) {
       return (
-        <div className="col-span-full p-4 text-center text-muted-fg text-sm">No results found.</div>
+          <div className="col-span-full p-4 py-8 text-center text-muted-fg text-sm">
+            <EmptyIcon size={64} weight="duotone" className="mx-auto" />
+              <h5 className="mt-6 mb-1 text-sm font-semibold">
+                  Không có kết quả
+              </h5>
+              <p className="text-sm">
+                  Thử điều chỉnh từ khóa tìm kiếm của bạn để có kết quả tốt hơn.
+              </p>
+        </div>
       )
     }
     return <DefaultCollectionRenderer.CollectionRoot {...props} />

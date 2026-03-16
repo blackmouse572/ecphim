@@ -1,8 +1,9 @@
 "use client"
 
 import { twMerge } from "tailwind-merge"
-import { type ButtonProps, buttonStyles } from "@repo/components/ui/button"
-import { Link, type LinkProps } from "@repo/components/ui/link"
+import { Link, LinkProps } from "./link"
+import { ButtonProps } from "./button"
+import { buttonStyles } from "../variants/buttonVariants"
 
 const Pagination = ({ className, ref, ...props }: React.ComponentProps<"nav">) => (
   <nav

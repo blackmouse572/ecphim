@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
 type AuthProviderProps = {
-	children: ReactNode;
+  children: ReactNode;
 };
 export const AuthProvider = ({ children }: AuthProviderProps) => children;

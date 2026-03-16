@@ -86,7 +86,7 @@ export function CinematicHeroSection({
             <MotionItem>
               <div className="mb-6 flex flex-wrap items-center gap-4">
                 {movie.category.map((cat) => (
-                  <Link key={cat._id} href={`/category/${cat.slug}`}>
+                  <Link key={cat._id + cat.slug} href={`/category/${cat.slug}`}>
                     <Badge
                       isCircle
                       intent="info"

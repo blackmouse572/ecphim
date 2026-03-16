@@ -15,7 +15,7 @@ export function TagGroup({ className, ...props }: TagGroupProps) {
   return (
     <PrimitiveTagGroup
       data-slot="control"
-      className={twMerge("flex flex-col gap-y-1 *:data-[slot=label]:font-medium", className)}
+      className={twMerge("flex flex-col gap-y-2 *:data-[slot=label]:font-medium", className)}
       {...props}
     />
   )

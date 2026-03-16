@@ -1,7 +1,7 @@
 import {
-	HoverCard,
-	HoverCardContent,
-	HoverCardTrigger,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
 } from "@repo/design-system/components/ui/hover-card";
 import type { Meta, StoryObj } from "@storybook/react";
 
@@ -9,22 +9,22 @@ import type { Meta, StoryObj } from "@storybook/react";
  * For sighted users to preview content available behind a link.
  */
 const meta = {
-	title: "ui/HoverCard",
-	component: HoverCard,
-	tags: ["autodocs"],
-	argTypes: {},
-	args: {},
-	render: (args) => (
-		<HoverCard {...args}>
-			<HoverCardTrigger>Hover</HoverCardTrigger>
-			<HoverCardContent>
-				The React Framework - created and maintained by @vercel.
-			</HoverCardContent>
-		</HoverCard>
-	),
-	parameters: {
-		layout: "centered",
-	},
+  title: "ui/HoverCard",
+  component: HoverCard,
+  tags: ["autodocs"],
+  argTypes: {},
+  args: {},
+  render: (args) => (
+    <HoverCard {...args}>
+      <HoverCardTrigger>Hover</HoverCardTrigger>
+      <HoverCardContent>
+        The React Framework - created and maintained by @vercel.
+      </HoverCardContent>
+    </HoverCard>
+  ),
+  parameters: {
+    layout: "centered",
+  },
 } satisfies Meta<typeof HoverCard>;
 
 export default meta;
@@ -41,8 +41,8 @@ export const Default: Story = {};
  * hover card opens and closes.
  */
 export const Instant: Story = {
-	args: {
-		openDelay: 0,
-		closeDelay: 0,
-	},
+  args: {
+    openDelay: 0,
+    closeDelay: 0,
+  },
 };

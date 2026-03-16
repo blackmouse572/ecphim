@@ -44,7 +44,7 @@ export function MobileNav(props: {
               aria-controls="mobile-menu"
               aria-expanded={open}
               aria-label="Toggle menu"
-              className="absolute -top-10 right-4 md:hidden"
+              className="-top-10 absolute right-4 md:hidden"
               onClick={() => setOpen(!open)}
               size="sq-md"
               intent="outline"

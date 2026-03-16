@@ -1,26 +1,5 @@
 "use client";
 import {
-  Bomb,
-  Books,
-  Clock,
-  Compass,
-  Crown,
-  FilmStrip,
-  Flask,
-  Gavel,
-  Ghost,
-  Heart,
-  House,
-  Lightbulb,
-  Lightning,
-  MagnifyingGlass,
-  MusicNote,
-  SmileyXEyes,
-  Sparkle,
-  Trophy,
-} from "@phosphor-icons/react/ssr";
-import { Button } from "@repo/design-system/components/ui/button";
-import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
@@ -33,8 +12,11 @@ import { buttonStyles } from "@repo/design-system/components/variants/buttonVari
 import { useScroll } from "@repo/design-system/hooks/use-scroll";
 import { cn } from "@repo/design-system/lib/utils";
 import Link from "next/link";
+import { GlobalSearch } from "../global-search";
 import { Logo } from "../logo";
 import { MobileNav } from "./app-mobile-nav";
+import { CATEGORIES } from "./data";
+import { LoginBtn } from "./login-btn";
 
 export const navLinks = [
   {
@@ -43,132 +25,19 @@ export const navLinks = [
   },
   {
     label: "Phim lẻ",
-    href: "/discover/phim-le",
+    href: "/discover?clt=phim-le",
   },
   {
     label: "Phim bộ",
-    href: "/discover/phim-bo",
+    href: "/discover?clt=phim-bo",
   },
   {
     label: "TV Show",
-    href: "/discover/tv-show",
+    href: "/discover?clt=tv-shows",
   },
   {
     label: "Anime",
-    href: "/discover/anime",
-  },
-];
-
-export const categories = [
-  {
-    name: "Hành Động",
-    slug: "hanh-dong",
-    icon: Lightning,
-  },
-  {
-    name: "Tình Cảm",
-    slug: "tinh-cam",
-    icon: Heart,
-  },
-  {
-    name: "Hài Hước",
-    slug: "hai-huoc",
-    icon: SmileyXEyes,
-  },
-  {
-    name: "Cổ Trang",
-    slug: "co-trang",
-    icon: Clock,
-  },
-  {
-    name: "Tâm Lý",
-    slug: "tam-ly",
-    icon: Lightbulb,
-  },
-  {
-    name: "Hình Sự",
-    slug: "hinh-su",
-    icon: Gavel,
-  },
-  {
-    name: "Chiến Tranh",
-    slug: "chien-tranh",
-    icon: Bomb,
-  },
-  {
-    name: "Thể Thao",
-    slug: "the-thao",
-    icon: Trophy,
-  },
-  {
-    name: "Võ Thuật",
-    slug: "vo-thuat",
-    icon: Lightning,
-  },
-  {
-    name: "Viễn Tưởng",
-    slug: "vien-tuong",
-    icon: Sparkle,
-  },
-  {
-    name: "Phiêu Lưu",
-    slug: "phieu-luu",
-    icon: Compass,
-  },
-  {
-    name: "Khoa Học",
-    slug: "khoa-hoc",
-    icon: Flask,
-  },
-  {
-    name: "Kinh Dị",
-    slug: "kinh-di",
-    icon: Ghost,
-  },
-  {
-    name: "Âm Nhạc",
-    slug: "am-nhac",
-    icon: MusicNote,
-  },
-  {
-    name: "Thần Thoại",
-    slug: "than-thoai",
-    icon: Crown,
-  },
-  {
-    name: "Tài Liệu",
-    slug: "tai-lieu",
-    icon: FilmStrip,
-  },
-  {
-    name: "Gia Đình",
-    slug: "gia-dinh",
-    icon: House,
-  },
-  {
-    name: "Chính kịch",
-    slug: "chinh-kich",
-    icon: FilmStrip,
-  },
-  {
-    name: "Bí ẩn",
-    slug: "bi-an",
-    icon: MagnifyingGlass,
-  },
-  {
-    name: "Học Đường",
-    slug: "hoc-duong",
-    icon: Books,
-  },
-  {
-    name: "Kinh Điển",
-    slug: "kinh-dien",
-    icon: Books,
-  },
-  {
-    name: "Short Drama",
-    slug: "short-drama",
-    icon: FilmStrip,
+    href: "/discover?clt=hoat-hinh",
   },
 ];
 
@@ -221,19 +90,13 @@ export function Header(props: HeaderProps) {
                 "!mt-0 !bg-transparent grid w-full grid-cols-5 gap-4 py-4",
               )}
             >
-              {categories.map((category) => {
+              {CATEGORIES.map((category) => {
                 const IconComponent = category.icon;
                 return (
                   <NavigationMenuLink
-                    href={`/categories/${category.slug}`}
+                    href={`/discover?ctg=${category.name}`}
                     key={category.slug}
                     className="flex flex-col items-center gap-2 rounded-md p-2 hover:bg-primary-subtle"
-                    style={
-                      {
-                        // width:
-                        // "calc((var(--radix-navigation-menu-viewport-width) - 4rem - 1rem) / 5",
-                      }
-                    }
                   >
                     <IconComponent weight="fill" className="h-4 w-4" />
                     <span className="text-center text-xs">{category.name}</span>
@@ -284,7 +147,10 @@ export function Header(props: HeaderProps) {
         </NavigationMenuList>
         <MobileNav navLinks={navLinks} />
       </NavigationMenu>
-      <Button size="sm">Login</Button>
+      <div className="flex items-center gap-2">
+        <GlobalSearch />
+        <LoginBtn />
+      </div>
     </header>
   );
 }

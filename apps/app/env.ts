@@ -12,20 +12,20 @@ import { keys as webhooks } from "@repo/webhooks/keys";
 import { createEnv } from "@t3-oss/env-nextjs";
 
 export const env = createEnv({
-	extends: [
-		auth(),
-		analytics(),
-		collaboration(),
-		core(),
-		database(),
-		email(),
-		flags(),
-		notifications(),
-		observability(),
-		security(),
-		webhooks(),
-	],
-	server: {},
-	client: {},
-	runtimeEnv: {},
+  extends: [
+    auth(),
+    analytics(),
+    collaboration(),
+    core(),
+    database(),
+    email(),
+    flags(),
+    notifications(),
+    observability(),
+    security(),
+    webhooks(),
+  ],
+  server: {},
+  client: {},
+  runtimeEnv: {},
 });

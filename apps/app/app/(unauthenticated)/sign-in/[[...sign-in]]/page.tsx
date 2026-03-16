@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 const title = "Welcome back";
 const description = "Enter your details to sign in.";
 const SignIn = dynamic(() =>
-	import("./sign-in").then((mod) => mod.SignInProps),
+  import("./sign-in").then((mod) => mod.SignInProps),
 );
 
 export const metadata: Metadata = createMetadata({ title, description });

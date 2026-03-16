@@ -1,8 +1,8 @@
 "use client";
 
 import {
-	NotificationFeedPopover,
-	NotificationIconButton,
+  NotificationFeedPopover,
+  NotificationIconButton,
 } from "@knocklabs/react";
 import type { RefObject } from "react";
 import { useRef, useState } from "react";
@@ -13,34 +13,34 @@ import "@knocklabs/react/dist/index.css";
 import "../styles.css";
 
 export const NotificationsTrigger = () => {
-	const [isVisible, setIsVisible] = useState(false);
-	const notifButtonRef = useRef<HTMLButtonElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const notifButtonRef = useRef<HTMLButtonElement>(null);
 
-	const handleClose = (event: Event) => {
-		if (event.target === notifButtonRef.current) {
-			return;
-		}
+  const handleClose = (event: Event) => {
+    if (event.target === notifButtonRef.current) {
+      return;
+    }
 
-		setIsVisible(false);
-	};
+    setIsVisible(false);
+  };
 
-	if (!keys().NEXT_PUBLIC_KNOCK_API_KEY) {
-		return null;
-	}
+  if (!keys().NEXT_PUBLIC_KNOCK_API_KEY) {
+    return null;
+  }
 
-	return (
-		<>
-			<NotificationIconButton
-				onClick={() => setIsVisible(!isVisible)}
-				ref={notifButtonRef}
-			/>
-			{notifButtonRef.current && (
-				<NotificationFeedPopover
-					buttonRef={notifButtonRef as RefObject<HTMLElement>}
-					isVisible={isVisible}
-					onClose={handleClose}
-				/>
-			)}
-		</>
-	);
+  return (
+    <>
+      <NotificationIconButton
+        onClick={() => setIsVisible(!isVisible)}
+        ref={notifButtonRef}
+      />
+      {notifButtonRef.current && (
+        <NotificationFeedPopover
+          buttonRef={notifButtonRef as RefObject<HTMLElement>}
+          isVisible={isVisible}
+          onClose={handleClose}
+        />
+      )}
+    </>
+  );
 };

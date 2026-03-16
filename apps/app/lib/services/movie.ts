@@ -1,6 +1,12 @@
 import { env } from "@/env";
 import { CACHE_DURATION, CACHE_TAGS } from "@/lib/constants";
-import type { ICategory, IMovie, IResponse, SeoOnPage } from "@/types/response";
+import type {
+  ICategory,
+  IMovie,
+  IResponse,
+  IResponseList,
+  SeoOnPage,
+} from "@/types/response";
 
 /**
  * Movie service - handles all movie-related API calls
@@ -41,6 +47,73 @@ export async function fetchHomeMovies() {
     return data.data.items;
   } catch (error) {
     console.error("Failed to fetch home movies:", error);
+    throw error;
+  }
+}
+
+export type FetchMovieListParams = {
+  slug?:
+    | "phim-moi"
+    | "phim-bo"
+    | "phim-le"
+    | "tv-shows"
+    | "hoat-hinh"
+    | "phim-vietsub"
+    | "phim-thuyet-minh"
+    | "phim-long-tien"
+    | "phim-bo-dang-chieu"
+    | "phim-bo-hoan-thanh"
+    | "phim-sap-chieu"
+    | "subteam"
+    | "phim-chieu-rap";
+  page?: number;
+  limit?: number;
+  sort_field?: "modified.time" | "year" | "_id";
+  sort_type?: "asc" | "desc";
+  category?: string;
+  country?: string;
+  year?: number;
+};
+export async function fetchMovieList(params: FetchMovieListParams) {
+  const options: Record<string, string> = {
+    page: params.page?.toString() || "1",
+    limit: params.limit?.toString() || "20",
+    sort_field: (params.sort_field as string) || "_id",
+    sort_type: (params.sort_type as string) || "desc",
+    ...(params.category ? { category: params.category } : {}),
+    ...(params.country ? { country: params.country } : {}),
+    ...(params.year ? { year: params.year.toString() } : {}),
+  };
+  const queryParams = new URLSearchParams(options);
+
+  const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const url = `${baseUrl}/api/danh-sach/${params.slug}?${queryParams.toString()}`;
+  console.log("Fetching movie list with options:", url);
+
+  try {
+    const response = await fetch(url, {
+      next: {
+        revalidate: CACHE_DURATION.DAILY,
+        tags: [
+          CACHE_TAGS.HOME_DATA,
+          CACHE_TAGS.movieList(params.slug || "default"),
+        ],
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Latest movies API error: ${response.status}`);
+    }
+
+    const data = (await response.json()) as IResponseList<{
+      items: IMovie[];
+      total_pages: number;
+      current_page: number;
+    }>;
+
+    return data.data;
+  } catch (error) {
+    console.error("Failed to fetch latest movies:", error);
     throw error;
   }
 }
@@ -98,12 +171,16 @@ export async function fetchMovieImages(slug: string) {
         case 404:
           throw new Error(`Images for movie ${slug} not found (404)`);
         case 500:
-          throw new Error(`Server error while fetching images for movie ${slug} (500). ${url}`, { cause: response });
+          throw new Error(
+            `Server error while fetching images for movie ${slug} (500). ${url}`,
+            { cause: response },
+          );
         default:
           throw new Error(
-            `Unexpected error ${response.status} while fetching images for movie ${slug}. ${url}`, {
-            cause: response,
-          }
+            `Unexpected error ${response.status} while fetching images for movie ${slug}. ${url}`,
+            {
+              cause: response,
+            },
           );
       }
     }
@@ -181,7 +258,8 @@ export function extractBackdropUrl(
       return "/images/placeholder-thumbnail.webp";
     }
 
-    const basePath = imageData?.image_sizes.backdrop?.[size] ||
+    const basePath =
+      imageData?.image_sizes.backdrop?.[size] ||
       imageData?.image_sizes.backdrop?.w1280 ||
       imageData?.image_sizes.backdrop?.original;
 
@@ -209,12 +287,15 @@ export async function fetchMovieDetail(slug: string) {
         case 404:
           throw new Error(`Movie with slug ${slug} not found (404)`);
         case 500:
-          throw new Error(`Server error while fetching movie ${slug} (500)`, { cause: response });
+          throw new Error(`Server error while fetching movie ${slug} (500)`, {
+            cause: response,
+          });
         default:
           throw new Error(
-            `Unexpected error ${response.status} while fetching movie ${slug}`, {
-            cause: response,
-          }
+            `Unexpected error ${response.status} while fetching movie ${slug}`,
+            {
+              cause: response,
+            },
           );
       }
     }
@@ -226,6 +307,50 @@ export async function fetchMovieDetail(slug: string) {
     return data.data.item;
   } catch (error) {
     console.error(`Failed to fetch details for movie ${slug}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Search movies by keyword
+ * Cached for 1 hour as search results can change frequently but not too often
+ * @param keyword - Search keyword
+ * @param page - Page number for pagination
+ * @param limit - Number of results per page
+ */
+export async function fetchSearchMovies(
+  keyword: string,
+  query: {
+    page?: number;
+    limit?: number;
+  },
+) {
+  const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const url = `${baseUrl}/api/tim-kiem?keyword=${encodeURIComponent(
+    keyword,
+  )}&page=${query.page}&limit=${query.limit}`;
+
+  try {
+    const response = await fetch(url, {
+      next: {
+        revalidate: CACHE_DURATION.HOURLY,
+        tags: [CACHE_TAGS.SEARCH_RESULTS, CACHE_TAGS.searchResults(keyword)],
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Search API error: ${response.status}`);
+    }
+
+    const data = (await response.json()) as IResponseList<{
+      items: IMovie[];
+      total_pages: number;
+      current_page: number;
+    }>;
+
+    return data.data;
+  } catch (error) {
+    console.error(`Failed to search movies with keyword "${keyword}":`, error);
     throw error;
   }
 }

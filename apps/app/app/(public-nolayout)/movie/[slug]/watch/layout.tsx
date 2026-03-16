@@ -11,5 +11,4 @@ const WatchLayout = ({ children }: WatchLayoutProperties) => (
   </>
 );
 
-
 export default WatchLayout;

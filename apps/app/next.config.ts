@@ -7,21 +7,21 @@ import { env } from "@/env";
 let nextConfig: NextConfig = withToolbar(withLogging(config));
 
 if (env.VERCEL) {
-	nextConfig = withSentry(nextConfig);
+  nextConfig = withSentry(nextConfig);
 }
 
 if (env.ANALYZE === "true") {
-	nextConfig = withAnalyzer(nextConfig);
+  nextConfig = withAnalyzer(nextConfig);
 }
 
 // Add rewrites to mask ophim endpoint
 nextConfig.rewrites = async () => ({
-	beforeFiles: [
-		{
-			source: "/api/:path*",
-			destination: "https://ophim1.com/v1/api/:path*",
-		},
-	],
+  beforeFiles: [
+    {
+      source: "/api/:path*",
+      destination: "https://ophim1.com/v1/api/:path*",
+    },
+  ],
 });
 
 export default nextConfig;
