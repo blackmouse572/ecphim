@@ -9,6 +9,7 @@ import {
   Shield,
   TwitterLogo,
 } from "@phosphor-icons/react/ssr";
+import { Separator } from "@repo/design-system/components/ui/separator";
 import Link from "next/link";
 import { Logo } from "./logo";
 
@@ -78,29 +79,6 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Newsletter */}
-        <div className="mb-8 border-white/10 border-y py-12">
-          <div className="max-w-2xl">
-            <h3 className="mb-4 font-900 text-headline-sm text-white tracking-tight">
-              Stay Updated
-            </h3>
-            <p className="mb-6 font-200 text-body text-white/70">
-              Get the latest movie releases, exclusive content, and updates
-              delivered to your inbox.
-            </p>
-            <div className="flex space-x-4">
-              <input
-                type="email"
-                placeholder="Enter your email address"
-                className="flex-1 rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-white transition-colors placeholder:text-white/50 focus:border-blue-400 focus:bg-white/10 focus:outline-none"
-              />
-              <button className="rounded-xl bg-blue-500 px-6 py-3 font-600 text-white transition-all hover:scale-105 hover:bg-blue-600">
-                Subscribe
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Bottom Footer */}
         <div className="flex flex-col items-center justify-between space-y-4 text-sm md:flex-row md:space-y-0">
           <div className="flex items-center space-x-6 text-white/50">
@@ -119,7 +97,7 @@ export function Footer() {
                 Worldwide Access
               </span>
             </div>
-            <div className="h-4 w-px bg-white/20" />
+            <Separator className="h-4" orientation="vertical" />
             <div className="flex items-center space-x-2 text-green-400">
               <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
               <span className="font-mono text-xs uppercase tracking-wider">
