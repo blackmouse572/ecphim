@@ -12,31 +12,6 @@ import {
 import Link from "next/link";
 import { Logo } from "./logo";
 
-const QUICK_LINKS = [
-  { name: "Home", href: "/" },
-  { name: "Discover", href: "/discover" },
-  { name: "Trending", href: "/browse/trending" },
-  { name: "New Releases", href: "/browse/new" },
-  { name: "Premium", href: "/browse/premium" },
-];
-
-const CATEGORIES = [
-  { name: "Action", href: "/browse/genre/action" },
-  { name: "Drama", href: "/browse/genre/drama" },
-  { name: "Comedy", href: "/browse/genre/comedy" },
-  { name: "Horror", href: "/browse/genre/horror" },
-  { name: "Sci-Fi", href: "/browse/genre/sci-fi" },
-  { name: "Romance", href: "/browse/genre/romance" },
-];
-
-const COUNTRIES = [
-  { name: "Hàn Quốc", href: "/browse/country/han-quoc" },
-  { name: "Nhật Bản", href: "/browse/country/nhat-ban" },
-  { name: "Trung Quốc", href: "/browse/country/trung-quoc" },
-  { name: "Thái Lan", href: "/browse/country/thai-lan" },
-  { name: "Âu Mỹ", href: "/browse/country/au-my" },
-];
-
 const SUPPORT_LINKS = [
   { name: "About", href: "/about", icon: Info },
   { name: "Privacy Policy", href: "/privacy", icon: Shield },
@@ -82,65 +57,8 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <h3 className="font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
-              Quick Links
-            </h3>
-            <ul className="space-y-3">
-              {QUICK_LINKS.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="font-400 text-body text-white/70 transition-colors hover:text-blue-400"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Categories */}
-          <div className="space-y-4">
-            <h3 className="font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
-              Categories
-            </h3>
-            <ul className="space-y-3">
-              {CATEGORIES.map((category) => (
-                <li key={category.name}>
-                  <Link
-                    href={category.href}
-                    className="font-400 text-body text-white/70 transition-colors hover:text-blue-400"
-                  >
-                    {category.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Countries */}
-          <div className="space-y-4">
-            <h3 className="font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
-              Countries
-            </h3>
-            <ul className="space-y-3">
-              {COUNTRIES.map((country) => (
-                <li key={country.name}>
-                  <Link
-                    href={country.href}
-                    className="font-400 text-body text-white/70 transition-colors hover:text-blue-400"
-                  >
-                    {country.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           {/* Support */}
-          <div className="space-y-4">
+          <div className="col-start-2 space-y-4 lg:col-start-6">
             <h3 className="font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
               Support
             </h3>

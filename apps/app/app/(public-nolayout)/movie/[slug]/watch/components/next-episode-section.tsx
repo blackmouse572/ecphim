@@ -21,12 +21,12 @@ export function NextEpisodeSection({
   onPlayPrevious,
 }: NextEpisodeSectionProps) {
   const router = useRouter();
-  useHotkey("n", () => {
+  useHotkey("N", () => {
     if (nextEpisode) {
       onPlayNext(nextEpisode);
     }
   });
-  useHotkey("b", () => {
+  useHotkey("B", () => {
     if (previousEpisode && onPlayPrevious) {
       onPlayPrevious(previousEpisode);
     }

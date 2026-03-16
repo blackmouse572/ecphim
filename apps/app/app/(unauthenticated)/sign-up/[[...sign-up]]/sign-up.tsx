@@ -2,7 +2,16 @@
 
 import { createClient } from "@repo/auth/client";
 import { Button } from "@repo/design-system/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@repo/design-system/components/ui/card";
 import { Input } from "@repo/design-system/components/ui/input";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -62,43 +71,58 @@ export const SignUp = (props: SignUpProps) => {
   };
 
   return (
-    <form onSubmit={handleSignUp}>
-      {error && <div className="text-red-500">{error}</div>}
-      <Input
-        onChange={(e) => setName(e.target.value)}
-        placeholder={props.i18n?.namePlaceholder || "Name"}
-        required
-        type="text"
-        value={name}
-      />
-      <Input
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder={props.i18n?.emailPlaceholder || "Email"}
-        required
-        type="email"
-        value={email}
-      />
-      <Input
-        minLength={6}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder={props.i18n?.passwordPlaceholder || "Password"}
-        required
-        type="password"
-        value={password}
-      />
-      <Input
-        minLength={6}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        placeholder={
-          props.i18n?.confirmPasswordPlaceholder || "Confirm Password"
-        }
-        required
-        type="password"
-        value={confirmPassword}
-      />
-      <Button isPending={loading} type="submit">
-        {props.i18n?.signUpButton || "Sign Up"}
-      </Button>
-    </form>
+    <Card className="mx-auto w-full max-w-md bg-background shadow-primary/50 shadow-sm">
+      <CardHeader>
+        <CardTitle>{"Đăng kí"}</CardTitle>
+        <CardDescription>
+          Đã có tài khoản?{" "}
+          <Link href="/sign-in" className="text-primary hover:underline">
+            Đăng nhập
+          </Link>
+        </CardDescription>
+      </CardHeader>
+      <form onSubmit={handleSignUp}>
+        <CardContent className="space-y-4">
+          {error && <div className="text-red-500">{error}</div>}
+          <Input
+            onChange={(e) => setName(e.target.value)}
+            placeholder={props.i18n?.namePlaceholder || "Name"}
+            required
+            type="text"
+            value={name}
+          />
+          <Input
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={props.i18n?.emailPlaceholder || "Email"}
+            required
+            type="email"
+            value={email}
+          />
+          <Input
+            minLength={6}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={props.i18n?.passwordPlaceholder || "Password"}
+            required
+            type="password"
+            value={password}
+          />
+          <Input
+            minLength={6}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder={
+              props.i18n?.confirmPasswordPlaceholder || "Confirm Password"
+            }
+            required
+            type="password"
+            value={confirmPassword}
+          />
+        </CardContent>
+      </form>
+      <CardFooter>
+        <Button isPending={loading} type="submit" className={"w-full"}>
+          {props.i18n?.signUpButton || "Đăng ký"}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };

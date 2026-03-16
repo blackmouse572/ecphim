@@ -5,8 +5,8 @@ import {
 } from "@repo/design-system/components/motion";
 import Link from "next/link";
 import type { IMovie } from "@/types/response";
-import { MovieCard } from "./movie-card";
 import { BGPattern } from "../bg-pattern";
+import { MovieCard } from "./movie-card";
 
 interface TrendingMoviesProps {
   movies: IMovie[];
@@ -22,14 +22,14 @@ export function TrendingMovies({
   cdnUrl,
 }: TrendingMoviesProps) {
   return (
-    <section className="py-24 relative">
+    <section className="relative py-24">
       <BGPattern
         className="max-h-[50vh]"
         variant="vertical-lines"
         size={60}
         mask="fade-bottom"
       />
-      <div className="container mx-auto max-w-7xl px-">
+      <div className="px- container mx-auto max-w-7xl">
         <MotionFadeIn>
           <div className="relative mb-12 flex items-center justify-between">
             <h2 className="font-900 text-headline text-white">{title}</h2>

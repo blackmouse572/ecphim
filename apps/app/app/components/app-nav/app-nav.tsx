@@ -58,7 +58,7 @@ export function Header(props: HeaderProps) {
       className={cn(
         "sticky top-0 z-50 mx-auto flex w-full max-w-lvw items-center justify-between border-transparent border-b px-2.5 md:rounded-lg md:border md:transition-all md:ease-out",
         {
-          "border-fg/15 bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50 md:top-2 md:max-w-3xl md:shadow-md":
+          "border-fg/15 bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50 md:top-2 md:max-w-5xl md:shadow-md":
             scrolled,
         },
       )}
@@ -81,7 +81,7 @@ export function Header(props: HeaderProps) {
             className={buttonStyles({
               intent: "plain",
               className:
-                "text-muted-foreground hover:bg-transparent hover:text-foreground",
+                "px-0 text-muted-foreground hover:bg-transparent hover:text-foreground",
             })}
           >
             <NavigationMenuTrigger>Thể loại</NavigationMenuTrigger>
@@ -105,6 +105,32 @@ export function Header(props: HeaderProps) {
               })}
             </NavigationMenuContent>
           </NavigationMenuItem>
+          {props.countries && (
+            <NavigationMenuItem
+              className={buttonStyles({
+                intent: "plain",
+                className:
+                  "px-0 text-muted-foreground hover:bg-transparent hover:text-foreground",
+              })}
+            >
+              <NavigationMenuTrigger>Quốc gia</NavigationMenuTrigger>
+              <NavigationMenuContent
+                className={cn(
+                  "!mt-0 !bg-transparent grid w-full grid-cols-5 gap-4 py-4",
+                )}
+              >
+                {props.countries.map((country) => (
+                  <NavigationMenuLink
+                    href={`/discover?cntry=${country.slug}`}
+                    key={country.slug}
+                    className="flex flex-col items-center gap-2 rounded-md p-2 hover:bg-primary-subtle"
+                  >
+                    <span className="text-center text-xs">{country.name}</span>
+                  </NavigationMenuLink>
+                ))}
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+          )}
           {scrolled ? (
             <NavigationMenuItem>
               <NavigationMenuTrigger
