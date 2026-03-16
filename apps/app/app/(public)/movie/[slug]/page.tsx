@@ -11,10 +11,10 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-// ISR: Revalidate every 1 hour (3600 seconds)
+// ISR: Revalidate every 24 hours (86400 seconds)
 // First request after interval serves stale content instantly
 // Background revalidation fetches fresh content
-export const revalidate = CACHE_DURATION.DAILY;
+export const revalidate = 86400;
 
 /**
  * Pre-generate popular movies at build time for instant static HTML
