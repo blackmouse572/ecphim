@@ -12,6 +12,9 @@ import { MovieWatchClientPage } from "./page-client";
 type Props = {
   params: Promise<{ slug: string }>;
 };
+
+export const revalidate = 0; // Dynamic rendering - fetches at request time
+
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const movie = await fetchMovieDetail(slug);

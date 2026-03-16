@@ -1,12 +1,10 @@
 import { MotionPage } from "@repo/design-system/components/motion";
-import {
-  fetchCategories,
-  fetchHomeMovies,
-  fetchMovieList,
-} from "@/lib/services/movie";
+import { fetchHomeMovies, fetchMovieList } from "@/lib/services/movie";
 import { PublicLayout } from "./components/public-layout";
-import { CategoriesNavigation, TrendingMovies } from "./components/sections";
+import { TrendingMovies } from "./components/sections";
 import { HeroCarouselWrapper } from "./components/sections/hero-carousel-wrapper";
+
+export const revalidate = 0; // Dynamic rendering - fetches at request time
 
 export default async function HomePage() {
   const [movies, latestMovies, updatedMovies, cinemaMovies] = await Promise.all(
