@@ -182,7 +182,10 @@ export function MovieWatchClientPage(props: Props) {
                 language={movie.lang}
                 duration={movie.time}
                 status={movie.status}
+                country={movie.country}
+                category={movie.category}
               />
+
             </div>
           </div>
         </div>

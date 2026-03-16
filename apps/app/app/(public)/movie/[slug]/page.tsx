@@ -1,6 +1,7 @@
-import { CalendarBlank, Clock, MonitorPlay } from "@phosphor-icons/react/ssr";
+import { CalendarBlank, Clock, MonitorPlay, Globe } from "@phosphor-icons/react/ssr";
 import { MotionItem, MotionPage } from "@repo/design-system/components/motion";
 import { createMetadata } from "@repo/seo/metadata";
+import Link from "next/link";
 import { getMovieDetail, getMovieImages } from "@/lib/services/movie";
 import { CACHE_DURATION } from "../../../../lib/constants";
 import { EpisodeGrid } from "../../../(public-nolayout)/movie/[slug]/watch/components";
@@ -129,6 +130,50 @@ export default async function MovieDetailPage({ params }: Props) {
                         <div className="font-400 text-white">{movie.time}</div>
                       </div>
                     </div>
+
+                    {movie.country.length > 0 && (
+                      <div className="flex items-start gap-4">
+                        <Globe className="mt-0.5 h-5 w-5 shrink-0 text-white/50" />
+                        <div className="flex-1">
+                          <div className="mb-2 font-mono text-white/50 uppercase tracking-wider">
+                            Quốc gia
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {movie.country.map((c) => (
+                              <Link
+                                key={c._id}
+                                href={`/discover?cntry=${c.slug}`}
+                                className="inline-block rounded-full border border-white/20 bg-white/5 px-2 py-0.5 font-400 text-white/80 text-xs transition-all hover:border-white/50 hover:bg-white/10 hover:text-white"
+                              >
+                                {c.name}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {movie.category.length > 0 && (
+                      <div className="flex items-start gap-4">
+                        <div className="mt-0.5 h-5 w-5 shrink-0" />
+                        <div className="flex-1">
+                          <div className="mb-2 font-mono text-white/50 uppercase tracking-wider">
+                            Thể loại
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {movie.category.map((cat) => (
+                              <Link
+                                key={cat._id}
+                                href={`/discover?ctg=${cat.slug}`}
+                                className="inline-block rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 font-400 text-blue-200 text-xs transition-all hover:border-blue-400/60 hover:bg-blue-500/20 hover:text-blue-100"
+                              >
+                                {cat.name}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </MotionItem>
@@ -208,6 +253,29 @@ export default async function MovieDetailPage({ params }: Props) {
                   </div>
                 </div>
               </MotionItem>
+
+              {/* Country */}
+              {movie.country.length > 0 && (
+                <MotionItem delay={0.6}>
+                  <div className="space-y-4">
+                    <h4 className="font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
+                      Quốc gia
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {movie.country.map((c) => (
+                        <Link
+                          key={c._id}
+                          href={`/discover?cntry=${c.slug}`}
+                          className="inline-block rounded-full border border-white/20 bg-white/5 px-3 py-1.5 font-400 text-sm text-white/80 transition-all hover:border-white/50 hover:bg-white/10 hover:text-white"
+                        >
+                          <Globe className="mr-1 inline h-3.5 w-3.5" />
+                          {c.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </MotionItem>
+              )}
             </div>
           </div>
         </div>

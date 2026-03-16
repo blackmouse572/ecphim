@@ -63,7 +63,7 @@ export function GlobalSearch() {
       <Button
         intent="secondary"
         onClick={() => setIsOpen(true)}
-        className={"w-[12rem] justify-between text-sm"}
+        className={"w-[12rem] justify-between text-muted-foreground text-sm"}
       >
         <div className="flex items-center gap-2">
           <MagnifyingGlassIcon />
