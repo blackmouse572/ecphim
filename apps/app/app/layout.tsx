@@ -1,3 +1,4 @@
+import { Toast } from "@repo/design-system/components/ui/toast";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { env } from "@/env";
 import "./styles.css";
@@ -52,6 +53,7 @@ const RootLayout = ({ children }: RootLayoutProperties) => (
           ).toString()}
           termsUrl={new URL("/legal/terms", env.NEXT_PUBLIC_WEB_URL).toString()}
         >
+          <Toast position="top-center" />
           <NuqsAdapter>{children}</NuqsAdapter>
         </DesignSystemProvider>
       </AnalyticsProvider>
