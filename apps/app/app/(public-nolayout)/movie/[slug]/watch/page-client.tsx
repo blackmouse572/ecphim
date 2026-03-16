@@ -142,12 +142,12 @@ export function MovieWatchClientPage(props: Props) {
       {/* Video Player */}
       <VideoPlayerSection
         ref={playerRef}
+        key={`${serverName}-${episodeSlug}`}
         src={currentEpisode.link_m3u8}
         poster={movie.thumb_url}
         title={`${movie.name} - ${currentEpisode.name}`}
-        episodeSlug={episodeSlug || "#"}
         movieSlug={movieSlug}
-        serverName={serverName || "#"}
+        episodeSlug={currentEpisode.slug}
       />
       <div className="border-white/10 border-t bg-linear-to-t from-black via-zinc-950 to-zinc-900">
         <div className="container mx-auto max-w-7xl px-6 py-8">
@@ -185,7 +185,6 @@ export function MovieWatchClientPage(props: Props) {
                 country={movie.country}
                 category={movie.category}
               />
-
             </div>
           </div>
         </div>

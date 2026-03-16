@@ -28,25 +28,24 @@ interface VideoPlayerSectionProps {
   src: string;
   poster: string;
   title: string;
-  episodeSlug: string;
-  movieSlug: string;
-  serverName: string;
+  movieSlug?: string;
+  episodeSlug?: string;
 }
 
 export const VideoPlayerSection = forwardRef<
   HTMLDivElement,
   VideoPlayerSectionProps
 >(function VideoPlayerSection(
-  { src, poster, title, episodeSlug, movieSlug, serverName },
+  { src, poster, title, movieSlug, episodeSlug },
   ref,
 ) {
   const internalRef = useRef<HTMLDivElement>(null);
   const videoPlayerRef = useRef<VideoJSReactPlayerRef>(null);
 
   // Progress tracking hook
-  const { updateProgress, progress, isRestored } = useWatchProgress({
-    movieSlug,
-    episodeSlug,
+  const { updateProgress, progress } = useWatchProgress({
+    movieSlug: movieSlug || "",
+    episodeSlug: episodeSlug || "",
     onProgressRestore: (currentTime) => {
       // Restore saved time when video loads
       if (videoPlayerRef.current) {
@@ -64,21 +63,14 @@ export const VideoPlayerSection = forwardRef<
     <div ref={ref || internalRef} className="relative h-screen w-full bg-black">
       <VideoPlayer
         ref={videoPlayerRef}
-        key={movieSlug + serverName + episodeSlug}
         src={src}
         poster={poster}
         title={title}
         className="h-full w-full"
         autoPlay={true}
         onTimeUpdate={handleTimeUpdate}
+        currentTime={progress?.currentTime || 0}
       />
-      
-      {/* Progress indicator (optional visual feedback) */}
-      {progress && isRestored && (
-        <div className="absolute bottom-4 left-4 rounded bg-black/80 px-3 py-2 text-sm text-white">
-          Resumed from {Math.floor(progress.currentTime / 60)}:{String(Math.floor(progress.currentTime % 60)).padStart(2, '0')}
-        </div>
-      )}
     </div>
   );
 });

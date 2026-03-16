@@ -55,7 +55,6 @@ export function useWatchProgress({
   useEffect(() => {
     const savedProgress = getWatchProgress(movieSlug, episodeSlug);
     setProgress(savedProgress);
-
     // Auto-restore progress if it exists and should be restored
     if (savedProgress && shouldRestoreProgress(savedProgress) && onProgressRestore) {
       onProgressRestore(savedProgress.currentTime);
@@ -77,13 +76,10 @@ export function useWatchProgress({
 
       // Set new timeout
       saveTimeoutRef.current = setTimeout(() => {
+        console.log("Saving progress for", movieSlug, episodeSlug, latestProgressRef.current);
         const latestUpdate = latestProgressRef.current;
         if (latestUpdate) {
           saveWatchProgress(movieSlug, episodeSlug, latestUpdate);
-
-          // Update local state
-          const updatedProgress = getWatchProgress(movieSlug, episodeSlug);
-          setProgress(updatedProgress);
         }
       }, WATCH_PROGRESS_CONFIG.SAVE_INTERVAL);
     },
@@ -135,6 +131,7 @@ export function useWatchProgress({
       // Save any pending progress immediately on unmount
       const latestUpdate = latestProgressRef.current;
       if (latestUpdate) {
+        console.log("Saving progress on unmount for", movieSlug, episodeSlug, latestUpdate);
         saveWatchProgress(movieSlug, episodeSlug, latestUpdate);
       }
     };

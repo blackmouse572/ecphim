@@ -28,6 +28,7 @@ export interface VideoJSReactPlayerProps {
   onEnded?: () => void;
   onError?: (error: any) => void;
   onTimeUpdate?: (currentTime: number, duration: number) => void;
+  currentTime?: number; // Optional prop to set current time from outside - initial once
 }
 
 export interface VideoJSReactPlayerRef {
@@ -43,6 +44,7 @@ const VideoJSReactPlayer = forwardRef<
     src,
     poster,
     autoPlay = false,
+    currentTime,
     controls = true,
     fluid = true,
     responsive = true,
@@ -121,6 +123,10 @@ const VideoJSReactPlayer = forwardRef<
           const duration = player.duration() || 0;
           onTimeUpdate(currentTime, duration);
         });
+      }
+
+      if (currentTime) {
+        player.currentTime(currentTime);
       }
     } else {
       const player = playerRef.current;
