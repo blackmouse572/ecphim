@@ -127,8 +127,8 @@ export function CinematicHeroSection({
                   </div>
                 </Note>
               ) : (
-                <div className="flex flex-wrap gap-4">
-                  <WatchNowButton movie={movie} />
+                <div className="flex w-full flex-wrap gap-4 sm:w-fit">
+                  <WatchNowButton className="w-full" movie={movie} />
                 </div>
               )}
             </MotionItem>

@@ -152,6 +152,16 @@ export function MovieWatchClientPage(props: Props) {
       <div className="border-white/10 border-t bg-linear-to-t from-black via-zinc-950 to-zinc-900">
         <div className="container mx-auto max-w-7xl px-6 py-8">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr]">
+            {movie.type !== "single" && (
+              <NextEpisodeSection
+                nextEpisode={nextEpisode}
+                onPlayNext={(ep) => setEpisodeSlug(ep.slug)}
+                previousEpisode={previousEpisode}
+                onPlayPrevious={(ep) => setEpisodeSlug(ep.slug)}
+                className="block md:hidden"
+              />
+            )}
+
             {/* Episodes Grid */}
             <EpisodeGrid
               movie={movie}
@@ -167,6 +177,7 @@ export function MovieWatchClientPage(props: Props) {
                   onPlayNext={(ep) => setEpisodeSlug(ep.slug)}
                   previousEpisode={previousEpisode}
                   onPlayPrevious={(ep) => setEpisodeSlug(ep.slug)}
+                  className="hidden md:block"
                 />
               )}
               {/* Server Selector */}

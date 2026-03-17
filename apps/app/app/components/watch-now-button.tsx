@@ -14,9 +14,17 @@ export function WatchNowButton(
     href?: string;
     movie: IMovie;
     withShortCut?: boolean;
+    className?: string;
   } & Pick<ButtonProps, "size" | "intent">,
 ) {
-  const { movie, size = "2xl", intent, withShortCut = true, ...rest } = props;
+  const {
+    movie,
+    size = "2xl",
+    intent,
+    className,
+    withShortCut = true,
+    ...rest
+  } = props;
   const router = useRouter();
 
   useHotkey(
@@ -36,6 +44,7 @@ export function WatchNowButton(
       {...rest}
       className={buttonStyles({
         size,
+        className,
         intent,
       })}
     >

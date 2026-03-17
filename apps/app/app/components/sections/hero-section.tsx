@@ -85,7 +85,7 @@ export function HeroSection({ movies, movieImages }: HeroSectionProps) {
       <div className="container relative z-20 mx-auto max-w-7xl px-6">
         <MotionList delay={0.3} className="max-w-2xl space-y-8">
           <MotionItem>
-            <div className="mb-6 flex items-center gap-4">
+            <div className="mb-6 flex flex-wrap items-center gap-4">
               {currentMovie.category.map((cat) => (
                 <Link key={cat.slug} href={`/category/${cat.slug}`}>
                   <Badge

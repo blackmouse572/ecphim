@@ -171,12 +171,16 @@ export function Header(props: HeaderProps) {
           )}
           <NavigationMenuViewport className="min-w-3xl" />
         </NavigationMenuList>
-        <MobileNav navLinks={navLinks} />
       </NavigationMenu>
       <div className="flex items-center gap-2">
         <GlobalSearch />
         <LoginBtn />
       </div>
+      <MobileNav
+        navLinks={navLinks}
+        countries={props.countries}
+        years={props.years}
+      />
     </header>
   );
 }

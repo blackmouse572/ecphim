@@ -139,7 +139,7 @@ export function GlobalSearch() {
           )}
         </CommandMenuList>
         <CommandMenuFooter>
-          <div className="flex items-center gap-2 px-1.5 text-muted-foreground text-xs">
+          <div className="hidden items-center gap-2 px-1.5 text-muted-foreground text-xs sm:flex">
             Sử dụng <Kbd>Enter</Kbd> để xem chi tiết phim. <Kbd>↑</Kbd> và{" "}
             <Kbd>↓</Kbd>
             để di chuyển qua các kết quả.<Kbd>⌘K</Kbd> để đóng menu

@@ -3,6 +3,7 @@
 import { Play } from "@phosphor-icons/react";
 import { Button } from "@repo/design-system/components/ui/button";
 import { Kbd } from "@repo/design-system/components/ui/kbd";
+import { cn } from "@repo/design-system/lib/utils";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { useRouter } from "next/navigation";
 import type { IEpisode } from "../../../../../../types/response";
@@ -12,6 +13,7 @@ interface NextEpisodeSectionProps {
   onPlayNext: (episode: IEpisode) => void;
   previousEpisode?: IEpisode | null;
   onPlayPrevious?: (episode: IEpisode) => void;
+  className?: string;
 }
 
 export function NextEpisodeSection({
@@ -19,6 +21,7 @@ export function NextEpisodeSection({
   onPlayNext,
   previousEpisode,
   onPlayPrevious,
+  className,
 }: NextEpisodeSectionProps) {
   const router = useRouter();
   useHotkey("N", () => {
@@ -32,7 +35,12 @@ export function NextEpisodeSection({
     }
   });
   return (
-    <div className="rounded-2xl border border-blue-500/20 bg-linear-to-br from-blue-500/10 to-cyan-500/10 p-6">
+    <div
+      className={cn(
+        "rounded-2xl border border-blue-500/20 bg-linear-to-br from-blue-500/10 to-cyan-500/10 p-6",
+        className,
+      )}
+    >
       <h4 className="mb-3 font-700 text-title text-white">Tập tiếp theo</h4>
       {nextEpisode ? (
         <Button

@@ -15,6 +15,7 @@ export function LoginBtn() {
     <Link
       className={buttonStyles({
         size: "sm",
+        className: "hidden sm:inline-block",
       })}
       href="/sign-in"
     >
