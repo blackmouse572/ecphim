@@ -1,4 +1,5 @@
 import { Toast } from "@repo/design-system/components/ui/toast";
+import { Analytics } from "@vercel/analytics/next";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { env } from "@/env";
 import "./styles.css";
@@ -58,6 +59,7 @@ const RootLayout = ({ children }: RootLayoutProperties) => (
         </DesignSystemProvider>
       </AnalyticsProvider>
       <Toolbar />
+      <Analytics />
     </body>
   </html>
 );
