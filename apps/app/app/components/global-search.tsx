@@ -13,9 +13,11 @@ import { Kbd } from "@repo/design-system/components/ui/kbd";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import type { IMovie } from "../../types/response";
 import { searchMovies } from "../actions/search-movies";
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 export function GlobalSearch() {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,13 +26,18 @@ export function GlobalSearch() {
   const cdnUrlRef = useRef("");
   const router = useRouter();
   const [results, setResults] = useState<(IMovie & { id: string })[]>([]);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestSearchRef = useRef<string>("");
 
   useHotkey("Mod+K", () => setIsOpen((open) => !open));
   useHotkey("Escape", () => setIsOpen(false), { enabled: isOpen });
 
-  const performSearchMovies = async (query: string) => {
+  const performSearchMovies = useCallback(async (query: string) => {
     try {
       const response = await searchMovies(query);
+      if (latestSearchRef.current !== query) {
+        return;
+      }
       cdnUrlRef.current = response?.APP_DOMAIN_CDN_IMAGE || "";
       setResults(
         response?.items.map((item) => ({
@@ -40,23 +47,40 @@ export function GlobalSearch() {
         })),
       );
     } catch (error) {
-      console.error("Search error:", error);
-      setResults([]);
+      if (latestSearchRef.current === query) {
+        console.error("Search error:", error);
+        setResults([]);
+      }
     }
-  };
+  }, []);
 
-  const handleSearch = async (value: string) => {
+  const handleSearch = (value: string) => {
     setSearch(value);
+    latestSearchRef.current = value;
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
 
     if (!value.trim()) {
       setResults([]);
       return;
     }
 
-    startTransition(async () => {
-      await performSearchMovies(value);
-    });
+    debounceTimerRef.current = setTimeout(() => {
+      startTransition(async () => {
+        await performSearchMovies(latestSearchRef.current);
+      });
+    }, SEARCH_DEBOUNCE_MS);
   };
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <>
