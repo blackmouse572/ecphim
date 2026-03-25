@@ -66,6 +66,7 @@ export default async function Page({ searchParams }: PageProps) {
                 ctg={ctg}
                 sort_by={sort_by}
                 sort_order={sort_order}
+                page={pageNum}
                 cntry={cntry}
               />
             </Suspense>
