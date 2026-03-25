@@ -218,7 +218,7 @@ importers:
         specifier: 19.2.1
         version: 19.2.1(react@19.2.1)
       react-hook-form:
-        specifier: ^7.51.3
+        specifier: ^7.54.1
         version: 7.68.0(react@19.2.1)
       require-in-the-middle:
         specifier: 8.0.1
