@@ -11,7 +11,6 @@
         "typecheck": "tsc --noEmit --emitDeclarationOnly false"
     },
     "dependencies": {
-        "@hookform/resolvers": "^3.3.4",
         "@phosphor-icons/react": "^2.1.10",
         "@repo/analytics": "workspace:*",
         "@repo/auth": "workspace:*",
@@ -28,7 +27,9 @@
         "@rescale/nemo": "^2.0.2",
         "@sentry/nextjs": "^10.29.0",
         "@t3-oss/env-nextjs": "^0.13.8",
+        "@tanstack/react-form": "^1.28.5",
         "@tanstack/react-hotkeys": "^0.4.1",
+        "@tanstack/zod-form-adapter": "^0.42.1",
         "@vercel/analytics": "^1.6.1",
         "@videojs/http-streaming": "^3.17.4",
         "@videojs/themes": "^1.0.1",
@@ -41,7 +42,6 @@
         "nuqs": "^2.8.9",
         "react": "19.2.1",
         "react-dom": "19.2.1",
-        "react-hook-form": "^7.51.3",
         "require-in-the-middle": "8.0.1",
         "sonner": "^2.0.7",
         "usehooks-ts": "^3.1.1",
@@ -49,7 +49,7 @@
         "videojs-contrib-quality-levels": "^4.1.0",
         "videojs-hls-quality-selector": "^2.0.0",
         "videojs-hotkeys": "^0.2.30",
-        "zod": "^4.1.13"
+        "zod": "^4.0.17"
     },
     "devDependencies": {
         "@repo/typescript-config": "workspace:*",
