@@ -303,6 +303,7 @@ export function FiltersForm({ countries }: FiltersFormProps) {
   const [isPending, startTransition] = useTransition();
 
   const methods = useForm<FiltersFormData>({
+    // @ts-expect-error: zodResolver type mismatch between @hookform/resolvers v5 and zod v4
     resolver: zodResolver(filtersSchema),
     defaultValues: {
       clt: searchParams.get("clt") || "",
