@@ -17,7 +17,7 @@ import {
 import { useForm } from "@tanstack/react-form";
 import { usePathname, useRouter } from "next/navigation";
 import { parseAsString, useQueryStates } from "nuqs";
-import { useEffect, useTransition } from "react";
+import { useTransition } from "react";
 import { CATEGORIES } from "@/app/components/app-nav/data";
 import type { ICountry } from "../../../../types/response";
 
@@ -249,9 +249,9 @@ function SortFieldsComponent({
 // Action Buttons Component
 function ActionButtonsComponent(props: {
   isPending?: boolean;
-  clt: string;
+  clt: string | null;
   ctg: string[];
-  cntry: string;
+  cntry: string | null;
   onClearAll: () => void;
 }) {
   const hasActiveFilters =
@@ -297,11 +297,11 @@ export function FiltersForm({ countries }: FiltersFormProps) {
 
   const form = useForm({
     defaultValues: {
-      clt: "",
-      ctg: [] as string[],
-      cntry: "",
-      sort_by: "modified.time",
-      sort_order: "desc",
+      clt: urlParams.clt,
+      ctg: urlParams.ctg ? urlParams.ctg.split(",") : [],
+      cntry: urlParams.cntry,
+      sort_by: urlParams.sort_by || "modified.time",
+      sort_order: urlParams.sort_order || "desc",
     },
     onSubmit: async ({ value }) => {
       startTransition(() => {
@@ -320,46 +320,6 @@ export function FiltersForm({ countries }: FiltersFormProps) {
       });
     },
   });
-
-  // Sync form values with URL params when they change
-  useEffect(() => {
-    const currentFormValues = {
-      clt: form.getFieldValue("clt"),
-      ctg: form.getFieldValue("ctg"),
-      cntry: form.getFieldValue("cntry"),
-      sort_by: form.getFieldValue("sort_by"),
-      sort_order: form.getFieldValue("sort_order"),
-    };
-
-    const newValues = {
-      clt: urlParams.clt || "",
-      ctg: urlParams.ctg ? urlParams.ctg.split(",") : [],
-      cntry: urlParams.cntry || "",
-      sort_by: urlParams.sort_by || "modified.time",
-      sort_order: urlParams.sort_order || "desc",
-    };
-
-    // Only update if values have actually changed to prevent infinite loops
-    if (
-      currentFormValues.clt !== newValues.clt ||
-      JSON.stringify(currentFormValues.ctg) !== JSON.stringify(newValues.ctg) ||
-      currentFormValues.cntry !== newValues.cntry ||
-      currentFormValues.sort_by !== newValues.sort_by ||
-      currentFormValues.sort_order !== newValues.sort_order
-    ) {
-      form.setFieldValue("clt", newValues.clt);
-      form.setFieldValue("ctg", newValues.ctg);
-      form.setFieldValue("cntry", newValues.cntry);
-      form.setFieldValue("sort_by", newValues.sort_by);
-      form.setFieldValue("sort_order", newValues.sort_order);
-    }
-  }, [
-    urlParams.clt,
-    urlParams.ctg,
-    urlParams.cntry,
-    urlParams.sort_by,
-    urlParams.sort_order,
-  ]);
 
   const handleClearAll = () => {
     form.setFieldValue("clt", "");
@@ -382,26 +342,62 @@ export function FiltersForm({ countries }: FiltersFormProps) {
         disabled={isPending}
         className="flex flex-wrap items-start justify-between gap-8 rounded-3xl border border-white/10 bg-white/2 p-6 backdrop-blur-sm"
       >
-        <CollectionFilterField
-          clt={form.getFieldValue("clt")}
-          setClt={(value) => form.setFieldValue("clt", value)}
+        <form.Field
+          name="clt"
+          children={({ state, handleChange }) => (
+            <CollectionFilterField
+              clt={state.value as string}
+              setClt={(value) => handleChange(value)}
+            />
+          )}
         />
-        <CategoryFilterField
-          ctg={form.getFieldValue("ctg")}
-          setCtg={(value) => form.setFieldValue("ctg", value)}
+        <form.Field
+          name="ctg"
+          children={({ state, handleChange }) => (
+            <CategoryFilterField ctg={state.value} setCtg={handleChange} />
+          )}
         />
-        <CountryFilterField
-          countries={countries}
-          cntry={form.getFieldValue("cntry")}
-          setCntry={(value) => form.setFieldValue("cntry", value)}
+        <form.Field
+          name="cntry"
+          children={({ state, handleChange }) => (
+            <CountryFilterField
+              countries={countries}
+              cntry={state.value as string}
+              setCntry={handleChange}
+            />
+          )}
         />
         <div className="flex w-full items-end justify-between">
-          <SortFieldsComponent
-            sortBy={form.getFieldValue("sort_by")}
-            setSortBy={(value) => form.setFieldValue("sort_by", value)}
-            sortOrder={form.getFieldValue("sort_order")}
-            setSortOrder={(value) => form.setFieldValue("sort_order", value)}
+          <form.Field
+            name="sort_by"
+            children={({ state, handleChange }) => (
+              <SortFieldsComponent
+                sortBy={state.value as string}
+                setSortBy={(value) => handleChange(value)}
+                sortOrder={form.getFieldValue("sort_order")}
+                setSortOrder={(value) =>
+                  form.setFieldValue("sort_order", value)
+                }
+              />
+            )}
           />
+          <form.Field
+            name="sort_by"
+            children={(sortBy) => (
+              <form.Field
+                name="sort_order"
+                children={(sortOrder) => (
+                  <SortFieldsComponent
+                    sortBy={sortBy.state.value as string}
+                    setSortBy={sortBy.handleChange}
+                    sortOrder={sortOrder.state.value as string}
+                    setSortOrder={(value) => sortOrder.handleChange(value)}
+                  />
+                )}
+              />
+            )}
+          />
+
           <ActionButtonsComponent
             isPending={isPending}
             clt={form.getFieldValue("clt")}
