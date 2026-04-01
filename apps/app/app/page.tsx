@@ -27,9 +27,20 @@ export default async function HomePage() {
     <PublicLayout>
       <MotionPage className="min-h-screen bg-linear-to-br from-black via-zinc-950 to-black">
         <HeroCarouselWrapper movies={movies.slice(0, 5)} />
-        <TrendingMovies movies={latestMovies.items} />
-        <TrendingMovies title="Mới cập nhật" movies={updatedMovies.items} />
-        <TrendingMovies title="Phim chiếu rạp" movies={cinemaMovies.items} />
+        <TrendingMovies
+          movies={latestMovies.items}
+          viewAllUrl="/discover?clt=phim-moi"
+        />
+        <TrendingMovies
+          title="Mới cập nhật"
+          movies={updatedMovies.items}
+          viewAllUrl="/discover?sort_by=modified.time&sort_order=desc"
+        />
+        <TrendingMovies
+          title="Phim chiếu rạp"
+          movies={cinemaMovies.items}
+          viewAllUrl="/discover?clt=phim-chieu-rap"
+        />
       </MotionPage>
     </PublicLayout>
   );
