@@ -15,10 +15,9 @@ import {
   TagList,
 } from "@repo/design-system/components/ui/tag-group";
 import { useForm } from "@tanstack/react-form";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { parseAsString, useQueryStates } from "nuqs";
-import { useTransition } from "react";
-import { z } from "zod";
+import { useEffect, useTransition } from "react";
 import { CATEGORIES } from "@/app/components/app-nav/data";
 import type { ICountry } from "../../../../types/response";
 
@@ -53,16 +52,6 @@ const SORT_ORDER_OPTIONS = [
   { id: "desc", name: "Giảm dần" },
   { id: "asc", name: "Tăng dần" },
 ] as const;
-
-const filtersSchema = z.object({
-  clt: z.string().optional(),
-  ctg: z.array(z.string()).optional(),
-  cntry: z.string().optional(),
-  sort_by: z.string().optional(),
-  sort_order: z.string().optional(),
-});
-
-type FiltersFormData = z.infer<typeof filtersSchema>;
 
 type FiltersFormProps = {
   countries: ICountry[];
@@ -295,8 +284,7 @@ function ActionButtonsComponent(props: {
 }
 
 export function FiltersForm({ countries }: FiltersFormProps) {
-  const searchParams = useSearchParams();
-  const [defaultValues, __] = useQueryStates({
+  const [urlParams, __] = useQueryStates({
     clt: parseAsString,
     ctg: parseAsString,
     cntry: parseAsString,
@@ -309,11 +297,11 @@ export function FiltersForm({ countries }: FiltersFormProps) {
 
   const form = useForm({
     defaultValues: {
-      clt: defaultValues.clt || "",
-      ctg: defaultValues.ctg ? defaultValues.ctg.split(",") : [],
-      cntry: defaultValues.cntry || "",
-      sort_by: defaultValues.sort_by || "modified.time",
-      sort_order: defaultValues.sort_order || "desc",
+      clt: "",
+      ctg: [] as string[],
+      cntry: "",
+      sort_by: "modified.time",
+      sort_order: "desc",
     },
     onSubmit: async ({ value }) => {
       startTransition(() => {
@@ -332,6 +320,46 @@ export function FiltersForm({ countries }: FiltersFormProps) {
       });
     },
   });
+
+  // Sync form values with URL params when they change
+  useEffect(() => {
+    const currentFormValues = {
+      clt: form.getFieldValue("clt"),
+      ctg: form.getFieldValue("ctg"),
+      cntry: form.getFieldValue("cntry"),
+      sort_by: form.getFieldValue("sort_by"),
+      sort_order: form.getFieldValue("sort_order"),
+    };
+
+    const newValues = {
+      clt: urlParams.clt || "",
+      ctg: urlParams.ctg ? urlParams.ctg.split(",") : [],
+      cntry: urlParams.cntry || "",
+      sort_by: urlParams.sort_by || "modified.time",
+      sort_order: urlParams.sort_order || "desc",
+    };
+
+    // Only update if values have actually changed to prevent infinite loops
+    if (
+      currentFormValues.clt !== newValues.clt ||
+      JSON.stringify(currentFormValues.ctg) !== JSON.stringify(newValues.ctg) ||
+      currentFormValues.cntry !== newValues.cntry ||
+      currentFormValues.sort_by !== newValues.sort_by ||
+      currentFormValues.sort_order !== newValues.sort_order
+    ) {
+      form.setFieldValue("clt", newValues.clt);
+      form.setFieldValue("ctg", newValues.ctg);
+      form.setFieldValue("cntry", newValues.cntry);
+      form.setFieldValue("sort_by", newValues.sort_by);
+      form.setFieldValue("sort_order", newValues.sort_order);
+    }
+  }, [
+    urlParams.clt,
+    urlParams.ctg,
+    urlParams.cntry,
+    urlParams.sort_by,
+    urlParams.sort_order,
+  ]);
 
   const handleClearAll = () => {
     form.setFieldValue("clt", "");
