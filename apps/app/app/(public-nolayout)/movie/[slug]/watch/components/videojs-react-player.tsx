@@ -132,19 +132,27 @@ const VideoJSReactPlayer = forwardRef<
       }
 
       // Restore saved volume from localStorage
-      const savedVolume = localStorage.getItem(VOLUME_STORAGE_KEY);
-      if (savedVolume !== null) {
-        const parsed = parseFloat(savedVolume);
-        if (!Number.isNaN(parsed)) {
-          player.volume(parsed);
-          player.muted(parsed === 0);
+      try {
+        const savedVolume = localStorage.getItem(VOLUME_STORAGE_KEY);
+        if (savedVolume !== null) {
+          const parsed = parseFloat(savedVolume);
+          if (!Number.isNaN(parsed)) {
+            player.volume(parsed);
+            player.muted(parsed === 0);
+          }
         }
+      } catch {
+        // localStorage unavailable (e.g. private browsing or SSR)
       }
 
       // Persist volume changes to localStorage
       player.on("volumechange", () => {
-        const vol = player.muted() ? 0 : (player.volume() ?? 1);
-        localStorage.setItem(VOLUME_STORAGE_KEY, String(vol));
+        try {
+          const vol = player.muted() ? 0 : (player.volume() ?? 1);
+          localStorage.setItem(VOLUME_STORAGE_KEY, String(vol));
+        } catch {
+          // localStorage unavailable or quota exceeded
+        }
       });
     } else {
       const player = playerRef.current;
