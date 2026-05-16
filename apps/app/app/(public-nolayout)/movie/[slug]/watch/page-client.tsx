@@ -114,6 +114,13 @@ export function MovieWatchClientPage(props: Props) {
     setServerName(serverIndex.server_name);
   };
 
+  // Handle auto-navigation to next episode when video ends
+  const handleVideoEnded = () => {
+    if (nextEpisode) {
+      setEpisodeSlug(nextEpisode.slug);
+    }
+  };
+
   const router = useRouter();
   useHotkey("Escape", () => {
     router.push(`/movie/${movieSlug}`);
@@ -148,6 +155,7 @@ export function MovieWatchClientPage(props: Props) {
         title={`${movie.name} - ${currentEpisode.name}`}
         movieSlug={movieSlug}
         episodeSlug={currentEpisode.slug}
+        onEnded={handleVideoEnded}
       />
       <div className="border-white/10 border-t bg-linear-to-t from-black via-zinc-950 to-zinc-900">
         <div className="container mx-auto max-w-7xl px-6 py-8">

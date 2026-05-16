@@ -10,6 +10,8 @@ import "videojs-hls-quality-selector";
 import "videojs-hotkeys";
 import { cn } from "@repo/design-system/lib/utils";
 
+const VOLUME_STORAGE_KEY = "videojs-volume";
+
 export interface VideoJSReactPlayerProps {
   src: string;
   poster?: string;
@@ -128,6 +130,30 @@ const VideoJSReactPlayer = forwardRef<
       if (currentTime) {
         player.currentTime(currentTime);
       }
+
+      // Restore saved volume from localStorage
+      try {
+        const savedVolume = localStorage.getItem(VOLUME_STORAGE_KEY);
+        if (savedVolume !== null) {
+          const parsed = parseFloat(savedVolume);
+          if (!Number.isNaN(parsed)) {
+            player.volume(parsed);
+            player.muted(parsed === 0);
+          }
+        }
+      } catch {
+        // localStorage unavailable (e.g. private browsing or SSR)
+      }
+
+      // Persist volume changes to localStorage
+      player.on("volumechange", () => {
+        try {
+          const vol = player.muted() ? 0 : (player.volume() ?? 1);
+          localStorage.setItem(VOLUME_STORAGE_KEY, String(vol));
+        } catch {
+          // localStorage unavailable or quota exceeded
+        }
+      });
     } else {
       const player = playerRef.current;
       player.src(src);

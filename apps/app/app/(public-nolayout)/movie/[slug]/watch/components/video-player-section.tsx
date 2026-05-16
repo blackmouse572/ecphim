@@ -30,13 +30,14 @@ interface VideoPlayerSectionProps {
   title: string;
   movieSlug?: string;
   episodeSlug?: string;
+  onEnded?: () => void;
 }
 
 export const VideoPlayerSection = forwardRef<
   HTMLDivElement,
   VideoPlayerSectionProps
 >(function VideoPlayerSection(
-  { src, poster, title, movieSlug, episodeSlug },
+  { src, poster, title, movieSlug, episodeSlug, onEnded },
   ref,
 ) {
   const internalRef = useRef<HTMLDivElement>(null);
@@ -69,6 +70,7 @@ export const VideoPlayerSection = forwardRef<
         className="h-full w-full"
         autoPlay={true}
         onTimeUpdate={handleTimeUpdate}
+        onEnded={onEnded}
         currentTime={progress?.currentTime || 0}
       />
     </div>
