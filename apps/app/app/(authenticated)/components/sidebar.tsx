@@ -323,8 +323,13 @@ export const GlobalSidebar = ({ children, user }: GlobalSidebarProperties) => {
                   </DropdownMenu>
                 </>
               ) : (
-                <Button className="shrink-0" size="sq-sm" intent="plain" asChild>
-                  <Link href="/sign-in" aria-label="Sign in">
+                <Button
+                  className="shrink-0"
+                  size="sq-sm"
+                  intent="plain"
+                  aria-label="Sign in"
+                >
+                  <Link href="/sign-in">
                     <SignIn className="h-4 w-4" />
                     <span className="sr-only">Sign in</span>
                   </Link>
