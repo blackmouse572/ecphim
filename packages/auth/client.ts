@@ -1,9 +1,9 @@
-/** biome-ignore-all lint/style/noNonNullAssertion: not null env */
 "use client";
 
-import { createBrowserClient } from "@supabase/ssr";
-export const createClient = () =>
-  createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+import { createAuthClient } from "better-auth/react";
+
+export const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_APP_URL,
+});
+
+export const createClient = () => authClient;

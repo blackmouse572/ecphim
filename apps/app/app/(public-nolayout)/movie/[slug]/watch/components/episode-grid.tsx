@@ -4,34 +4,36 @@ import { buttonStyles } from "@repo/design-system/components/variants/buttonVari
 import { cn } from "@repo/design-system/lib/utils";
 import Link from "next/link";
 import { useMemo } from "react";
-import { getMovieWatchProgress, isVideoWatched } from "@/lib/watch-progress";
+import { isVideoWatched } from "@/lib/watch-progress";
+import type { WatchProgress } from "@/types/watch-progress";
 import type { IEpisode, IMovie } from "../../../../../../types/response";
 
 interface EpisodeGridProps {
   movie: IMovie;
   currentEpisodeSlug?: string;
   onEpisodeSelect?: (episode: IEpisode) => void;
+  movieProgress?: WatchProgress[];
 }
 
 export function EpisodeGrid({
   movie,
   currentEpisodeSlug,
   onEpisodeSelect,
+  movieProgress = [],
 }: EpisodeGridProps) {
   const { episodes } = movie;
 
   // Get all progress for this movie
-  const movieProgress = useMemo(() => {
-    const progress = getMovieWatchProgress(movie.slug);
+  const movieProgressMap = useMemo(() => {
     const progressMap = new Map();
-    for (const p of progress) {
+    for (const p of movieProgress) {
       progressMap.set(p.episodeSlug, p);
     }
     return progressMap;
-  }, [movie.slug]);
+  }, [movieProgress]);
 
   const getEpisodeStatus = (episode: IEpisode) => {
-    const progress = movieProgress.get(episode.slug);
+    const progress = movieProgressMap.get(episode.slug);
     if (!progress) return "unwatched";
     if (isVideoWatched(progress.currentTime, progress.duration))
       return "watched";
@@ -39,7 +41,7 @@ export function EpisodeGrid({
   };
 
   const getProgressPercentage = (episode: IEpisode) => {
-    const progress = movieProgress.get(episode.slug);
+    const progress = movieProgressMap.get(episode.slug);
     return progress ? progress.watchedPercentage : 0;
   };
 

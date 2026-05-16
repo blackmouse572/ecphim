@@ -14,10 +14,13 @@ import {
   Robot,
   Share,
   SignIn,
+  SignOut,
   Terminal,
   Trash,
 } from "@phosphor-icons/react";
+import { authClient } from "@repo/auth/client";
 import { ModeToggle } from "@repo/design-system/components/mode-toggle";
+import { Avatar } from "@repo/design-system/components/ui/avatar";
 import { Button } from "@repo/design-system/components/ui/button";
 import {
   DropdownMenu,
@@ -41,12 +44,15 @@ import {
 } from "@repo/design-system/components/ui/sidebar";
 import { NotificationsTrigger } from "@repo/notifications/components/trigger";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { Search } from "./search";
 
 type User = {
   id: string;
+  name?: string | null;
   email?: string;
+  image?: string | null;
 } | null;
 
 type GlobalSidebarProperties = {
@@ -185,6 +191,13 @@ const data = {
 
 export const GlobalSidebar = ({ children, user }: GlobalSidebarProperties) => {
   const sidebar = useSidebar();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    router.push("/sign-in");
+    router.refresh();
+  };
 
   return (
     <>
@@ -266,19 +279,52 @@ export const GlobalSidebar = ({ children, user }: GlobalSidebarProperties) => {
             <div className="flex shrink-0 items-center gap-px">
               <ModeToggle />
               {user ? (
-                <Button className="shrink-0" size="sq-sm" intent="plain">
-                  <div className="h-4 w-4">
-                    <NotificationsTrigger />
-                  </div>
-                </Button>
+                <>
+                  <Button className="shrink-0" size="sq-sm" intent="plain">
+                    <div className="h-4 w-4">
+                      <NotificationsTrigger />
+                    </div>
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        className="h-8 w-auto gap-2 px-2"
+                        size="sm"
+                        intent="plain"
+                      >
+                        <Avatar
+                          alt={user.name ?? user.email ?? "User"}
+                          className="h-6 w-6"
+                          initials={(user.name ?? user.email ?? "U")
+                            .slice(0, 2)
+                            .toUpperCase()}
+                          src={user.image ?? undefined}
+                        />
+                        <span className="max-w-28 truncate text-xs">
+                          {user.name ?? user.email}
+                        </span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <div className="px-2 py-1.5">
+                        <p className="truncate font-medium text-sm">
+                          {user.name ?? "User"}
+                        </p>
+                        <p className="truncate text-muted-foreground text-xs">
+                          {user.email}
+                        </p>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut}>
+                        <SignOut className="text-muted-foreground" />
+                        <span>Logout</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               ) : (
-                <Button
-                  className="shrink-0"
-                  size="sq-sm"
-                  intent="plain"
-                  aria-label="Sign in"
-                >
-                  <Link href="/sign-in">
+                <Button className="shrink-0" size="sq-sm" intent="plain" asChild>
+                  <Link href="/sign-in" aria-label="Sign in">
                     <SignIn className="h-4 w-4" />
                     <span className="sr-only">Sign in</span>
                   </Link>
