@@ -135,9 +135,16 @@ function isWatchProgress(value: unknown): value is WatchProgress {
     typeof record.movieSlug === "string" &&
     typeof record.episodeSlug === "string" &&
     typeof record.currentTime === "number" &&
+    Number.isFinite(record.currentTime) &&
+    record.currentTime >= 0 &&
     typeof record.duration === "number" &&
+    Number.isFinite(record.duration) &&
+    record.duration >= 0 &&
     typeof record.lastWatched === "string" &&
-    typeof record.watchedPercentage === "number"
+    typeof record.watchedPercentage === "number" &&
+    Number.isFinite(record.watchedPercentage) &&
+    record.watchedPercentage >= 0 &&
+    record.watchedPercentage <= 100
   );
 }
 

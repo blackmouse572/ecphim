@@ -117,7 +117,10 @@ export function useWatchProgress({
               });
             },
           ).catch((error) => {
-            console.error("Failed to save watch progress to server:", error);
+            console.error(
+              `Failed to save watch progress to server for ${movieSlug}/${episodeSlug}:`,
+              error instanceof Error ? error.message : error,
+            );
           });
           return;
         }
