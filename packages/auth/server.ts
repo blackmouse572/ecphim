@@ -53,6 +53,8 @@ export const auth = async () => {
 
   const membership = await database.organizationMember.findFirst({
     where: { userId: user.id },
+    // Keep existing behavior stable by using the first-created membership
+    // as the default active organization when no explicit selection exists.
     orderBy: { createdAt: "asc" },
   });
 

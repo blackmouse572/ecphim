@@ -116,7 +116,9 @@ export function useWatchProgress({
                 return Array.from(map.values());
               });
             },
-          );
+          ).catch((error) => {
+            console.error("Failed to save watch progress to server:", error);
+          });
           return;
         }
 
