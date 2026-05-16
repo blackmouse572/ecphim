@@ -30,7 +30,7 @@
         "@tanstack/react-form": "^1.28.5",
         "@tanstack/react-hotkeys": "^0.4.1",
         "@tanstack/zod-form-adapter": "^0.42.1",
-        "@vercel/analytics": "^1.6.1",
+        "@vercel/analytics": "^2.0.1",
         "@videojs/http-streaming": "^3.17.4",
         "@videojs/themes": "^1.0.1",
         "dompurify": "^3.3.3",
