@@ -80,7 +80,7 @@ export const SignUp = (props: SignUpProps) => {
       callbackURL: "/",
     });
     if (socialError) {
-      setError(socialError.message ?? "Unable to sign in with Google");
+      setError(socialError.message ?? "Không thể đăng nhập với Google");
     }
   };
 

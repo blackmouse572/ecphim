@@ -57,7 +57,7 @@ export const SignInProps = (props: SignInProps) => {
       callbackURL: "/",
     });
     if (socialError) {
-      setError(socialError.message ?? "Unable to sign in with Google");
+      setError(socialError.message ?? "Không thể đăng nhập với Google");
     }
   };
 

@@ -198,7 +198,7 @@ export const GlobalSidebar = ({ children, user }: GlobalSidebarProperties) => {
     setLogoutError(null);
     const { error } = await authClient.signOut();
     if (error) {
-      setLogoutError(error.message ?? "Unable to logout");
+      setLogoutError(error.message ?? "Không thể đăng xuất");
       return;
     }
     router.push("/sign-in");
@@ -328,7 +328,7 @@ export const GlobalSidebar = ({ children, user }: GlobalSidebarProperties) => {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleSignOut}>
                         <SignOut className="text-muted-foreground" />
-                        <span>Logout</span>
+                        <span>Đăng xuất</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
