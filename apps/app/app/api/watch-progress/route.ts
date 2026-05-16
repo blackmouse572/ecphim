@@ -152,7 +152,10 @@ export async function DELETE(request: Request) {
   const episodeSlug = searchParams.get("episodeSlug");
 
   if (!movieSlug || !episodeSlug) {
-    return NextResponse.json({ error: "movieSlug and episodeSlug are required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Both movieSlug and episodeSlug are required for deletion" },
+      { status: 400 },
+    );
   }
 
   await database.watchProgress.deleteMany({

@@ -18,6 +18,11 @@ const socialProviders =
       }
     : undefined;
 
+const trustedOrigins = [
+  env.NEXT_PUBLIC_APP_URL,
+  env.BETTER_AUTH_URL,
+].filter((origin): origin is string => Boolean(origin));
+
 export const serverAuth = betterAuth({
   database: prismaAdapter(database, {
     provider: "postgresql",
@@ -28,7 +33,7 @@ export const serverAuth = betterAuth({
   socialProviders,
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL ?? env.NEXT_PUBLIC_APP_URL,
-  trustedOrigins: env.NEXT_PUBLIC_APP_URL ? [env.NEXT_PUBLIC_APP_URL] : undefined,
+  trustedOrigins: trustedOrigins.length > 0 ? trustedOrigins : undefined,
 });
 
 export const currentUser = async () => {

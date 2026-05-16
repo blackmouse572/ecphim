@@ -45,7 +45,7 @@ import {
 import { NotificationsTrigger } from "@repo/notifications/components/trigger";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Search } from "./search";
 
 type User = {
@@ -192,9 +192,15 @@ const data = {
 export const GlobalSidebar = ({ children, user }: GlobalSidebarProperties) => {
   const sidebar = useSidebar();
   const router = useRouter();
+  const [logoutError, setLogoutError] = useState<string | null>(null);
 
   const handleSignOut = async () => {
-    await authClient.signOut();
+    setLogoutError(null);
+    const { error } = await authClient.signOut();
+    if (error) {
+      setLogoutError(error.message ?? "Unable to logout");
+      return;
+    }
     router.push("/sign-in");
     router.refresh();
   };
@@ -313,6 +319,11 @@ export const GlobalSidebar = ({ children, user }: GlobalSidebarProperties) => {
                         <p className="truncate text-muted-foreground text-xs">
                           {user.email}
                         </p>
+                        {logoutError && (
+                          <p className="mt-1 truncate text-destructive text-xs">
+                            {logoutError}
+                          </p>
+                        )}
                       </div>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleSignOut}>

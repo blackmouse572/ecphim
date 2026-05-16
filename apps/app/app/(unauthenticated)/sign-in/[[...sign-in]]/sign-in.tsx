@@ -52,10 +52,13 @@ export const SignInProps = (props: SignInProps) => {
 
   const handleGoogleSignIn = async () => {
     setError(null);
-    await authClient.signIn.social({
+    const { error: socialError } = await authClient.signIn.social({
       provider: "google",
       callbackURL: "/",
     });
+    if (socialError) {
+      setError(socialError.message ?? "Unable to sign in with Google");
+    }
   };
 
   return (

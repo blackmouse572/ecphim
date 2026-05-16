@@ -10,4 +10,5 @@ export type AuthClient = ReturnType<typeof createAuthClient>;
 
 export const authClient: AuthClient = client;
 
-export const createClient = (): AuthClient => authClient;
+export const getAuthClient = (): AuthClient => authClient;
+export const createClient = getAuthClient;

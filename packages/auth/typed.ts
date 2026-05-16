@@ -1,3 +1,3 @@
 import type { serverAuth } from "./server";
 
-export type AuthUser = typeof serverAuth.$Infer.Session.user;
+export type SessionUser = typeof serverAuth.$Infer.Session.user;

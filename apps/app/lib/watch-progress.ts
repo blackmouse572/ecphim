@@ -125,6 +125,22 @@ export function getMovieWatchProgress(movieSlug: string): WatchProgress[] {
   return Object.values(allProgress).filter((progress) => progress.movieSlug === movieSlug);
 }
 
+function isWatchProgress(value: unknown): value is WatchProgress {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const record = value as Partial<WatchProgress>;
+  return (
+    typeof record.movieSlug === "string" &&
+    typeof record.episodeSlug === "string" &&
+    typeof record.currentTime === "number" &&
+    typeof record.duration === "number" &&
+    typeof record.lastWatched === "string" &&
+    typeof record.watchedPercentage === "number"
+  );
+}
+
 export async function getServerWatchProgress(
   movieSlug: string,
   episodeSlug: string,
@@ -139,8 +155,8 @@ export async function getServerWatchProgress(
     return null;
   }
 
-  const payload = (await response.json()) as { progress: WatchProgress | null };
-  return payload.progress;
+  const payload = (await response.json()) as { progress?: unknown };
+  return isWatchProgress(payload.progress) ? payload.progress : null;
 }
 
 export async function getServerMovieWatchProgress(
@@ -156,8 +172,12 @@ export async function getServerMovieWatchProgress(
     return [];
   }
 
-  const payload = (await response.json()) as { progress: WatchProgress[] };
-  return payload.progress;
+  const payload = (await response.json()) as { progress?: unknown };
+  if (!Array.isArray(payload.progress)) {
+    return [];
+  }
+
+  return payload.progress.filter(isWatchProgress);
 }
 
 export async function saveServerWatchProgress(
@@ -182,8 +202,8 @@ export async function saveServerWatchProgress(
     return null;
   }
 
-  const payload = (await response.json()) as { progress: WatchProgress };
-  return payload.progress;
+  const payload = (await response.json()) as { progress?: unknown };
+  return isWatchProgress(payload.progress) ? payload.progress : null;
 }
 
 export async function removeServerWatchProgress(
