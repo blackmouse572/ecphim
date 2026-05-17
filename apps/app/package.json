@@ -33,6 +33,7 @@
         "@vercel/analytics": "^2.0.1",
         "@videojs/http-streaming": "^3.17.4",
         "@videojs/themes": "^1.0.1",
+        "better-auth": "1.4.17",
         "dompurify": "^3.3.3",
         "fuse.js": "^7.1.0",
         "hls.js": "^1.6.15",

@@ -14,17 +14,17 @@ model Page {
 }
 
 model User {
-  id              String               @id @default(cuid())
-  name            String
-  email           String               @unique
-  emailVerified   Boolean              @default(false)
-  image           String?
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
-  accounts        Account[]
-  sessions        Session[]
-  watchProgress   WatchProgress[]
-  memberships     OrganizationMember[] @relation("OrganizationMemberUser")
+  id            String               @id @default(cuid())
+  name          String
+  email         String               @unique
+  emailVerified Boolean              @default(false)
+  image         String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  watchProgress WatchProgress[]
+  memberships   OrganizationMember[] @relation("OrganizationMemberUser")
 
   @@map("users")
 }
@@ -104,17 +104,17 @@ model OrganizationMember {
 }
 
 model WatchProgress {
-  id               String   @id @default(cuid())
-  userId           String
-  movieSlug        String
-  episodeSlug      String
-  currentTime      Float
-  duration         Float
+  id                String   @id @default(cuid())
+  userId            String
+  movieSlug         String
+  episodeSlug       String
+  currentTime       Float
+  duration          Float
   watchedPercentage Float
-  lastWatched      DateTime @default(now())
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastWatched       DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, movieSlug, episodeSlug])
   @@index([userId, movieSlug])
