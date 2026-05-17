@@ -1,4 +1,5 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
+import { currentUser } from "@repo/auth/server";
 import { Kbd } from "@repo/design-system/components/ui/kbd";
 import { buttonStyles } from "@repo/design-system/components/variants/buttonVariants";
 import { createMetadata } from "@repo/seo/metadata";
@@ -25,6 +26,7 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function MovieWatchPage({ params }: Props) {
   const { slug } = await params;
+  const user = await currentUser();
   const movie = await fetchMovieDetail(slug);
   const imageData = await fetchMovieImages(slug);
   const backdrop = extractBackdropUrl(imageData, "original");
@@ -47,6 +49,7 @@ export default async function MovieWatchPage({ params }: Props) {
         params={{ slug }}
         movie={{ ...movie, thumb_url: backdrop }}
         episodes={movie.episodes}
+        isAuthenticated={Boolean(user)}
       />
     </div>
   );

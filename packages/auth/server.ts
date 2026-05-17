@@ -1,54 +1,65 @@
-/** biome-ignore-all lint/suspicious/useIterableCallbackReturn: <explanation> */
-/** biome-ignore-all lint/style/noNonNullAssertion: <explanation> */
-/** biome-ignore-all lint/complexity/noForEach: <explanation> */
 import "server-only";
 
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { database } from "@repo/database";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { betterAuth } from "better-auth";
+import { headers } from "next/headers";
+import { keys } from "./keys";
 
-export const createClient = async () => {
-  const cookieStore = await cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
+const env = keys();
+
+const socialProviders =
+  env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+    ? {
+        google: {
+          clientId: env.GOOGLE_CLIENT_ID,
+          clientSecret: env.GOOGLE_CLIENT_SECRET,
         },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            );
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
-        },
-      },
-    },
-  );
-};
-// Helper function to get the current user
+      }
+    : undefined;
+
+const trustedOrigins = [
+  env.NEXT_PUBLIC_APP_URL,
+  env.BETTER_AUTH_URL,
+].filter((origin): origin is string => Boolean(origin));
+
+export const serverAuth = betterAuth({
+  database: prismaAdapter(database, {
+    provider: "postgresql",
+  }),
+  emailAndPassword: {
+    enabled: true,
+  },
+  socialProviders,
+  secret: env.BETTER_AUTH_SECRET,
+  baseURL: env.BETTER_AUTH_URL ?? env.NEXT_PUBLIC_APP_URL,
+  trustedOrigins: trustedOrigins.length > 0 ? trustedOrigins : undefined,
+});
+
 export const currentUser = async () => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  const session = await serverAuth.api.getSession({
+    headers: await headers(),
+  });
+
+  return session?.user ?? null;
 };
-// Helper function to get the current user's active organization
+
 export const auth = async () => {
   const user = await currentUser();
+
   if (!user) {
     return { userId: null, orgId: null };
   }
-  // Get active organization from user metadata
-  const orgId = user.user_metadata?.activeOrganizationId as string | null;
+
+  const membership = await database.organizationMember.findFirst({
+    where: { userId: user.id },
+    // Keep existing behavior stable by using the first-created membership
+    // as the default active organization when no explicit selection exists.
+    orderBy: { createdAt: "asc" },
+  });
+
   return {
     userId: user.id,
-    orgId,
+    orgId: membership?.organizationId ?? null,
   };
 };

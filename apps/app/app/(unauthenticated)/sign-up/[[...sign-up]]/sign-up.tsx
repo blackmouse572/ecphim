@@ -1,6 +1,6 @@
 "use client";
 
-import { createClient } from "@repo/auth/client";
+import { authClient } from "@repo/auth/client";
 import { Button } from "@repo/design-system/components/ui/button";
 import {
   Card,
@@ -27,6 +27,7 @@ type SignUpProps = {
     passwordMinLengthError?: string;
   };
 };
+
 export const SignUp = (props: SignUpProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,38 +36,51 @@ export const SignUp = (props: SignUpProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const supabase = createClient();
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    // native validation for password match and length
+
     if (password !== confirmPassword) {
       setError(props.i18n?.passwordNotMatchError || "Passwords do not match");
       setLoading(false);
+      return;
     }
+
     if (password.length < 6) {
       setError(
         props.i18n?.passwordMinLengthError ||
           "Password must be at least 6 characters",
       );
       setLoading(false);
+      return;
     }
-    const { error: loginError } = await supabase.auth.signUp({
+
+    const { error: signUpError } = await authClient.signUp.email({
       email,
       password,
-      options: {
-        data: {
-          name,
-        },
-      },
+      name,
     });
-    if (loginError) {
-      setError(loginError.message);
+
+    if (signUpError) {
+      setError(signUpError.message ?? "Unable to sign up");
       setLoading(false);
-    } else {
-      router.push("/verify-email");
-      router.refresh();
+      return;
+    }
+
+    router.push("/");
+    router.refresh();
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    const { error: socialError } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/",
+    });
+    if (socialError) {
+      setError(socialError.message ?? "Không thể đăng ký với Google");
     }
   };
 
@@ -117,12 +131,15 @@ export const SignUp = (props: SignUpProps) => {
             value={confirmPassword}
           />
         </CardContent>
+        <CardFooter className="grid gap-2">
+          <Button isPending={loading} type="submit" className={"w-full"}>
+            {props.i18n?.signUpButton || "Đăng ký"}
+          </Button>
+          <Button type="button" intent="outline" className="w-full" onClick={handleGoogleSignIn}>
+            Tiếp tục với Google
+          </Button>
+        </CardFooter>
       </form>
-      <CardFooter>
-        <Button isPending={loading} type="submit" className={"w-full"}>
-          {props.i18n?.signUpButton || "Đăng ký"}
-        </Button>
-      </CardFooter>
     </Card>
   );
 };

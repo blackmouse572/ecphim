@@ -4,12 +4,14 @@ import { SpinnerBallIcon } from "@phosphor-icons/react";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getMovieWatchProgress,
+  getServerMovieWatchProgress,
   shouldRestoreProgress,
 } from "@/lib/watch-progress";
 import type { IMovie, IStreamServer } from "@/types/response";
+import type { WatchProgress } from "@/types/watch-progress";
 import {
   EpisodeGrid,
   NextEpisodeSection,
@@ -22,20 +24,36 @@ type Props = {
   params: { slug: string };
   movie: IMovie;
   episodes: IStreamServer[];
+  isAuthenticated: boolean;
 };
 export function MovieWatchClientPage(props: Props) {
-  const { params, movie, episodes } = props;
+  const { params, movie, episodes, isAuthenticated } = props;
 
   const movieSlug = params.slug as string;
   const [episodeSlug, setEpisodeSlug] = useQueryState("episode", parseAsString);
   const [serverName, setServerName] = useQueryState("server", parseAsString);
+  const [movieProgress, setMovieProgress] = useState<WatchProgress[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadProgress = async () => {
+      const progress = isAuthenticated
+        ? await getServerMovieWatchProgress(movieSlug)
+        : getMovieWatchProgress(movieSlug);
+      if (!cancelled) {
+        setMovieProgress(progress);
+      }
+    };
+    void loadProgress();
+    return () => {
+      cancelled = true;
+    };
+  }, [movieSlug, isAuthenticated, episodeSlug, serverName]);
 
   // Auto-select based on progress when no URL params exist
   useEffect(() => {
     // Only auto-select if no URL parameters are set
     if (!episodeSlug && !serverName && episodes.length > 0) {
-      const movieProgress = getMovieWatchProgress(movieSlug);
-
       // Find the most recently watched episode with restorable progress
       const recentProgress = movieProgress
         .filter(shouldRestoreProgress)
@@ -155,6 +173,7 @@ export function MovieWatchClientPage(props: Props) {
         title={`${movie.name} - ${currentEpisode.name}`}
         movieSlug={movieSlug}
         episodeSlug={currentEpisode.slug}
+        isAuthenticated={isAuthenticated}
         onEnded={handleVideoEnded}
       />
       <div className="border-white/10 border-t bg-linear-to-t from-black via-zinc-950 to-zinc-900">
@@ -171,10 +190,11 @@ export function MovieWatchClientPage(props: Props) {
             )}
 
             {/* Episodes Grid */}
-            <EpisodeGrid
-              movie={movie}
-              currentEpisodeSlug={currentEpisode.slug}
-            />
+              <EpisodeGrid
+                movie={movie}
+                currentEpisodeSlug={currentEpisode.slug}
+                movieProgress={movieProgress}
+              />
 
             {/* Sidebar - Server Selection & Info */}
             <div className="space-y-6">

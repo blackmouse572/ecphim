@@ -1,6 +1,6 @@
 "use client";
 
-import { createClient } from "@repo/auth/client";
+import { authClient } from "@repo/auth/client";
 import { Button } from "@repo/design-system/components/ui/button";
 import {
   Card,
@@ -13,7 +13,7 @@ import {
 import { Input } from "@repo/design-system/components/ui/input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export type SignInProps = {
   i18n?: {
@@ -22,35 +22,42 @@ export type SignInProps = {
     passwordPlaceholder?: string;
   };
 };
+
 export const SignInProps = (props: SignInProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [supabase, setSupabase] = useState<ReturnType<
-    typeof createClient
-  > | null>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    setSupabase(createClient());
-  }, []);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!supabase) return;
     setLoading(true);
     setError(null);
-    const { error: loginError } = await supabase.auth.signInWithPassword({
+
+    const { error: loginError } = await authClient.signIn.email({
       email,
       password,
     });
+
     if (loginError) {
-      setError(loginError.message);
+      setError(loginError.message ?? "Unable to sign in");
       setLoading(false);
-    } else {
-      router.push("/dashboard");
-      router.refresh();
+      return;
+    }
+
+    router.push("/");
+    router.refresh();
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    const { error: socialError } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/",
+    });
+    if (socialError) {
+      setError(socialError.message ?? "Không thể đăng nhập với Google");
     }
   };
 
@@ -83,20 +90,20 @@ export const SignInProps = (props: SignInProps) => {
             value={password}
           />
           <div className="text-end text-muted-foreground text-sm">
-            <Link
-              href="/forgot-password"
-              className="text-primary hover:underline"
-            >
+            <Link href="/forgot-password" className="text-primary hover:underline">
               Quên mật khẩu?
             </Link>
           </div>
         </CardContent>
+        <CardFooter className="grid gap-2">
+          <Button isPending={loading} type="submit" className="w-full">
+            {props.i18n?.login || "Đăng nhập"}
+          </Button>
+          <Button type="button" intent="outline" className="w-full" onClick={handleGoogleSignIn}>
+            Tiếp tục với Google
+          </Button>
+        </CardFooter>
       </form>
-      <CardFooter>
-        <Button isPending={loading} type="submit" className="w-full">
-          {props.i18n?.login || "Đăng nhập"}
-        </Button>
-      </CardFooter>
     </Card>
   );
 };

@@ -30,6 +30,7 @@ interface VideoPlayerSectionProps {
   title: string;
   movieSlug?: string;
   episodeSlug?: string;
+  isAuthenticated?: boolean;
   onEnded?: () => void;
 }
 
@@ -37,7 +38,7 @@ export const VideoPlayerSection = forwardRef<
   HTMLDivElement,
   VideoPlayerSectionProps
 >(function VideoPlayerSection(
-  { src, poster, title, movieSlug, episodeSlug, onEnded },
+  { src, poster, title, movieSlug, episodeSlug, isAuthenticated, onEnded },
   ref,
 ) {
   const internalRef = useRef<HTMLDivElement>(null);
@@ -47,6 +48,7 @@ export const VideoPlayerSection = forwardRef<
   const { updateProgress, progress } = useWatchProgress({
     movieSlug: movieSlug || "",
     episodeSlug: episodeSlug || "",
+    isAuthenticated,
     onProgressRestore: (currentTime) => {
       // Restore saved time when video loads
       if (videoPlayerRef.current) {
