@@ -36,7 +36,7 @@
         "dompurify": "^3.3.3",
         "fuse.js": "^7.1.0",
         "hls.js": "^1.6.15",
-        "import-in-the-middle": "^2.0.0",
+        "import-in-the-middle": "^3.0.1",
         "next": "16.0.10",
         "next-themes": "^0.4.6",
         "nuqs": "^2.8.9",
