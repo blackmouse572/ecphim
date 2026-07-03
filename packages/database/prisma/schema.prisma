@@ -18,6 +18,24 @@ model Page {
   name String
 }
 
+// Cloud-synced watch progress for authenticated users (mirrors the
+// localStorage record in apps/app). userId is the Supabase auth user id.
+model WatchProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  movieSlug   String
+  episodeSlug String
+  currentTime Float
+  duration    Float
+  percentage  Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, movieSlug, episodeSlug])
+  @@index([userId])
+  @@map("watch_progress")
+}
+
 model Organization {
   id        String               @id @default(cuid())
   name      String

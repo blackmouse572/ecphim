@@ -2,6 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  getCloudWatchProgress,
+  saveWatchProgressToCloud,
+} from "@/lib/watch-progress-cloud";
+import {
+  calculateWatchPercentage,
   getMovieWatchProgress,
   getWatchProgress,
   removeWatchProgress,
@@ -69,6 +74,12 @@ export function useWatchProgress({
     if (latestUpdate) {
       saveWatchProgress(movieSlug, episodeSlug, latestUpdate);
       lastSaveAtRef.current = Date.now();
+      // Best-effort cloud sync; the action no-ops for guests.
+      void saveWatchProgressToCloud(movieSlug, episodeSlug, latestUpdate).catch(
+        () => {
+          // Ignore cloud failures — localStorage remains the source of truth.
+        },
+      );
     }
   }, [movieSlug, episodeSlug]);
 
@@ -92,6 +103,53 @@ export function useWatchProgress({
     } else {
       setIsRestored(false);
     }
+
+    // Merge cloud progress (logged-in users). Adopt it only when it's ahead of
+    // the local position so switching devices resumes from the furthest point
+    // without ever rewinding. No-ops / returns null for guests.
+    let cancelled = false;
+    void getCloudWatchProgress(movieSlug, episodeSlug)
+      .then((cloud) => {
+        if (cancelled || !cloud) {
+          return;
+        }
+
+        const localTime = savedProgress?.currentTime ?? 0;
+        if (cloud.currentTime <= localTime) {
+          return;
+        }
+
+        const merged: WatchProgress = {
+          movieSlug,
+          episodeSlug,
+          currentTime: cloud.currentTime,
+          duration: cloud.duration,
+          lastWatched: cloud.updatedAt,
+          watchedPercentage: calculateWatchPercentage(
+            cloud.currentTime,
+            cloud.duration,
+          ),
+        };
+
+        setProgress(merged);
+        // Mirror into localStorage so subsequent loads have it immediately.
+        saveWatchProgress(movieSlug, episodeSlug, {
+          currentTime: cloud.currentTime,
+          duration: cloud.duration,
+        });
+
+        if (shouldRestoreProgress(merged) && onProgressRestore) {
+          onProgressRestore(cloud.currentTime);
+          setIsRestored(true);
+        }
+      })
+      .catch(() => {
+        // Ignore cloud failures — localStorage remains the source of truth.
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [movieSlug, episodeSlug]);
 
   // Update progress, throttled to at most one save per SAVE_INTERVAL with a
