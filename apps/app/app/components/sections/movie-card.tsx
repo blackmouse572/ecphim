@@ -15,7 +15,9 @@ export async function MovieCard({ movie, cdnUrl }: MovieCardProps) {
   let posterUrl: string;
 
   if (cdnUrl) {
-    posterUrl = `${cdnUrl}/uploads/movies/${movie.poster_url}`;
+    // ophim swaps the naming: `thumb_url` is the portrait 2:3 poster,
+    // while `poster_url` is a landscape backdrop that gets cropped wrong here.
+    posterUrl = `${cdnUrl}/uploads/movies/${movie.thumb_url}`;
   } else {
     try {
       const imageData = await fetchMovieImages(movie.slug);

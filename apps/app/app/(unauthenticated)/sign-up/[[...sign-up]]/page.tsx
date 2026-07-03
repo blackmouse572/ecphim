@@ -1,10 +1,9 @@
 import { createMetadata } from "@repo/seo/metadata";
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
+import { SignUp } from "./sign-up";
 
-const title = "Create an account";
-const description = "Enter your details to get started.";
-const SignUp = dynamic(() => import("./sign-up").then((mod) => mod.SignUp));
+const title = "Đăng ký";
+const description = "Tạo tài khoản mới để bắt đầu.";
 
 export const metadata: Metadata = createMetadata({ title, description });
 

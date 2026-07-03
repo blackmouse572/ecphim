@@ -3,13 +3,16 @@ import type { NextConfig } from "next";
 
 export const config: NextConfig = {
   images: {
-    formats: ["image/avif", "image/webp"],
-    qualities: [25, 50, 75, 100],
+    // webp only: avif + webp = 2x transformations billed per source image
+    formats: ["image/webp"],
+    // components use default (75) or explicit 75; keep 50 for low-priority thumbs
+    qualities: [50, 75],
+    // constrain srcset widths to what components actually request (56/80/300/1920)
+    deviceSizes: [640, 828, 1200, 1920],
+    imageSizes: [200, 384],
+    // posters are immutable — cache transforms ~1y so they aren't recomputed/re-billed
+    minimumCacheTTL: 31_536_000,
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "img.clerk.com",
-      },
       {
         protocol: "https",
         hostname: "phimimg.com",
