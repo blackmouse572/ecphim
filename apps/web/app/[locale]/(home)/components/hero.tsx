@@ -1,6 +1,6 @@
 import { blog } from "@repo/cms";
 import { Feed } from "@repo/cms/components/feed";
-import { Button } from "@repo/design-system/components/ui/button";
+import { buttonStyles } from "@repo/design-system/components/variants/buttonVariants";
 import type { Dictionary } from "@repo/internationalization";
 import { MoveRight, PhoneCall } from "lucide-react";
 import Link from "next/link";
@@ -21,12 +21,17 @@ export const Hero = async ({ dictionary }: HeroProps) => (
               "use server";
 
               return (
-                <Button asChild className="gap-4" size="sm" variant="secondary">
-                  <Link href={`/blog/${data.blog.posts.item?._slug}`}>
-                    {dictionary.web.home.hero.announcement}{" "}
-                    <MoveRight className="h-4 w-4" />
-                  </Link>
-                </Button>
+                <Link
+                  href={`/blog/${data.blog.posts.item?._slug}`}
+                  className={buttonStyles({
+                    intent: "secondary",
+                    size: "sm",
+                    className: "gap-4",
+                  })}
+                >
+                  {dictionary.web.home.hero.announcement}{" "}
+                  <MoveRight className="h-4 w-4" />
+                </Link>
               );
             }}
           </Feed>
@@ -40,16 +45,22 @@ export const Hero = async ({ dictionary }: HeroProps) => (
           </p>
         </div>
         <div className="flex flex-row gap-3">
-          <Button asChild className="gap-4" size="lg" variant="outline">
-            <Link href="/contact">
-              Get in touch <PhoneCall className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button asChild className="gap-4" size="lg">
-            <Link href={env.NEXT_PUBLIC_APP_URL}>
-              Sign up <MoveRight className="h-4 w-4" />
-            </Link>
-          </Button>
+          <Link
+            href="/contact"
+            className={buttonStyles({
+              intent: "outline",
+              size: "lg",
+              className: "gap-4",
+            })}
+          >
+            Get in touch <PhoneCall className="h-4 w-4" />
+          </Link>
+          <Link
+            href={env.NEXT_PUBLIC_APP_URL}
+            className={buttonStyles({ size: "lg", className: "gap-4" })}
+          >
+            Sign up <MoveRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     </div>

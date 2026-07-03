@@ -1,4 +1,4 @@
-import { Button } from "@repo/design-system/components/ui/button";
+import { buttonStyles } from "@repo/design-system/components/variants/buttonVariants";
 import { Check, Minus, MoveRight, PhoneCall } from "lucide-react";
 import Link from "next/link";
 import { env } from "@/env";
@@ -27,11 +27,15 @@ const Pricing = () => (
               <span className="text-4xl">$40</span>
               <span className="text-muted-foreground text-sm"> / month</span>
             </p>
-            <Button asChild className="mt-8 gap-4" variant="outline">
-              <Link href={env.NEXT_PUBLIC_APP_URL}>
-                Try it <MoveRight className="h-4 w-4" />
-              </Link>
-            </Button>
+            <Link
+              href={env.NEXT_PUBLIC_APP_URL}
+              className={buttonStyles({
+                intent: "outline",
+                className: "mt-8 gap-4",
+              })}
+            >
+              Try it <MoveRight className="h-4 w-4" />
+            </Link>
           </div>
           <div className="flex flex-col gap-2 px-3 py-1 md:px-6 md:py-4">
             <p className="text-2xl">Growth</p>
@@ -43,11 +47,12 @@ const Pricing = () => (
               <span className="text-4xl">$40</span>
               <span className="text-muted-foreground text-sm"> / month</span>
             </p>
-            <Button asChild className="mt-8 gap-4">
-              <Link href={env.NEXT_PUBLIC_APP_URL}>
-                Try it <MoveRight className="h-4 w-4" />
-              </Link>
-            </Button>
+            <Link
+              href={env.NEXT_PUBLIC_APP_URL}
+              className={buttonStyles({ className: "mt-8 gap-4" })}
+            >
+              Try it <MoveRight className="h-4 w-4" />
+            </Link>
           </div>
           <div className="flex flex-col gap-2 px-3 py-1 md:px-6 md:py-4">
             <p className="text-2xl">Enterprise</p>
@@ -59,11 +64,15 @@ const Pricing = () => (
               <span className="text-4xl">$40</span>
               <span className="text-muted-foreground text-sm"> / month</span>
             </p>
-            <Button asChild className="mt-8 gap-4" variant="outline">
-              <Link href="/contact">
-                Contact us <PhoneCall className="h-4 w-4" />
-              </Link>
-            </Button>
+            <Link
+              href="/contact"
+              className={buttonStyles({
+                intent: "outline",
+                className: "mt-8 gap-4",
+              })}
+            >
+              Contact us <PhoneCall className="h-4 w-4" />
+            </Link>
           </div>
           <div className="col-span-3 px-3 py-4 lg:col-span-1 lg:px-6">
             <b>Features</b>
