@@ -10,8 +10,9 @@ import {
 } from "@repo/design-system/components/ui/card";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-const VerifyEmailPage = () => {
+const VerifyEmailContent = () => {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
 
@@ -48,5 +49,12 @@ const VerifyEmailPage = () => {
     </Card>
   );
 };
+
+// useSearchParams() requires a Suspense boundary above it for prerender.
+const VerifyEmailPage = () => (
+  <Suspense fallback={null}>
+    <VerifyEmailContent />
+  </Suspense>
+);
 
 export default VerifyEmailPage;
