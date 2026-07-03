@@ -1,27 +1,16 @@
 "use client";
 
 import { Button } from "@repo/design-system/components/ui/button";
-import { Calendar } from "@repo/design-system/components/ui/calendar";
 import { Input } from "@repo/design-system/components/ui/input";
 import { Label } from "@repo/design-system/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@repo/design-system/components/ui/popover";
-import { cn } from "@repo/design-system/lib/utils";
 import type { Dictionary } from "@repo/internationalization";
-import { format } from "date-fns";
-import { CalendarIcon, Check, MoveRight } from "lucide-react";
-import { useState } from "react";
+import { Check, MoveRight } from "lucide-react";
 
 type ContactFormProps = {
   dictionary: Dictionary;
 };
 
 export const ContactForm = ({ dictionary }: ContactFormProps) => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
-
   return (
     <div className="w-full py-20 lg:py-40">
       <div className="container mx-auto max-w-6xl">
@@ -57,35 +46,10 @@ export const ContactForm = ({ dictionary }: ContactFormProps) => {
             <div className="flex max-w-sm flex-col gap-4 rounded-md border p-8">
               <p>{dictionary.web.contact.hero.form.title}</p>
               <div className="grid w-full max-w-sm items-center gap-1">
-                <Label htmlFor="picture">
+                <Label htmlFor="date">
                   {dictionary.web.contact.hero.form.date}
                 </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      className={cn(
-                        "w-full max-w-sm justify-start text-left font-normal",
-                        !date && "text-muted-foreground",
-                      )}
-                      variant="outline"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? (
-                        format(date, "PPP")
-                      ) : (
-                        <span>{dictionary.web.contact.hero.form.date}</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      initialFocus
-                      mode="single"
-                      onSelect={setDate}
-                      selected={date}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <Input className="w-full max-w-sm" id="date" type="date" />
               </div>
               <div className="grid w-full max-w-sm items-center gap-1">
                 <Label htmlFor="firstname">
