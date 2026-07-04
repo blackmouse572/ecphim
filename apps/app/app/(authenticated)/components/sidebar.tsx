@@ -17,6 +17,7 @@ import {
   Terminal,
   Trash,
 } from "@phosphor-icons/react";
+import type { AuthProfile } from "@repo/auth/typed";
 import { ModeToggle } from "@repo/design-system/components/mode-toggle";
 import { Button } from "@repo/design-system/components/ui/button";
 import {
@@ -37,29 +38,19 @@ import {
   SidebarItem,
   SidebarMenuTrigger,
   SidebarSection,
-  useSidebar,
 } from "@repo/design-system/components/ui/sidebar";
 import { NotificationsTrigger } from "@repo/notifications/components/trigger";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { AuthUserMenu } from "./auth-user-menu";
 import { Search } from "./search";
-
-type User = {
-  id: string;
-  email?: string;
-} | null;
 
 type GlobalSidebarProperties = {
   readonly children: ReactNode;
-  readonly user?: User;
+  readonly user?: AuthProfile | null;
 };
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Playground",
@@ -184,8 +175,6 @@ const data = {
 };
 
 export const GlobalSidebar = ({ children, user }: GlobalSidebarProperties) => {
-  const sidebar = useSidebar();
-
   return (
     <>
       <Sidebar intent="inset">
@@ -262,29 +251,22 @@ export const GlobalSidebar = ({ children, user }: GlobalSidebarProperties) => {
           </SidebarSection>
         </SidebarContent>
         <SidebarFooter>
-          <div className="flex items-center gap-2 p-2">
-            <div className="flex shrink-0 items-center gap-px">
+          <div className="flex flex-col gap-2 p-2">
+            <div className="flex items-center gap-2">
               <ModeToggle />
               {user ? (
-                <Button className="shrink-0" size="sq-sm" intent="plain">
-                  <div className="h-4 w-4">
-                    <NotificationsTrigger />
-                  </div>
-                </Button>
+                <NotificationsTrigger />
               ) : (
-                <Button
-                  className="shrink-0"
-                  size="sq-sm"
-                  intent="plain"
-                  aria-label="Sign in"
+                <Link
+                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                  href="/sign-in"
                 >
-                  <Link href="/sign-in">
-                    <SignIn className="h-4 w-4" />
-                    <span className="sr-only">Sign in</span>
-                  </Link>
-                </Button>
+                  <SignIn className="h-4 w-4" />
+                  <span>Sign in</span>
+                </Link>
               )}
             </div>
+            {user ? <AuthUserMenu user={user} /> : null}
           </div>
         </SidebarFooter>
       </Sidebar>

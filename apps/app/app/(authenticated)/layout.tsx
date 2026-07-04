@@ -1,4 +1,4 @@
-import { currentUser } from "@repo/auth/server";
+import { currentProfile } from "@repo/auth/server";
 import { SidebarProvider } from "@repo/design-system/components/ui/sidebar";
 import { showBetaFeature } from "@repo/feature-flags";
 import { secure } from "@repo/security";
@@ -16,7 +16,7 @@ const AppLayout = async ({ children }: AppLayoutProperties) => {
     await secure(["CATEGORY:PREVIEW"]);
   }
 
-  const user = await currentUser();
+  const user = await currentProfile();
   const betaFeature = await showBetaFeature();
 
   return (

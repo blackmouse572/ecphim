@@ -5,6 +5,8 @@ import "server-only";
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { cache } from "react";
+import { getUserMetadata, getUserProfile } from "./typed";
 
 export const createClient = async () => {
   const cookieStore = await cookies();
@@ -31,14 +33,70 @@ export const createClient = async () => {
     },
   );
 };
+
+export const currentSession = cache(async () => {
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return session;
+});
+
 // Helper function to get the current user
-export const currentUser = async () => {
+export const currentUser = cache(async () => {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   return user;
+});
+
+export const currentProfile = cache(async () => {
+  const user = await currentUser();
+
+  return getUserProfile(user);
+});
+
+export const updateCurrentUserProfile = async ({
+  avatar,
+  name,
+}: {
+  avatar?: string | null;
+  name: string;
+}) => {
+  const supabase = await createClient();
+
+  return supabase.auth.updateUser({
+    data: {
+      avatar,
+      name,
+    },
+  });
 };
+
+export const updateCurrentUserPassword = async (password: string) => {
+  const supabase = await createClient();
+
+  return supabase.auth.updateUser({
+    password,
+  });
+};
+
+export const sendCurrentUserPasswordReset = async (redirectTo: string) => {
+  const user = await currentUser();
+
+  if (!user?.email) {
+    throw new Error("Current user does not have an email address.");
+  }
+
+  const supabase = await createClient();
+
+  return supabase.auth.resetPasswordForEmail(user.email, {
+    redirectTo,
+  });
+};
+
 // Helper function to get the current user's active organization
 export const auth = async () => {
   const user = await currentUser();
@@ -46,7 +104,7 @@ export const auth = async () => {
     return { userId: null, orgId: null };
   }
   // Get active organization from user metadata
-  const orgId = user.user_metadata?.activeOrganizationId as string | null;
+  const orgId = getUserMetadata(user).activeOrganizationId ?? null;
   return {
     userId: user.id,
     orgId,

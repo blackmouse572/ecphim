@@ -11,10 +11,17 @@ const securityHeaders = env.FLAGS_SECRET
   ? securityMiddleware(noseconeOptionsWithToolbar)
   : securityMiddleware(noseconeOptions);
 
-// Clerk middleware wraps other middleware in its callback
-// For apps using Clerk, compose middleware inside authMiddleware callback
-// For apps without Clerk, use createNEMO for composition (see apps/web)
-export default authMiddleware as unknown as NextProxy;
+// Route protection config is injected here so the shared @repo/auth package
+// stays app-agnostic (apps/web has no auth routes of its own).
+export default authMiddleware({
+  protectedRoutes: ["/account", "/search", "/webhooks"],
+  guestOnlyRoutes: [
+    "/forgot-password",
+    "/sign-in",
+    "/sign-up",
+    "/verify-email",
+  ],
+}) as unknown as NextProxy;
 
 export const config = {
   matcher: [
