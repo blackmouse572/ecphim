@@ -1,4 +1,4 @@
-import { Button } from "@repo/design-system/components/ui/button";
+import { buttonStyles } from "@repo/design-system/components/variants/buttonVariants";
 import type { Dictionary } from "@repo/internationalization";
 import { MoveRight, PhoneCall } from "lucide-react";
 import Link from "next/link";
@@ -21,18 +21,20 @@ export const CTA = ({ dictionary }: CTAProps) => (
           </p>
         </div>
         <div className="flex flex-row gap-4">
-          <Button asChild className="gap-4" variant="outline">
-            <Link href="/contact">
-              {dictionary.web.global.primaryCta}{" "}
-              <PhoneCall className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button asChild className="gap-4">
-            <Link href={env.NEXT_PUBLIC_APP_URL}>
-              {dictionary.web.global.secondaryCta}{" "}
-              <MoveRight className="h-4 w-4" />
-            </Link>
-          </Button>
+          <Link
+            href="/contact"
+            className={buttonStyles({ intent: "outline", className: "gap-4" })}
+          >
+            {dictionary.web.global.primaryCta}{" "}
+            <PhoneCall className="h-4 w-4" />
+          </Link>
+          <Link
+            href={env.NEXT_PUBLIC_APP_URL}
+            className={buttonStyles({ className: "gap-4" })}
+          >
+            {dictionary.web.global.secondaryCta}{" "}
+            <MoveRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     </div>

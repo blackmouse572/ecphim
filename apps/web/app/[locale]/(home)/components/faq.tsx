@@ -4,7 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@repo/design-system/components/ui/accordion";
-import { Button } from "@repo/design-system/components/ui/button";
+import { buttonStyles } from "@repo/design-system/components/variants/buttonVariants";
 import type { Dictionary } from "@repo/internationalization";
 import { PhoneCall } from "lucide-react";
 import Link from "next/link";
@@ -28,12 +28,16 @@ export const FAQ = ({ dictionary }: FAQProps) => (
               </p>
             </div>
             <div className="">
-              <Button asChild className="gap-4" variant="outline">
-                <Link href="/contact">
-                  {dictionary.web.home.faq.cta}{" "}
-                  <PhoneCall className="h-4 w-4" />
-                </Link>
-              </Button>
+              <Link
+                href="/contact"
+                className={buttonStyles({
+                  intent: "outline",
+                  className: "gap-4",
+                })}
+              >
+                {dictionary.web.home.faq.cta}{" "}
+                <PhoneCall className="h-4 w-4" />
+              </Link>
             </div>
           </div>
         </div>
