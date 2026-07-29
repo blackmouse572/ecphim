@@ -53,7 +53,10 @@ export const createMetadata = ({
       card: "summary_large_image",
       creator: twitterHandle,
     },
-  };
+    verification: {
+      google: "pNIh28QARaHQGFsm0BaGHQlKEPwuClfW80yHnALPaHM" ,
+    },
+};
 
   const metadata: Metadata = merge(defaultMetadata, properties);
 

@@ -33,7 +33,6 @@ export const generateMetadata = async () =>
       "phu de",
       "netflix",
     ],
-
     openGraph: {
       title: "EcPhim - Xem phim online miễn phí",
       description:
