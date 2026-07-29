@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@repo/design-system/components/ui/avatar";
+import { Avatar } from "@repo/design-system/components/ui/avatar";
 import {
   Carousel,
   type CarouselApi,
@@ -61,10 +57,12 @@ export const Testimonials = ({ dictionary }: TestimonialsProps) => {
                       </div>
                       <p className="flex flex-row items-center gap-2 text-sm">
                         <span className="text-muted-foreground">By</span>
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={item.author.image} />
-                          <AvatarFallback>??</AvatarFallback>
-                        </Avatar>
+                        <Avatar
+                          alt={item.author.name}
+                          className="h-6 w-6"
+                          initials={item.author.name.slice(0, 2).toUpperCase()}
+                          src={item.author.image}
+                        />
                         <span>{item.author.name}</span>
                       </p>
                     </div>
