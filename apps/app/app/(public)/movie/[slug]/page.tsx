@@ -2,8 +2,11 @@ import { CalendarBlank, Clock, MonitorPlay, Globe } from "@phosphor-icons/react/
 import { MotionItem, MotionPage } from "@repo/design-system/components/motion";
 import { createMetadata } from "@repo/seo/metadata";
 import Link from "next/link";
-import { getMovieDetail, getMovieImages } from "@/lib/services/movie";
-import { CACHE_DURATION } from "../../../../lib/constants";
+import {
+  fetchMovieList,
+  getMovieDetail,
+  getMovieImages,
+} from "@/lib/services/movie";
 import { EpisodeGrid } from "../../../(public-nolayout)/movie/[slug]/watch/components";
 import PureHtmlRender from "../../../components/pure-html-render";
 import { CinematicHeroSection } from "./components/cinematic-hero-section";
@@ -23,24 +26,10 @@ export const revalidate = 86400;
  */
 export async function generateStaticParams() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     // Fetch trending/popular movies for pre-generation
     // Adjust the limit based on your build time constraints
-    const response = await fetch(
-      `${baseUrl}/api/danh-sach/phim-moi?page=1&limit=50`,
-      {
-        next: { revalidate: CACHE_DURATION.WEEKLY },
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch popular movies: ${response.status}`);
-    }
-
-    const data = (await response.json()) as {
-      data: { items: { slug: string }[] };
-    };
-    return data.data.items.map((movie) => ({
+    const { items } = await fetchMovieList({ slug: "phim-moi", limit: 50 });
+    return items.map((movie) => ({
       slug: movie.slug,
     }));
   } catch (error) {

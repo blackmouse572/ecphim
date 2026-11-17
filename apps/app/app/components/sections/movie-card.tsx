@@ -1,7 +1,11 @@
 import { Play, Star } from "@phosphor-icons/react/ssr";
 import Image from "next/image";
 import Link from "next/link";
-import { extractPosterUrl, fetchMovieImages } from "@/lib/services/movie";
+import {
+  extractPosterUrl,
+  fetchMovieImages,
+  resolveImageUrl,
+} from "@/lib/services/movie";
 import type { IMovie } from "@/types/response";
 import { QualityTag } from "./quality-tag";
 
@@ -14,10 +18,10 @@ export async function MovieCard({ movie, cdnUrl }: MovieCardProps) {
   // Ensure poster URL is available, fetch if needed
   let posterUrl: string;
 
-  if (cdnUrl) {
-    // ophim swaps the naming: `thumb_url` is the portrait 2:3 poster,
+  if (movie.thumb_url) {
+    // The API swaps the naming: `thumb_url` is the portrait 2:3 poster,
     // while `poster_url` is a landscape backdrop that gets cropped wrong here.
-    posterUrl = `${cdnUrl}/uploads/movies/${movie.thumb_url}`;
+    posterUrl = resolveImageUrl(movie.thumb_url, cdnUrl);
   } else {
     try {
       const imageData = await fetchMovieImages(movie.slug);

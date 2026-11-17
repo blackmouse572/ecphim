@@ -26,6 +26,8 @@ const VideoPlayer = dynamic(
 
 interface VideoPlayerSectionProps {
   src: string;
+  /** Iframe player URL, used when there is no HLS `src` (VSMov only has embeds). */
+  embedSrc?: string;
   poster: string;
   title: string;
   movieSlug?: string;
@@ -37,7 +39,7 @@ export const VideoPlayerSection = forwardRef<
   HTMLDivElement,
   VideoPlayerSectionProps
 >(function VideoPlayerSection(
-  { src, poster, title, movieSlug, episodeSlug, onEnded },
+  { src, embedSrc, poster, title, movieSlug, episodeSlug, onEnded },
   ref,
 ) {
   const internalRef = useRef<HTMLDivElement>(null);
@@ -59,6 +61,25 @@ export const VideoPlayerSection = forwardRef<
   const handleTimeUpdate = (currentTime: number, duration: number) => {
     updateProgress({ currentTime, duration });
   };
+
+  if (!src && embedSrc) {
+    // Cross-origin iframe: playback progress and auto-next can't be tracked.
+    return (
+      <div
+        ref={ref || internalRef}
+        className="relative h-screen w-full bg-black"
+      >
+        <iframe
+          src={embedSrc}
+          title={title}
+          className="h-full w-full border-0"
+          allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+          allowFullScreen
+          referrerPolicy="origin"
+        />
+      </div>
+    );
+  }
 
   return (
     <div ref={ref || internalRef} className="relative h-screen w-full bg-black">

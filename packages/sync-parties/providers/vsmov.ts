@@ -1,6 +1,8 @@
-import { IProvider } from "@/types/provider";
+import axios, { type AxiosInstance } from "axios";
 import pino from "pino";
-import {
+import prettyLogger from "pino-pretty";
+import type { IProvider } from "@/types/provider";
+import type {
   IActor,
   ICategory,
   ICountry,
@@ -8,12 +10,10 @@ import {
   IResponse,
   IYear,
 } from "@/types/response";
-import axios, { AxiosInstance } from "axios";
-import prettyLogger from "pino-pretty";
-export class OphimProvider implements IProvider {
+export class VsmovProvider implements IProvider {
   private readonly client: AxiosInstance;
   private readonly logger: pino.Logger;
-  private readonly baseUrl: string = "https://ophim1.com";
+  private readonly baseUrl: string = "https://vsmov.com";
 
   constructor() {
     this.logger = pino(
@@ -35,12 +35,12 @@ export class OphimProvider implements IProvider {
     this.client.interceptors.request.use(
       (config) => {
         this.logger.info(
-          `[OphimProvider] Requesting ${config.method?.toUpperCase()} ${config.url}`,
+          `[VsmovProvider] Requesting ${config.method?.toUpperCase()} ${config.url}`,
         );
         return config;
       },
       (error) => {
-        this.logger.error(`[OphimProvider] Request error: ${error.message}`);
+        this.logger.error(`[VsmovProvider] Request error: ${error.message}`);
         return Promise.reject(error);
       },
     );
@@ -48,17 +48,17 @@ export class OphimProvider implements IProvider {
     this.client.interceptors.response.use(
       (response) => {
         this.logger.info(
-          `[OPhimProvider] Received response for ${response.config.url} with status ${response.status}`,
+          `[VsmovProvider] Received response for ${response.config.url} with status ${response.status}`,
         );
         return response;
       },
       (error) => {
         if (error.response) {
           this.logger.error(
-            `[OPhimProvider] Response error: ${error.response.status} ${error.response.statusText} for ${error.config.url}`,
+            `[VsmovProvider] Response error: ${error.response.status} ${error.response.statusText} for ${error.config.url}`,
           );
         } else {
-          this.logger.error(`[OPhimProvider] Response error: ${error.message}`);
+          this.logger.error(`[VsmovProvider] Response error: ${error.message}`);
         }
         return Promise.reject(error);
       },
@@ -70,7 +70,7 @@ export class OphimProvider implements IProvider {
         IResponse<{
           items: ICountry[];
         }>
-      >("/v1/api/quoc-gia")
+      >("/api/quoc-gia")
       .then((res) => res.data.data.items)
       .catch((err) => {
         this.logger.error(`Failed to fetch countries: ${err.message}`);
@@ -78,14 +78,15 @@ export class OphimProvider implements IProvider {
         return [];
       });
   }
+  /** VSMov has no release-year endpoint, so build the list locally. */
   getYears(): Promise<IYear[]> {
-    return this.client
-      .get<IResponse<{ items: IYear[] }>>("/v1/api/nam-phat-hanh")
-      .then((res) => res.data.data.items)
-      .catch((err) => {
-        this.logger.error(`Failed to fetch years: ${err.message}`);
-        return [];
-      });
+    const current = new Date().getFullYear();
+    return Promise.resolve(
+      Array.from({ length: current - 1969 }, (_, i) => {
+        const year = String(current - i);
+        return { _id: year, name: year, slug: year };
+      }),
+    );
   }
   /**
    * Fetch movies with optional keyword, pagination, and limit parameters.
@@ -120,37 +121,31 @@ export class OphimProvider implements IProvider {
     sortType?: "asc" | "desc";
     limit?: number;
   }): Promise<IMovie[]> {
+    // VSMov list responses are { status, items, pagination } (no data wrapper).
+    // /danh-sach ignores filters; /the-loai and /quoc-gia honour them.
+    let path: string;
     if (params.keyword) {
-      this.logger.debug(
-        `Fetching movies with keyword: ${params.keyword}, page: ${params.page || 1}, limit: ${params.limit || 20}`,
-      );
-      return this.client
-        .get<IResponse<IMovie[]>>("/v1/api/tim-kiem", { params })
-        .then((res) => res.data.data)
-        .catch((err) => {
-          this.logger.error(`Failed to fetch movies: ${err.message}`);
-          return [];
-        });
+      path = "/api/tim-kiem";
+    } else if (params.category) {
+      path = `/api/the-loai/${params.category}`;
+    } else if (params.country) {
+      path = `/api/quoc-gia/${params.country}`;
     } else {
-      this.logger.debug(
-        `Fetching movies with filters: category=${params.category}, country=${params.country}, year=${params.year}, slug=${params.slug}, sortBy=${params.sortBy}, sortType=${params.sortType}, page=${params.page || 1}, limit=${params.limit || 20}`,
-      );
-      return this.client
-        .get<IResponse<{ items: IMovie[] }>>(
-          `/v1/api/danh-sach/${params.slug}`,
-          { params },
-        )
-        .then((res) => res.data.data.items)
-        .catch((err) => {
-          this.logger.error(`Failed to fetch movies: ${err.message}`);
-          return [];
-        });
+      path = `/api/danh-sach/${params.slug || "phim-moi-cap-nhat"}`;
     }
+    this.logger.debug(`Fetching movies from ${path}`);
+    return this.client
+      .get<{ items: IMovie[] }>(path, { params })
+      .then((res) => res.data.items ?? [])
+      .catch((err) => {
+        this.logger.error(`Failed to fetch movies: ${err.message}`);
+        return [];
+      });
   }
   getMovieDetail(slug: string): Promise<IMovie> {
     return this.client
-      .get<IResponse<IMovie>>(`/v1/api/phim/${slug}`)
-      .then((res) => res.data.data)
+      .get<{ movie: IMovie; episodes: IMovie["episodes"] }>(`/api/phim/${slug}`)
+      .then((res) => ({ ...res.data.movie, episodes: res.data.episodes ?? [] }))
       .catch((err) => {
         this.logger.error(
           `Failed to fetch movie detail for slug ${slug}: ${err.message}`,
@@ -158,34 +153,18 @@ export class OphimProvider implements IProvider {
         throw err;
       });
   }
-  getMovieActors?(slug: string): Promise<IActor[]> {
-    return this.client
-      .get<IResponse<{ peoples: IActor[] }>>(`/v1/api/phim/${slug}/peoples`)
-      .then((res) => {
-        return res.data.data.peoples.map((actor) => ({
-          ...actor,
-          profile_path: this.getActorProfileUrl(actor),
-        }));
-      })
-      .catch((err) => {
-        this.logger.error(
-          `Failed to fetch movie actors for slug ${slug}: ${err.message}`,
-        );
-        return [];
-      });
-  }
-  private getActorProfileUrl(actor: IActor): string {
-    return `https://image.tmdb.org/t/p/w45/${actor.profile_path}`;
+  /** VSMov has no cast endpoint. */
+  getMovieActors?(_slug: string): Promise<IActor[]> {
+    return Promise.resolve([]);
   }
   getMovieTrailers?(slug: string): Promise<string[]> {
     throw new Error("Method not implemented.");
   }
+  /** VSMov returns keywords on the movie detail itself. */
   getMovieKeywords?(slug: string): Promise<string[]> {
     return this.client
-      .get<IResponse<{ keywords: { name: string; name_vn: string }[] }>>(
-        `/v1/api/phim/${slug}/keywords`,
-      )
-      .then((res) => res.data.data.keywords.map((keyword) => keyword.name_vn))
+      .get<{ movie: { keywords?: string[] } }>(`/api/phim/${slug}`)
+      .then((res) => res.data.movie.keywords ?? [])
       .catch((err) => {
         this.logger.error(
           `Failed to fetch movie keywords for slug ${slug}: ${err.message}`,
@@ -196,7 +175,7 @@ export class OphimProvider implements IProvider {
 
   async getCategories(): Promise<ICategory[]> {
     return this.client
-      .get<IResponse<{ items: ICategory[] }>>("/v1/api/the-loai")
+      .get<IResponse<{ items: ICategory[] }>>("/api/the-loai")
       .then((res) => res.data.data.items)
       .catch((err) => {
         this.logger.error(`Failed to fetch categories: ${err.message}`);

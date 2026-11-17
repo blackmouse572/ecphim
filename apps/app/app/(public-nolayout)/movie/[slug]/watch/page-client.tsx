@@ -151,6 +151,7 @@ export function MovieWatchClientPage(props: Props) {
         ref={playerRef}
         key={`${serverName}-${episodeSlug}`}
         src={currentEpisode.link_m3u8}
+        embedSrc={currentEpisode.link_embed}
         poster={movie.thumb_url}
         title={`${movie.name} - ${currentEpisode.name}`}
         movieSlug={movieSlug}
