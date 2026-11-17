@@ -15,13 +15,13 @@ const VideoPlayer = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex min-h-screen items-center justify-center bg-black">
+      <div className="flex aspect-video max-h-[calc(100svh-3.5rem)] w-full items-center justify-center bg-black">
         <div className="flex flex-col items-center text-center text-white">
           <SpinnerBallIcon
             className="mb-4 animate-spin text-muted-fg"
             size={48}
           />
-          <p className="text-body text-white/70">Preparing your player</p>
+          <p className="text-body text-white/70">Đang tải trình phát</p>
         </div>
       </div>
     ),
@@ -96,7 +96,7 @@ export const VideoPlayerSection = forwardRef<
     return (
       <div
         ref={ref || internalRef}
-        className="relative h-screen w-full bg-black"
+        className="relative mx-auto aspect-video max-h-[calc(100svh-3.5rem)] w-full max-w-[calc((100svh-3.5rem)*16/9)] scroll-mt-14 bg-black"
       >
         <iframe
           src={embedSrc}
@@ -111,7 +111,10 @@ export const VideoPlayerSection = forwardRef<
   }
 
   return (
-    <div ref={ref || internalRef} className="relative h-screen w-full bg-black">
+    <div
+      ref={ref || internalRef}
+      className="relative mx-auto aspect-video max-h-[calc(100svh-3.5rem)] w-full max-w-[calc((100svh-3.5rem)*16/9)] scroll-mt-14 bg-black"
+    >
       <VideoPlayer
         ref={videoPlayerRef}
         src={src}
