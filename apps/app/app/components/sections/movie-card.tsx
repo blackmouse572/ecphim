@@ -1,114 +1,83 @@
-import { Play, Star } from "@phosphor-icons/react/ssr";
+import { MediaMeta } from "@repo/design-system/components/ecphim/media-tile";
+import { PosterCard } from "@repo/design-system/components/ecphim/poster-card";
 import Image from "next/image";
 import Link from "next/link";
-import { Fragment } from "react";
 import {
   extractPosterUrl,
   fetchMovieImages,
   resolveImageUrl,
 } from "@/lib/services/movie";
 import type { IMovie } from "@/types/response";
-import { QualityTag } from "./quality-tag";
 
 interface MovieCardProps {
   movie: IMovie;
   cdnUrl?: string;
 }
 
-export async function MovieCard({ movie, cdnUrl }: MovieCardProps) {
-  // Ensure poster URL is available, fetch if needed
-  let posterUrl: string;
-
+async function resolvePoster(movie: IMovie, cdnUrl?: string) {
   if (movie.thumb_url) {
     // The API swaps the naming: `thumb_url` is the portrait 2:3 poster,
     // while `poster_url` is a landscape backdrop that gets cropped wrong here.
-    posterUrl = resolveImageUrl(movie.thumb_url, cdnUrl);
-  } else {
-    try {
-      const imageData = await fetchMovieImages(movie.slug);
-      posterUrl = extractPosterUrl(imageData);
-    } catch (error) {
-      console.error(`Failed to load poster for ${movie.slug}`, error);
-      posterUrl = "/images/placeholder-poster.webp"; // Fallback poster
-    }
+    return resolveImageUrl(movie.thumb_url, cdnUrl);
   }
+  try {
+    return extractPosterUrl(await fetchMovieImages(movie.slug));
+  } catch (error) {
+    console.error(`Failed to load poster for ${movie.slug}`, error);
+    return "/images/placeholder-poster.webp";
+  }
+}
 
+/**
+ * The details a card can show. VSMov list items often have no genre, episode,
+ * quality or score, so only show what we have. Without a genre, fall back to
+ * the TMDB type (tv = series, movie = single), and hide a zero rating.
+ */
+function cardMeta(movie: IMovie) {
   const rating = movie.imdb?.vote_average || movie.tmdb?.vote_average || 0;
-  // VSMov list items have no genre or episode, so only show what we have.
-  // Without a genre, fall back to the TMDB type (tv = series, movie = single).
   const typeLabel =
     movie.tmdb?.type === "tv"
       ? "Phim bộ"
       : movie.tmdb?.type === "movie"
         ? "Phim lẻ"
         : "";
-  const meta = [
-    movie.year ? String(movie.year) : "",
-    movie.category?.[0]?.name || typeLabel,
-    movie.episode_current,
-  ].filter((item): item is string => Boolean(item));
+  return {
+    rating: rating > 0 ? rating : undefined,
+    year: movie.year || undefined,
+    items: [
+      movie.category?.[0]?.name || typeLabel,
+      movie.episode_current,
+    ].filter((item): item is string => Boolean(item)),
+  };
+}
+
+/** A poster card for one movie: maps the API movie onto the design system. */
+export async function MovieCard({ movie, cdnUrl }: MovieCardProps) {
+  const poster = await resolvePoster(movie, cdnUrl);
+  const { rating, year, items } = cardMeta(movie);
 
   return (
-    <Link href={`/movie/${movie.slug}`} className="group block">
-      <div className="hover:-translate-y-2 relative aspect-2/3 overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 transition-all duration-700 hover:scale-105 hover:border-white/30">
+    <PosterCard
+      artwork={
         <Image
-          alt={movie.name}
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-          height={450}
-          src={posterUrl}
-          width={300}
+          alt=""
+          height={264}
+          sizes="(min-width: 1024px) 176px, (min-width: 640px) 160px, 144px"
+          src={poster}
+          width={176}
         />
-        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-        {/* Play overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-          <div className="rounded-full bg-white/20 p-4 backdrop-blur-sm">
-            <Play weight="fill" className="h-8 w-8 text-white" />
-          </div>
-        </div>
-
-        {/* Rating badge (hidden when the API has no score yet) */}
-        {rating > 0 && (
-          <div className="absolute top-4 right-4 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-sm">
-            <Star weight="fill" className="h-3 w-3 text-yellow-400" />
-            <span className="font-700 font-mono text-white text-xs">
-              {rating.toFixed(1)}
-            </span>
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-2 pt-4">
-        <h3 className="line-clamp-2 font-600 text-body text-white transition-colors group-hover:text-white/80">
-          {movie.name}
-        </h3>
-        <div className="flex items-center gap-3 text-white/50 text-xs">
-          {meta.map((item, index) => (
-            <Fragment key={item}>
-              {index > 0 && (
-                <span className="h-1 w-1 rounded-full bg-white/30" />
-              )}
-              <span
-                className={
-                  index === 0
-                    ? "font-mono"
-                    : "font-mono uppercase tracking-wider"
-                }
-              >
-                {item}
-              </span>
-            </Fragment>
-          ))}
-          {movie.quality ? (
-            <>
-              {meta.length > 0 && (
-                <span className="h-1 w-1 rounded-full bg-white/30" />
-              )}
-              <QualityTag movie={movie} />
-            </>
-          ) : null}
-        </div>
-      </div>
-    </Link>
+      }
+      badge={movie.quality || undefined}
+      meta={
+        <MediaMeta
+          className="text-muted-foreground"
+          items={items}
+          rating={rating}
+          year={year}
+        />
+      }
+      render={<Link href={`/movie/${movie.slug}`} />}
+      title={movie.name}
+    />
   );
 }
