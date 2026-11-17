@@ -61,11 +61,22 @@ function MediaRow({
   );
 }
 
-function MediaRowItem({ className, ...props }: React.ComponentProps<"li">) {
+/**
+ * One item in a MediaRow. In a `row`, `poster` items fit a 2:3 PosterCard and
+ * `wide` items fit a 16:9 still or a tile.
+ */
+function MediaRowItem({
+  className,
+  size = "poster",
+  ...props
+}: React.ComponentProps<"li"> & { size?: "poster" | "wide" }) {
   return (
     <li
       className={cn(
-        "min-w-0 list-none group-data-[layout=row]/row:w-36 group-data-[layout=row]/row:shrink-0 group-data-[layout=row]/row:snap-start sm:group-data-[layout=row]/row:w-40 lg:group-data-[layout=row]/row:w-44",
+        "min-w-0 list-none group-data-[layout=row]/row:shrink-0 group-data-[layout=row]/row:snap-start",
+        size === "wide"
+          ? "group-data-[layout=row]/row:w-64 sm:group-data-[layout=row]/row:w-72 lg:group-data-[layout=row]/row:w-80"
+          : "group-data-[layout=row]/row:w-36 sm:group-data-[layout=row]/row:w-40 lg:group-data-[layout=row]/row:w-44",
         className,
       )}
       data-slot="media-row-item"
