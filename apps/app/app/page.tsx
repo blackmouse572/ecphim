@@ -2,7 +2,7 @@ import { MotionPage } from "@repo/design-system/components/motion";
 import { fetchHomeMovies, fetchMovieList } from "@/lib/services/movie";
 import { PublicLayout } from "./components/public-layout";
 import { TrendingMovies } from "./components/sections";
-import { HeroCarouselWrapper } from "./components/sections/hero-carousel-wrapper";
+import { RankedHero } from "./components/sections/ranked-hero";
 
 export const revalidate = 86400;
 export default async function HomePage() {
@@ -26,7 +26,7 @@ export default async function HomePage() {
   return (
     <PublicLayout>
       <MotionPage className="min-h-screen bg-linear-to-br from-black via-zinc-950 to-black">
-        <HeroCarouselWrapper movies={movies.slice(0, 5)} />
+        <RankedHero movies={movies} />
         <TrendingMovies
           movies={latestMovies.items}
           viewAllUrl="/discover?clt=phim-moi"

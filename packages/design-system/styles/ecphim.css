@@ -14,6 +14,11 @@
  * light and dark themes both work.
  */
 
+/* Apple-style accessibility variants (see .agents/skills/apple-design). Tailwind
+ * ships motion-reduce and contrast-more; reduced transparency is added here so
+ * translucent materials fall back to solid fills. */
+@custom-variant reduce-transparency (@media (prefers-reduced-transparency: reduce));
+
 @theme inline {
   /* Larger radii than usual, because a squircle reads tighter than a circular arc. */
   --radius-squircle-sm: 0.75rem; /* 12px: chips, key caps, small controls */

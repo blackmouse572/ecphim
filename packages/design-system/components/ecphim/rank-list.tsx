@@ -2,6 +2,7 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@repo/design-system/lib/utils";
 import type * as React from "react";
+import { useId } from "react";
 
 /**
  * The "Top 5 hôm nay" panel beside the Ranked hero. It is a flat surface, so it
@@ -13,8 +14,10 @@ function RankList({
   children,
   ...props
 }: React.ComponentProps<"nav"> & { title: React.ReactNode }) {
+  const headingId = useId();
   return (
     <nav
+      aria-labelledby={headingId}
       className={cn(
         "squircle surface grid min-w-0 content-start gap-1 rounded-(--radius-squircle-lg) bg-card p-2.5",
         className,
@@ -22,7 +25,10 @@ function RankList({
       data-slot="rank-list"
       {...props}
     >
-      <h2 className="px-2.5 pt-2 pb-1.5 font-semibold text-muted-foreground text-xs uppercase tracking-[0.08em]">
+      <h2
+        className="px-2.5 pt-2 pb-1.5 font-semibold text-muted-foreground text-xs uppercase tracking-[0.08em]"
+        id={headingId}
+      >
         {title}
       </h2>
       <ol className="grid gap-1">{children}</ol>
