@@ -14,6 +14,7 @@ import { useHotkey } from "@tanstack/react-hotkeys";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { resolveImageUrl } from "../../lib/services/image-url";
 import type { IMovie } from "../../types/response";
 import { searchMovies } from "../actions/search-movies";
 
@@ -117,7 +118,7 @@ export function GlobalSearch() {
               className="space-x-3"
             >
               <Image
-                src={`${cdnUrlRef.current}/uploads/movies/${movie.thumb_url}`}
+                src={resolveImageUrl(movie.thumb_url, cdnUrlRef.current)}
                 className="rounded-md"
                 width={56}
                 height={80}

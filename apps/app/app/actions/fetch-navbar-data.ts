@@ -1,9 +1,10 @@
 "use server";
 
-interface IResponse<T> {
-  status: boolean;
-  data: T;
-}
+import {
+  normalizeCountries,
+  type RawTaxonomyList,
+  vsmovFetch,
+} from "@/lib/services/vsmov";
 
 interface Country {
   slug: string;
@@ -27,42 +28,37 @@ export interface NavbarData {
 }
 
 /**
- * Fetch navbar data from ophim API endpoints with server-side caching
+ * VSMov has no release-year endpoint, so build the list locally
+ * (current year back to 1970, same { name, slug } shape as before).
+ */
+function buildYears(): Year[] {
+  const current = new Date().getFullYear();
+  return Array.from({ length: current - 1969 }, (_, i) => {
+    const year = String(current - i);
+    return { name: year, slug: year };
+  });
+}
+
+/**
+ * Fetch navbar data from the VSMov API with server-side caching
  * Data is cached for 24 hours as it rarely changes
  */
 export async function fetchNavbarData(): Promise<NavbarData> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-
-  try {
-    const [countriesRes, yearsRes, categoriesRes] = await Promise.all([
-      fetch(`${baseUrl}/api/quoc-gia`, {
-        next: { revalidate: 24 * 60 * 60 }, // Cache for 24 hours
+  const revalidate = 24 * 60 * 60; // Cache for 24 hours
+  const [countries, categories] = await Promise.all([
+    vsmovFetch<RawTaxonomyList>("/quoc-gia", {}, { revalidate })
+      .then(normalizeCountries)
+      .catch((error) => {
+        console.error("Failed to fetch navbar countries:", error);
+        return [];
       }),
-      fetch(`${baseUrl}/api/nam-phat-hanh`, {
-        next: { revalidate: 24 * 60 * 60 },
+    vsmovFetch<RawTaxonomyList>("/the-loai", {}, { revalidate })
+      .then(normalizeCountries)
+      .catch((error) => {
+        console.error("Failed to fetch navbar categories:", error);
+        return [];
       }),
-      fetch(`${baseUrl}/api/the-loai`, {
-        next: { revalidate: 24 * 60 * 60 },
-      }),
-    ]);
+  ]);
 
-    const [countriesData, yearsData, categoriesData] = await Promise.all([
-      countriesRes.json() as Promise<IResponse<{ items: Country[] }>>,
-      yearsRes.json() as Promise<IResponse<{ items: Year[] }>>,
-      categoriesRes.json() as Promise<IResponse<{ items: Category[] }>>,
-    ]);
-
-    return {
-      countries: countriesData.data?.items || [],
-      years: yearsData.data?.items || [],
-      categories: categoriesData.data?.items || [],
-    };
-  } catch (error) {
-    console.error("Failed to fetch navbar data:", error);
-    return {
-      countries: [],
-      years: [],
-      categories: [],
-    };
-  }
+  return { countries, years: buildYears(), categories };
 }

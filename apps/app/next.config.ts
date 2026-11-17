@@ -14,12 +14,12 @@ if (env.ANALYZE === "true") {
   nextConfig = withAnalyzer(nextConfig);
 }
 
-// Add rewrites to mask ophim endpoint
+// Add rewrites to mask the VSMov movie API endpoint
 nextConfig.rewrites = async () => ({
   beforeFiles: [
     {
       source: "/api/:path*",
-      destination: "https://ophim1.com/v1/api/:path*",
+      destination: "https://vsmov.com/api/:path*",
     },
   ],
 });

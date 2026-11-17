@@ -1,13 +1,16 @@
 import { cache } from "react";
-import { env } from "@/env";
 import { CACHE_DURATION, CACHE_TAGS } from "@/lib/constants";
-import type {
-  ICategory,
-  IMovie,
-  IResponse,
-  IResponseList,
-  SeoOnPage,
-} from "@/types/response";
+import type { ICategory, IMovie } from "@/types/response";
+import {
+  normalizeCountries,
+  normalizeList,
+  normalizeMovie,
+  type RawDetail,
+  type RawList,
+  type RawTaxonomyList,
+  VsmovError,
+  vsmovFetch,
+} from "./vsmov";
 
 /**
  * Movie service - handles all movie-related API calls
@@ -17,35 +20,32 @@ import type {
 /**
  * Fetch home page data with movies
  * Cached for 24 hours as homepage content updates daily
+ *
+ * VSMov has no /home endpoint, so this uses the "recently updated" list.
+ * List items only carry name/slug/images/year, so the first few (the ones
+ * the hero shows) are enriched with their detail record.
  */
+const HOME_ENRICH_COUNT = 10;
+
 export const fetchHomeMovies = cache(async () => {
-  const params = new URLSearchParams({
-    sort_field: "_id",
-    sort_type: "desc",
-    page: "1",
-  });
-
-  const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const url = `${baseUrl}/api/home?${params.toString()}`;
-
   try {
-    const response = await fetch(url, {
-      next: {
+    const raw = await vsmovFetch<RawList>(
+      "/danh-sach/phim-moi-cap-nhat",
+      { page: 1 },
+      {
         revalidate: CACHE_DURATION.DAILY,
         tags: [CACHE_TAGS.HOME_DATA, CACHE_TAGS.FEATURED_MOVIES],
       },
-    });
+    );
+    const { items } = normalizeList(raw);
 
-    if (!response.ok) {
-      throw new Error(`Home API error: ${response.status}`);
-    }
+    const enriched = await Promise.all(
+      items
+        .slice(0, HOME_ENRICH_COUNT)
+        .map((movie) => getMovieDetail(movie.slug).catch(() => movie)),
+    );
 
-    const data = (await response.json()) as IResponse<{
-      seoOnPage: SeoOnPage;
-      items: IMovie[];
-    }>;
-
-    return data.data.items;
+    return [...enriched, ...items.slice(HOME_ENRICH_COUNT)];
   } catch (error) {
     console.error("Failed to fetch home movies:", error);
     throw error;
@@ -75,45 +75,71 @@ export type FetchMovieListParams = {
   year?: number;
 };
 
-export const fetchMovieList = cache(async (params: FetchMovieListParams) => {
-  const options: Record<string, string> = {
-    page: params.page?.toString() || "1",
-    limit: params.limit?.toString() || "20",
-    sort_field: (params.sort_field as string) || "_id",
-    sort_type: (params.sort_type as string) || "desc",
-    ...(params.category ? { category: params.category } : {}),
-    ...(params.country ? { country: params.country } : {}),
-    ...(params.year ? { year: params.year.toString() } : {}),
-  };
-  const queryParams = new URLSearchParams(options);
+/**
+ * Pick the VSMov endpoint for a list query.
+ * `/danh-sach/{slug}` ignores filters, so a genre or country filter goes to
+ * `/the-loai/{slug}` or `/quoc-gia/{slug}`, which do honour the rest.
+ */
+function resolveListPath(params: FetchMovieListParams): string {
+  if (params.category) return `/the-loai/${params.category}`;
+  if (params.country) return `/quoc-gia/${params.country}`;
+  const slug = params.slug || "phim-moi";
+  if (slug === "phim-moi" && params.sort_field === "modified.time") {
+    return "/danh-sach/phim-moi-cap-nhat";
+  }
+  return `/danh-sach/${slug}`;
+}
 
-  const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const url = `${baseUrl}/api/danh-sach/${params.slug}?${queryParams.toString()}`;
-  console.log("Fetching movie list with options:", url);
+export const fetchMovieList = cache(async (params: FetchMovieListParams) => {
+  const path = resolveListPath(params);
+  const query = {
+    page: params.page || 1,
+    limit: params.limit || 20,
+    sort_field: params.sort_field || "_id",
+    sort_type: params.sort_type || "desc",
+    country: params.category ? params.country : undefined,
+    year: params.year,
+  };
+  const options = {
+    revalidate: CACHE_DURATION.DAILY,
+    tags: [
+      CACHE_TAGS.HOME_DATA,
+      CACHE_TAGS.movieList(params.slug || "default"),
+    ],
+  };
+  const filters = {
+    type_slug: params.slug,
+    category: params.category,
+    country: params.country,
+    year: params.year,
+    sort_field: params.sort_field,
+    sort_type: params.sort_type,
+  };
 
   try {
-    const response = await fetch(url, {
-      next: {
-        revalidate: CACHE_DURATION.DAILY,
-        tags: [
-          CACHE_TAGS.HOME_DATA,
-          CACHE_TAGS.movieList(params.slug || "default"),
-        ],
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Latest movies API error: ${response.status}`);
-    }
-
-    const data = (await response.json()) as IResponseList<{
-      items: IMovie[];
-      total_pages: number;
-      current_page: number;
-    }>;
-
-    return data.data;
+    const raw = await vsmovFetch<RawList>(path, query, options);
+    return normalizeList(raw, filters);
   } catch (error) {
+    // Some ophim list slugs (hoat-hinh, tv-shows, phim-vietsub...) don't
+    // exist on VSMov. Try a genre with the same slug, else show an empty list.
+    if (
+      error instanceof VsmovError &&
+      error.status >= 400 &&
+      error.status < 500 &&
+      path.startsWith("/danh-sach/")
+    ) {
+      try {
+        const raw = await vsmovFetch<RawList>(
+          `/the-loai/${params.slug}`,
+          query,
+          options,
+        );
+        return normalizeList(raw, filters);
+      } catch {
+        console.warn(`VSMov has no list for "${params.slug}"`);
+        return normalizeList({ status: false, items: [] }, filters);
+      }
+    }
     console.error("Failed to fetch latest movies:", error);
     throw error;
   }
@@ -124,26 +150,16 @@ export const fetchMovieList = cache(async (params: FetchMovieListParams) => {
  * Cached for 30 days as categories rarely change
  */
 export const fetchCategories = cache(async () => {
-  const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const url = `${baseUrl}/api/the-loai`;
-
   try {
-    const response = await fetch(url, {
-      next: {
+    const raw = await vsmovFetch<RawTaxonomyList>(
+      "/the-loai",
+      {},
+      {
         revalidate: CACHE_DURATION.MONTHLY,
         tags: [CACHE_TAGS.CATEGORIES],
       },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Categories API error: ${response.status}`);
-    }
-
-    const data = (await response.json()) as IResponse<{
-      items: ICategory[];
-    }>;
-
-    return data.data.items;
+    );
+    return normalizeCountries(raw) as ICategory[];
   } catch (error) {
     console.error("Failed to fetch categories:", error);
     throw error;
@@ -156,69 +172,81 @@ export const fetchCategories = cache(async () => {
  * Cached for 7 days as these images are stored externally and rarely change
  * @param slug - Movie slug identifier
  */
-export const getMovieImages = cache(async (slug: string) => {
-  const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const url = `${baseUrl}/api/phim/${slug}/images`;
+export type MovieImages = {
+  image_sizes: {
+    backdrop: {
+      original: string;
+      w1280: string;
+      w300: string;
+      w780: string;
+    };
+    poster: {
+      original: string;
+      w154: string;
+      w185: string;
+      w342: string;
+      w500: string;
+      w780: string;
+      w92: string;
+    };
+  };
+  images: {
+    width: number;
+    height: number;
+    type: "backdrop" | "poster";
+    file_path: string;
+  }[];
+};
 
-  try {
-    const response = await fetch(url, {
-      next: {
-        revalidate: CACHE_DURATION.WEEKLY,
-        tags: [CACHE_TAGS.MOVIE_IMAGES, CACHE_TAGS.movieImages(slug)],
-      },
-    });
+const EMPTY_SIZES: MovieImages["image_sizes"] = {
+  backdrop: { original: "", w1280: "", w300: "", w780: "" },
+  poster: {
+    original: "",
+    w154: "",
+    w185: "",
+    w342: "",
+    w500: "",
+    w780: "",
+    w92: "",
+  },
+};
 
-    if (!response.ok) {
-      switch (response.status) {
-        case 404:
-          throw new Error(`Images for movie ${slug} not found (404)`);
-        case 500:
-          throw new Error(
-            `Server error while fetching images for movie ${slug} (500). ${url}`,
-            { cause: response },
-          );
-        default:
-          throw new Error(
-            `Unexpected error ${response.status} while fetching images for movie ${slug}. ${url}`,
-            {
-              cause: response,
-            },
-          );
+/**
+ * Fetch movie images/poster with per-request deduplication
+ *
+ * VSMov has no images endpoint. The images come from the movie detail
+ * (already cached), in the old TMDB-like shape so that extractPosterUrl /
+ * extractBackdropUrl keep working. URLs are absolute, so size bases are empty.
+ * @param slug - Movie slug identifier
+ */
+export const getMovieImages = cache(
+  async (slug: string): Promise<MovieImages> => {
+    try {
+      const movie = await getMovieDetail(slug);
+      const images: MovieImages["images"] = [];
+      if (movie.thumb_url) {
+        images.push({
+          type: "poster",
+          file_path: movie.thumb_url,
+          width: 0,
+          height: 0,
+        });
       }
+      if (movie.poster_url) {
+        images.push({
+          type: "backdrop",
+          file_path: movie.poster_url,
+          width: 0,
+          height: 0,
+        });
+      }
+      return { image_sizes: EMPTY_SIZES, images };
+    } catch (error) {
+      console.error(`Failed to fetch images for movie ${slug}:`, error);
+      throw error;
     }
-
-    const data = (await response.json()) as IResponse<{
-      image_sizes: {
-        backdrop: {
-          original: string;
-          w1280: string;
-          w300: string;
-          w780: string;
-        };
-        poster: {
-          original: string;
-          w154: string;
-          w185: string;
-          w342: string;
-          w500: string;
-          w780: string;
-          w92: string;
-        };
-      };
-      images: {
-        width: number;
-        height: number;
-        type: "backdrop" | "poster";
-        file_path: string;
-      }[];
-    }>;
-
-    return data.data;
-  } catch (error) {
-    console.error(`Failed to fetch images for movie ${slug}:`, error);
-    throw error;
-  }
-});
+  },
+);
 
 /**
  * Legacy function for backwards compatibility
@@ -285,43 +313,26 @@ export function extractBackdropUrl(
  * Multiple calls to getMovieDetail(slug) in same request = 1 API call
  * Cached for 1 day as movie data updates infrequently
  */
-export const getMovieDetail = cache(async (slug: string) => {
-  const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const url = `${baseUrl}/api/phim/${slug}`;
-
+export const getMovieDetail = cache(async (slug: string): Promise<IMovie> => {
   try {
-    const response = await fetch(url, {
-      next: {
+    const raw = await vsmovFetch<RawDetail>(
+      `/phim/${slug}`,
+      {},
+      {
         revalidate: CACHE_DURATION.DAILY,
         tags: [CACHE_TAGS.MOVIE_DETAIL, CACHE_TAGS.movieDetail(slug)],
       },
-    });
-
-    if (!response.ok) {
-      switch (response.status) {
-        case 404:
-          throw new Error(`Movie with slug ${slug} not found (404)`);
-        case 500:
-          throw new Error(`Server error while fetching movie ${slug} (500)`, {
-            cause: response,
-          });
-        default:
-          throw new Error(
-            `Unexpected error ${response.status} while fetching movie ${slug}`,
-            {
-              cause: response,
-            },
-          );
-      }
+    );
+    if (!raw.movie) {
+      throw new Error(`Movie with slug ${slug} not found (404)`);
     }
-
-    const data = (await response.json()) as IResponse<{
-      item: IMovie;
-    }>;
-
-    return data.data.item;
+    return normalizeMovie(raw.movie, raw.episodes);
   } catch (error) {
-    console.error(`Failed to fetch details for movie ${slug}:`, error);
+    if (error instanceof VsmovError && error.status === 404) {
+      console.error(`Movie with slug ${slug} not found (404)`);
+    } else {
+      console.error(`Failed to fetch details for movie ${slug}:`, error);
+    }
     throw error;
   }
 });
@@ -348,32 +359,20 @@ export async function fetchSearchMovies(
     limit?: number;
   },
 ) {
-  const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const url = `${baseUrl}/api/tim-kiem?keyword=${encodeURIComponent(
-    keyword,
-  )}&page=${query.page}&limit=${query.limit}`;
-
   try {
-    const response = await fetch(url, {
-      next: {
+    const raw = await vsmovFetch<RawList>(
+      "/tim-kiem",
+      { keyword, page: query.page, limit: query.limit },
+      {
         revalidate: CACHE_DURATION.RECENT,
         tags: [CACHE_TAGS.SEARCH, CACHE_TAGS.searchResults(keyword)],
       },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Search API error: ${response.status}`);
-    }
-
-    const data = (await response.json()) as IResponseList<{
-      items: IMovie[];
-      total_pages: number;
-      current_page: number;
-    }>;
-
-    return data.data;
+    );
+    return normalizeList(raw);
   } catch (error) {
     console.error(`Failed to search movies with keyword "${keyword}":`, error);
     throw error;
   }
 }
+
+export { resolveImageUrl } from "./image-url";

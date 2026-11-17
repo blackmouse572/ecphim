@@ -1,5 +1,5 @@
-import { OphimProvider } from "./ophim";
+import { VsmovProvider } from "./vsmov";
 
 export function getProviders() {
-  return [new OphimProvider()];
+  return [new VsmovProvider()];
 }

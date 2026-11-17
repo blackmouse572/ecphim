@@ -23,7 +23,11 @@ export const config: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "img.ophim.live",
+        hostname: "vsmov.com",
+      },
+      {
+        protocol: "https",
+        hostname: "nguon.vsphim.com",
       },
     ],
   },
