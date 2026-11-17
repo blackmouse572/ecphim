@@ -4,24 +4,21 @@ import { SpinnerBallIcon } from "@phosphor-icons/react";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
-import { useEffect, useMemo, useRef } from "react";
+import { type ReactNode, useEffect, useMemo, useRef } from "react";
 import { getResumeEpisode } from "@/lib/watch-progress";
 import type { IMovie, IStreamServer } from "@/types/response";
-import {
-  EpisodeGrid,
-  NextEpisodeSection,
-  ServerSelector,
-  VideoInfoPanel,
-  VideoPlayerSection,
-} from "./components";
+import { EpisodeGrid, VideoPlayerSection, WatchToolbar } from "./components";
+import { episodeLabel } from "./components/watch-toolbar";
 
 type Props = {
   params: { slug: string };
   movie: IMovie;
   episodes: IStreamServer[];
+  /** Shown under the episodes; rendered by the server page (e.g. related films). */
+  children?: ReactNode;
 };
 export function MovieWatchClientPage(props: Props) {
-  const { params, movie, episodes } = props;
+  const { params, movie, episodes, children } = props;
 
   const movieSlug = params.slug as string;
   const [episodeSlug, setEpisodeSlug] = useQueryState("episode", parseAsString);
@@ -118,86 +115,70 @@ export function MovieWatchClientPage(props: Props) {
   if (!currentEpisode) {
     return (
       <>
-        <div className="flex min-h-screen items-center justify-center bg-black">
+        <div className="flex aspect-video max-h-[calc(100svh-3.5rem)] w-full items-center justify-center bg-black">
           <div className="flex flex-col items-center text-center text-white">
             <SpinnerBallIcon
               className="mb-4 animate-spin text-muted-fg"
               size={48}
             />
-            <p className="text-body text-white/70">
-              Preparing your video experience
-            </p>
+            <p className="text-body text-white/70">Đang chuẩn bị video</p>
           </div>
         </div>
       </>
     );
   }
 
+  const episodeCount = episodes.reduce(
+    (most, server) => Math.max(most, server.server_data.length),
+    0,
+  );
+  const isSeries = movie.type !== "single" && episodeCount > 1;
+
   return (
-    <div className="min-h-screen bg-black">
-      {/* Video Player */}
-      <VideoPlayerSection
-        ref={playerRef}
-        key={`${serverName}-${episodeSlug}`}
-        src={currentEpisode.link_m3u8}
-        embedSrc={currentEpisode.link_embed}
-        poster={movie.thumb_url}
-        title={`${movie.name} - ${currentEpisode.name}`}
-        movieSlug={movieSlug}
-        episodeSlug={currentEpisode.slug}
-        onEnded={handleVideoEnded}
-      />
-      <div className="border-white/10 border-t bg-linear-to-t from-black via-zinc-950 to-zinc-900">
-        <div className="container mx-auto max-w-7xl px-6 py-8">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr]">
-            {movie.type !== "single" && (
-              <NextEpisodeSection
-                nextEpisode={nextEpisode}
-                onPlayNext={(ep) => setEpisodeSlug(ep.slug)}
-                previousEpisode={previousEpisode}
-                onPlayPrevious={(ep) => setEpisodeSlug(ep.slug)}
-                className="block md:hidden"
-              />
-            )}
-
-            {/* Episodes Grid */}
-            <EpisodeGrid
-              movie={movie}
-              currentEpisodeSlug={currentEpisode.slug}
-            />
-
-            {/* Sidebar - Server Selection & Info */}
-            <div className="space-y-6">
-              {/* Continue Watching Suggestions */}
-              {movie.type !== "single" && (
-                <NextEpisodeSection
-                  nextEpisode={nextEpisode}
-                  onPlayNext={(ep) => setEpisodeSlug(ep.slug)}
-                  previousEpisode={previousEpisode}
-                  onPlayPrevious={(ep) => setEpisodeSlug(ep.slug)}
-                  className="hidden md:block"
-                />
-              )}
-              {/* Server Selector */}
-              <ServerSelector
-                servers={movie.episodes}
-                currentServerName={currentServer.server_name}
-                onServerSelect={handleServerChange}
-              />
-
-              {/* Video Quality & Language Info */}
-              <VideoInfoPanel
-                quality={movie.quality}
-                language={movie.lang}
-                duration={movie.time}
-                status={movie.status}
-                country={movie.country}
-                category={movie.category}
-              />
-            </div>
-          </div>
-        </div>
+    <div>
+      <div className="bg-black">
+        <VideoPlayerSection
+          embedSrc={currentEpisode.link_embed}
+          episodeSlug={currentEpisode.slug}
+          key={`${serverName}-${episodeSlug}`}
+          movieSlug={movieSlug}
+          onEnded={handleVideoEnded}
+          poster={movie.thumb_url}
+          ref={playerRef}
+          src={currentEpisode.link_m3u8}
+          title={`${movie.name} - ${episodeLabel(currentEpisode.name)}`}
+        />
       </div>
+
+      <div className="container mx-auto grid max-w-7xl gap-10 px-4 py-6 md:px-6">
+        <WatchToolbar
+          currentServerName={currentServer.server_name}
+          episode={currentEpisode}
+          isSeries={isSeries}
+          nextEpisode={nextEpisode}
+          onSelectEpisode={(ep) => setEpisodeSlug(ep.slug)}
+          onSelectServer={handleServerChange}
+          previousEpisode={previousEpisode}
+          servers={episodes}
+          title={movie.name}
+        />
+
+        {isSeries ? (
+          <section aria-labelledby="episodes" className="grid gap-4">
+            <h2
+              className="font-semibold text-lg tracking-[-0.015em]"
+              id="episodes"
+            >
+              Danh sách tập
+            </h2>
+            <EpisodeGrid
+              currentEpisodeSlug={currentEpisode.slug}
+              movie={{ ...movie, episodes: [currentServer] }}
+            />
+          </section>
+        ) : null}
+      </div>
+      {children}
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
-import { Kbd } from "@repo/design-system/components/ui/kbd";
-import { buttonStyles } from "@repo/design-system/components/variants/buttonVariants";
+import { Button } from "@repo/design-system/components/base/button";
 import { createMetadata } from "@repo/seo/metadata";
 import Link from "next/link";
 import {
@@ -8,6 +7,7 @@ import {
   fetchMovieDetail,
   fetchMovieImages,
 } from "../../../../../lib/services/movie";
+import { toPlainText } from "../../../../components/sections/ranked-hero";
 import { RelatedMovies } from "../../../../components/sections/related-movies";
 import { MovieWatchClientPage } from "./page-client";
 
@@ -18,40 +18,48 @@ type Props = {
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const movie = await fetchMovieDetail(slug);
+  const synopsis = toPlainText(movie.content ?? "");
   return createMetadata({
-    title: movie.name,
-    description: movie.content,
+    title: `Xem ${movie.name}`,
+    description:
+      synopsis.length > 158
+        ? `${synopsis.slice(0, synopsis.lastIndexOf(" ", 158))}…`
+        : synopsis || `Xem ${movie.name} online miễn phí.`,
   });
 }
 
 export default async function MovieWatchPage({ params }: Props) {
   const { slug } = await params;
   const movie = await fetchMovieDetail(slug);
-  const imageData = await fetchMovieImages(slug);
+  const imageData = await fetchMovieImages(slug).catch(() => undefined);
   const backdrop = extractBackdropUrl(imageData, "original");
 
   return (
-    <div className="relative">
-      <Link
-        className={buttonStyles({
-          intent: "secondary",
-          size: "sm",
-          className: "absolute top-4 left-4 z-10",
-        })}
-        href={`/movie/${slug}`}
-      >
-        <ArrowLeftIcon />
-        Quay lại
-        <Kbd className="ml-2">ESC</Kbd>
-      </Link>
+    <div className="min-h-screen pb-8">
+      <header className="sticky top-0 z-20 flex h-14 items-center gap-2 bg-black/80 reduce-transparency:bg-black px-2 backdrop-blur-md reduce-transparency:backdrop-blur-none md:px-4">
+        <Button
+          aria-label="Quay lại trang phim"
+          nativeButton={false}
+          render={<Link href={`/movie/${slug}`} />}
+          size="icon-lg"
+          variant="ghost"
+        >
+          <ArrowLeftIcon />
+        </Button>
+        <Link
+          className="min-w-0 truncate rounded-sm font-medium text-sm text-white/85 outline-none hover:text-white focus-visible:ring-3 focus-visible:ring-ring/50"
+          href={`/movie/${slug}`}
+        >
+          {movie.name}
+        </Link>
+      </header>
       <MovieWatchClientPage
-        params={{ slug }}
-        movie={{ ...movie, thumb_url: backdrop }}
         episodes={movie.episodes}
-      />
-      <div className="bg-zinc-950 pb-8">
+        movie={{ ...movie, thumb_url: backdrop }}
+        params={{ slug }}
+      >
         <RelatedMovies movie={movie} title="Có thể bạn cũng thích" />
-      </div>
+      </MovieWatchClientPage>
     </div>
   );
 }
