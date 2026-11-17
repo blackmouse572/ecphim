@@ -48,6 +48,15 @@ export function ContinueWatching() {
     };
   }, []);
 
+  return <ContinueWatchingRow items={items} />;
+}
+
+/** The row itself, for a list of items already loaded. */
+export function ContinueWatchingRow({
+  items,
+}: {
+  items: ContinueWatchingItem[];
+}) {
   if (items.length === 0) {
     return null;
   }
