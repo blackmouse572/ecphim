@@ -17,7 +17,10 @@
 /* Apple-style accessibility variants (see .agents/skills/apple-design). Tailwind
  * ships motion-reduce and contrast-more; reduced transparency is added here so
  * translucent materials fall back to solid fills. */
-@custom-variant reduce-transparency (@media (prefers-reduced-transparency: reduce));
+/* biome-ignore lint/correctness/noUnknownMediaFeatureName: prefers-reduced-transparency is real (Chromium 118+), Biome does not know it yet */
+@custom-variant reduce-transparency (@media (
+    prefers-reduced-transparency: reduce
+  ));
 
 @theme inline {
   /* Larger radii than usual, because a squircle reads tighter than a circular arc. */
@@ -154,5 +157,21 @@
     ) {
     /* biome-ignore lint/correctness/noUnknownProperty: corner-shape is new (Chromium 139+), other browsers ignore it */
     corner-shape: squircle;
+  }
+}
+
+/*
+ * No rubber-band drag past the page edges (Jaden, 2026-11-17). Nothing wider
+ * than the screen can drag the page sideways, and the page does not bounce
+ * or pull-to-refresh at the top and bottom. Inner scrollers (poster rows)
+ * still scroll; their own overscroll is contained.
+ */
+@layer base {
+  html,
+  body {
+    overscroll-behavior: none;
+  }
+  body {
+    overflow-x: clip;
   }
 }

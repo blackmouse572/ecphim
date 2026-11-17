@@ -88,13 +88,13 @@ export function GlobalSearch() {
       <Button
         intent="secondary"
         onClick={() => setIsOpen(true)}
-        className={"w-[12rem] justify-between text-muted-foreground text-sm"}
+        className="w-36 justify-between text-muted-foreground text-sm sm:w-48"
       >
         <div className="flex items-center gap-2">
           <MagnifyingGlassIcon />
           Tìm kiếm...
         </div>
-        <Kbd>⌘K</Kbd>
+        <Kbd className="hidden sm:inline-flex">⌘K</Kbd>
       </Button>
       <CommandMenu
         isPending={isSearching}
