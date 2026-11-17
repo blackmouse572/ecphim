@@ -5,10 +5,7 @@ import { useHotkey } from "@tanstack/react-hotkeys";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo, useRef } from "react";
-import {
-  getMovieWatchProgress,
-  shouldRestoreProgress,
-} from "@/lib/watch-progress";
+import { getResumeEpisode } from "@/lib/watch-progress";
 import type { IMovie, IStreamServer } from "@/types/response";
 import {
   EpisodeGrid,
@@ -34,16 +31,8 @@ export function MovieWatchClientPage(props: Props) {
   useEffect(() => {
     // Only auto-select if no URL parameters are set
     if (!episodeSlug && !serverName && episodes.length > 0) {
-      const movieProgress = getMovieWatchProgress(movieSlug);
-
-      // Find the most recently watched episode with restorable progress
-      const recentProgress = movieProgress
-        .filter(shouldRestoreProgress)
-        .sort(
-          (a, b) =>
-            new Date(b.lastWatched).getTime() -
-            new Date(a.lastWatched).getTime(),
-        )[0];
+      // The most recently watched, unfinished episode (embed visits included)
+      const recentProgress = getResumeEpisode(movieSlug);
 
       if (recentProgress) {
         // Find the server that contains this episode
