@@ -24,15 +24,14 @@ export function MobileNav(props: {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <Button
         aria-controls="mobile-menu"
         aria-expanded={open}
-        aria-label="Toggle menu"
-        className="md:hidden"
+        aria-label={open ? "Đóng menu" : "Mở menu"}
         onClick={() => setOpen(!open)}
         size="sq-md"
-        intent="outline"
+        intent="plain"
       >
         {open ? (
           <XIcon className="size-4.5" />

@@ -1,7 +1,8 @@
 "use client";
 
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
-import { Button } from "@repo/design-system/components/ui/button";
+import { Button } from "@repo/design-system/components/base/button";
+import { Kbd } from "@repo/design-system/components/base/kbd";
 import {
   CommandMenu,
   CommandMenuFooter,
@@ -9,7 +10,6 @@ import {
   CommandMenuList,
   CommandMenuSearch,
 } from "@repo/design-system/components/ui/command-menu";
-import { Kbd } from "@repo/design-system/components/ui/kbd";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -86,15 +86,14 @@ export function GlobalSearch() {
   return (
     <>
       <Button
-        intent="secondary"
+        aria-label="Tìm kiếm phim"
+        className="size-9 rounded-(--radius-squircle-sm) p-0 text-muted-foreground sm:w-56 sm:justify-start sm:gap-2 sm:bg-foreground/6 sm:px-3 sm:hover:bg-foreground/10"
         onClick={() => setIsOpen(true)}
-        className="w-36 justify-between text-muted-foreground text-sm sm:w-48"
+        variant="ghost"
       >
-        <div className="flex items-center gap-2">
-          <MagnifyingGlassIcon />
-          Tìm kiếm...
-        </div>
-        <Kbd className="hidden sm:inline-flex">⌘K</Kbd>
+        <MagnifyingGlassIcon aria-hidden className="size-4.5" />
+        <span className="hidden sm:inline">Tìm kiếm phim</span>
+        <Kbd className="ml-auto hidden sm:inline-flex">⌘K</Kbd>
       </Button>
       <CommandMenu
         isPending={isSearching}
