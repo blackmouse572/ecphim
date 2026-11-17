@@ -107,11 +107,15 @@ export function CinematicHeroSection({
                 {movie.origin_name}
               </h2>
               <div className="flex items-center gap-4 font-mono text-body text-white/50">
-                {movie.year} • {movie.episode_current} • {movie.quality} •{" "}
-                <span className="flex w-fit items-center">
-                  <Star weight="fill" className="h-4 w-4 text-yellow-400" />
-                  {movie.tmdb.vote_average.toFixed(1)}
-                </span>
+                {[movie.year || "", movie.episode_current, movie.quality]
+                  .filter(Boolean)
+                  .join(" • ")}
+                {movie.tmdb.vote_average > 0 && (
+                  <span className="flex w-fit items-center">
+                    <Star weight="fill" className="h-4 w-4 text-yellow-400" />
+                    {movie.tmdb.vote_average.toFixed(1)}
+                  </span>
+                )}
               </div>
             </MotionItem>
 

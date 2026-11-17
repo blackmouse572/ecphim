@@ -1,6 +1,7 @@
 import { Play, Star } from "@phosphor-icons/react/ssr";
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import {
   extractPosterUrl,
   fetchMovieImages,
@@ -32,6 +33,21 @@ export async function MovieCard({ movie, cdnUrl }: MovieCardProps) {
     }
   }
 
+  const rating = movie.imdb?.vote_average || movie.tmdb?.vote_average || 0;
+  // VSMov list items have no genre or episode, so only show what we have.
+  // Without a genre, fall back to the TMDB type (tv = series, movie = single).
+  const typeLabel =
+    movie.tmdb?.type === "tv"
+      ? "Phim bộ"
+      : movie.tmdb?.type === "movie"
+        ? "Phim lẻ"
+        : "";
+  const meta = [
+    movie.year ? String(movie.year) : "",
+    movie.category?.[0]?.name || typeLabel,
+    movie.episode_current,
+  ].filter((item): item is string => Boolean(item));
+
   return (
     <Link href={`/movie/${movie.slug}`} className="group block">
       <div className="hover:-translate-y-2 relative aspect-2/3 overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 transition-all duration-700 hover:scale-105 hover:border-white/30">
@@ -51,13 +67,15 @@ export async function MovieCard({ movie, cdnUrl }: MovieCardProps) {
           </div>
         </div>
 
-        {/* Rating badge */}
-        <div className="absolute top-4 right-4 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-sm">
-          <Star weight="fill" className="h-3 w-3 text-yellow-400" />
-          <span className="font-700 font-mono text-white text-xs">
-            {movie.imdb.vote_average.toFixed(1)}
-          </span>
-        </div>
+        {/* Rating badge (hidden when the API has no score yet) */}
+        {rating > 0 && (
+          <div className="absolute top-4 right-4 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-sm">
+            <Star weight="fill" className="h-3 w-3 text-yellow-400" />
+            <span className="font-700 font-mono text-white text-xs">
+              {rating.toFixed(1)}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="space-y-2 pt-4">
@@ -65,17 +83,30 @@ export async function MovieCard({ movie, cdnUrl }: MovieCardProps) {
           {movie.name}
         </h3>
         <div className="flex items-center gap-3 text-white/50 text-xs">
-          <span className="font-mono">{movie.year}</span>
-          <span className="h-1 w-1 rounded-full bg-white/30" />
-          <span className="font-mono uppercase tracking-wider">
-            {movie.category[0]?.name || "Unknown"}
-          </span>
-          <span className="h-1 w-1 rounded-full bg-white/30" />
-          <span className="font-mono uppercase tracking-wider">
-            {movie.episode_current || "Unknown"}
-          </span>
-          <span className="h-1 w-1 rounded-full bg-white/30" />
-          <QualityTag movie={movie} />
+          {meta.map((item, index) => (
+            <Fragment key={item}>
+              {index > 0 && (
+                <span className="h-1 w-1 rounded-full bg-white/30" />
+              )}
+              <span
+                className={
+                  index === 0
+                    ? "font-mono"
+                    : "font-mono uppercase tracking-wider"
+                }
+              >
+                {item}
+              </span>
+            </Fragment>
+          ))}
+          {movie.quality ? (
+            <>
+              {meta.length > 0 && (
+                <span className="h-1 w-1 rounded-full bg-white/30" />
+              )}
+              <QualityTag movie={movie} />
+            </>
+          )}
         </div>
       </div>
     </Link>
