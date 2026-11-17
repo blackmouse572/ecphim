@@ -75,7 +75,7 @@ export function Header(props: HeaderProps) {
                   <NavigationMenuLink
                     className={menuLink}
                     key={category.slug}
-                    render={<Link href={`/discover?ctg=${category.name}`} />}
+                    render={<Link href={`/discover?ctg=${category.slug}`} />}
                   >
                     {category.name}
                   </NavigationMenuLink>
@@ -116,11 +116,7 @@ export function Header(props: HeaderProps) {
         <div className="ml-auto flex items-center gap-2">
           <GlobalSearch />
           <LoginBtn />
-          <MobileNav
-            countries={props.countries}
-            navLinks={navLinks}
-            years={props.years}
-          />
+          <MobileNav countries={props.countries} navLinks={navLinks} />
         </div>
       </div>
     </header>
