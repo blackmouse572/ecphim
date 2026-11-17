@@ -48,7 +48,10 @@ function MediaRow({
       ) : null}
       <ul
         className={cn(
-          "group/row",
+          // `relative` keeps absolutely placed children (like sr-only text)
+          // inside the scroller. Without it they escape to the page and widen
+          // it, so phones zoom the whole page out.
+          "group/row relative",
           layout === "row"
             ? "-mx-4 md:-mx-6 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto overscroll-x-contain px-4 pb-1 [mask-image:linear-gradient(to_right,transparent,black_1rem,black_calc(100%-2.5rem),transparent)] [scrollbar-width:none] md:scroll-px-6 md:gap-4 md:px-6 [&::-webkit-scrollbar]:hidden"
             : "grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 md:grid-cols-4 md:gap-x-4 lg:grid-cols-6",
@@ -61,11 +64,22 @@ function MediaRow({
   );
 }
 
-function MediaRowItem({ className, ...props }: React.ComponentProps<"li">) {
+/**
+ * One item in a MediaRow. In a `row`, `poster` items fit a 2:3 PosterCard and
+ * `wide` items fit a 16:9 still or a tile.
+ */
+function MediaRowItem({
+  className,
+  size = "poster",
+  ...props
+}: React.ComponentProps<"li"> & { size?: "poster" | "wide" }) {
   return (
     <li
       className={cn(
-        "min-w-0 list-none group-data-[layout=row]/row:w-36 group-data-[layout=row]/row:shrink-0 group-data-[layout=row]/row:snap-start sm:group-data-[layout=row]/row:w-40 lg:group-data-[layout=row]/row:w-44",
+        "min-w-0 list-none group-data-[layout=row]/row:shrink-0 group-data-[layout=row]/row:snap-start",
+        size === "wide"
+          ? "group-data-[layout=row]/row:w-64 sm:group-data-[layout=row]/row:w-72 lg:group-data-[layout=row]/row:w-80"
+          : "group-data-[layout=row]/row:w-36 sm:group-data-[layout=row]/row:w-40 lg:group-data-[layout=row]/row:w-44",
         className,
       )}
       data-slot="media-row-item"

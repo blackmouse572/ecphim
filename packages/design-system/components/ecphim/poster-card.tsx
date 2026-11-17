@@ -4,8 +4,13 @@ import { cn } from "@repo/design-system/lib/utils";
 import type * as React from "react";
 
 type PosterCardProps = useRender.ComponentProps<"a"> & {
-  /** Usually `next/image`. It fills a 2:3 frame. */
+  /** Usually `next/image`. It fills the frame set by `shape`. */
   artwork: React.ReactNode;
+  /**
+   * `poster` is a 2:3 portrait poster. `still` is a 16:9 frame from the
+   * film, for rows about episodes rather than titles (e.g. "Tập mới").
+   */
+  shape?: "poster" | "still";
   title: React.ReactNode;
   /** A line under the title, usually `MediaMeta`. */
   meta?: React.ReactNode;
@@ -27,6 +32,7 @@ function PosterCard({
   title,
   meta,
   badge,
+  shape = "poster",
   render,
   ...props
 }: PosterCardProps) {
@@ -41,7 +47,12 @@ function PosterCard({
         ),
         children: (
           <>
-            <span className="squircle surface relative block aspect-2/3 overflow-hidden rounded-(--radius-squircle-md) bg-muted group-focus-visible/poster:ring-3 group-focus-visible/poster:ring-ring/60 [&_img]:size-full [&_img]:object-cover [&_img]:transition-transform [&_img]:duration-400 [&_img]:ease-(--ease-out-strong) motion-safe:group-hover/poster:[&_img]:scale-[1.03]">
+            <span
+              className={cn(
+                "squircle surface relative block overflow-hidden rounded-(--radius-squircle-md) bg-muted group-focus-visible/poster:ring-3 group-focus-visible/poster:ring-ring/60 [&_img]:size-full [&_img]:object-cover [&_img]:transition-transform [&_img]:duration-400 [&_img]:ease-(--ease-out-strong) motion-safe:group-hover/poster:[&_img]:scale-[1.03]",
+                shape === "still" ? "aspect-video" : "aspect-2/3",
+              )}
+            >
               {artwork}
               {badge ? (
                 <span className="absolute top-2 left-2 rounded-[5px] bg-black/75 px-1.5 py-px font-bold font-mono text-[0.6875rem] text-white">
@@ -60,7 +71,7 @@ function PosterCard({
       },
       props,
     ),
-    state: { slot: "poster-card" },
+    state: { slot: "poster-card", shape },
   });
 }
 

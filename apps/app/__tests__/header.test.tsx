@@ -3,6 +3,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   within,
 } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
@@ -45,4 +46,15 @@ test("the material appears only after the page scrolls", () => {
 test("search has a name on phones, where it is only an icon", () => {
   render(<Header />);
   expect(screen.getByRole("button", { name: "Tìm kiếm phim" })).toBeTruthy();
+});
+
+test("the phone menu opens a sheet of links that closes on choice", async () => {
+  render(<Header countries={[{ name: "Việt Nam", slug: "viet-nam" }]} />);
+  fireEvent.click(screen.getByRole("button", { name: "Mở menu" }));
+  const sheet = await screen.findByRole("dialog");
+  const browse = within(sheet).getByRole("navigation", { name: "Duyệt phim" });
+  const phimLe = within(browse).getByRole("link", { name: "Phim lẻ" });
+  expect(phimLe.getAttribute("href")).toBe("/discover?clt=phim-le");
+  fireEvent.click(phimLe);
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
 });

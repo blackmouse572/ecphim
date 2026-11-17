@@ -1,6 +1,5 @@
 "use client";
 
-import { buttonStyles } from "@repo/design-system/components/variants/buttonVariants";
 import { cn } from "@repo/design-system/lib/utils";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -43,65 +42,70 @@ export function EpisodeGrid({
     return progress ? progress.watchedPercentage : 0;
   };
 
-  return (
-    <div className="space-y-8">
-      {episodes.map((server) => (
-        <div key={server.server_name}>
-          <h3 className="mb-6 flex items-center gap-3 font-700 text-title text-white">
-            <div className="h-6 w-1 rounded-full bg-accent-foreground" />
-            Tập ({server.server_name})
-          </h3>
+  const multipleServers = episodes.length > 1;
 
-          <div className="grid grid-cols-4 gap-3 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10">
+  return (
+    <div className="grid gap-6">
+      {episodes.map((server) => (
+        <section
+          aria-label={`Tập phim (${server.server_name})`}
+          className="grid gap-3"
+          key={server.server_name}
+        >
+          {multipleServers ? (
+            <h3 className="font-medium text-muted-foreground text-sm">
+              {server.server_name}
+            </h3>
+          ) : null}
+
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(3.75rem,1fr))] gap-2">
             {server.server_data.map((episode) => {
               const status = getEpisodeStatus(episode);
               const progressPercentage = getProgressPercentage(episode);
+              const isCurrent = currentEpisodeSlug === episode.slug;
 
               return (
-                <div key={episode.slug} className="relative">
+                <li key={episode.slug}>
                   <Link
-                    href={`/movie/${movie.slug}/watch?episode=${episode.slug}&server=${server.server_name}`}
-                    onClick={() => onEpisodeSelect?.(episode)}
+                    aria-current={isCurrent ? "page" : undefined}
                     className={cn(
-                      buttonStyles({
-                        intent:
-                          currentEpisodeSlug === episode.slug
-                            ? "primary"
-                            : "outline",
-                      }),
-                      `relative aspect-square size-18 overflow-hidden rounded-lg border-white/20 font-700 font-mono text-lg text-white transition-all hover:scale-110 hover:border-primary hover:bg-blue-400/10 hover:text-primary sm:size-16`,
-                      {
-                        "border-primary bg-primary text-white":
-                          currentEpisodeSlug === episode.slug,
-                        "border-green-500/30 bg-green-500/10":
-                          status === "watched" &&
-                          currentEpisodeSlug !== episode.slug,
-                        "border-yellow-500/30 bg-yellow-500/10":
-                          status === "inProgress" &&
-                          currentEpisodeSlug !== episode.slug,
-                      },
+                      "squircle relative flex h-11 items-center justify-center overflow-hidden rounded-(--radius-squircle-sm) px-2 font-medium font-mono text-sm tabular-nums outline-none transition-[transform,background-color,color] duration-100 ease-out focus-visible:ring-3 focus-visible:ring-ring/60 active:scale-[0.96] motion-reduce:active:scale-100",
+                      isCurrent
+                        ? "skeuo-primary"
+                        : "bg-muted text-foreground/85 ring-1 ring-border hover:bg-accent hover:text-foreground",
+                      status === "watched" &&
+                        !isCurrent &&
+                        "text-muted-foreground",
                     )}
+                    href={`/movie/${movie.slug}/watch?episode=${episode.slug}&server=${encodeURIComponent(server.server_name)}`}
+                    onClick={() => onEpisodeSelect?.(episode)}
+                    title={
+                      status === "watched"
+                        ? "Đã xem"
+                        : status === "inProgress"
+                          ? "Đang xem dở"
+                          : undefined
+                    }
                   >
-                    {episode.name}
-
-                    {/* Progress indicator */}
-                    {status === "inProgress" && (
-                      <div
-                        className="absolute bottom-0 left-0 h-1 bg-yellow-400 transition-all"
-                        style={{ width: `${progressPercentage}%` }}
+                    <span className="truncate">{episode.name}</span>
+                    {status !== "unwatched" && !isCurrent ? (
+                      <span
+                        aria-hidden
+                        className="absolute inset-x-0 bottom-0 h-0.5 bg-primary"
+                        style={{
+                          width:
+                            status === "watched"
+                              ? "100%"
+                              : `${progressPercentage}%`,
+                        }}
                       />
-                    )}
-
-                    {/* Watched indicator */}
-                    {status === "watched" && (
-                      <div className="absolute bottom-0 left-0 h-1 w-full bg-green-400" />
-                    )}
+                    ) : null}
                   </Link>
-                </div>
+                </li>
               );
             })}
-          </div>
-        </div>
+          </ul>
+        </section>
       ))}
     </div>
   );

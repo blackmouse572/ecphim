@@ -2,10 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  getCloudWatchProgress,
-  saveWatchProgressToCloud,
-} from "@/lib/watch-progress-cloud";
-import {
   calculateWatchPercentage,
   getMovieWatchProgress,
   getWatchProgress,
@@ -13,6 +9,12 @@ import {
   saveWatchProgress,
   shouldRestoreProgress,
 } from "@/lib/watch-progress";
+import {
+  fetchCloudProgress,
+  flushCloudSync,
+  flushCloudSyncOnExit,
+  queueCloudSync,
+} from "@/lib/watch-progress-sync";
 import type {
   WatchProgress,
   WatchProgressUpdate,
@@ -30,7 +32,10 @@ export interface UseWatchProgressReturn {
   progress: WatchProgress | null;
 
   // Actions
+  /** Call on every `timeupdate`; saving is throttled internally. */
   updateProgress: (update: WatchProgressUpdate) => void;
+  /** Save the latest position now (pause, seek, episode end). */
+  flushProgress: () => void;
   clearProgress: () => void;
 
   // Getters
@@ -42,13 +47,17 @@ export interface UseWatchProgressReturn {
 }
 
 /**
- * Custom hook for managing watch progress with localStorage persistence.
+ * Watch progress, local-first with cloud sync.
  *
- * Progress is throttled (saved at most once per SAVE_INTERVAL while playing)
- * rather than debounced, so continuous playback still persists — a plain
- * debounce never fires because `timeupdate` keeps resetting the timer. Pending
- * progress is also flushed on tab-hide / page-unload since React effect cleanup
- * does not reliably run on a hard refresh (F5) or tab close.
+ * - localStorage is written at most once per SAVE_INTERVAL while playing
+ *   (throttled with a trailing save, so continuous playback still persists).
+ * - The cloud copy (signed-in users) is synced through `watch-progress-sync`,
+ *   at most every CLOUD_SYNC_INTERVAL and one request at a time.
+ * - Pause, end, episode change and tab hide save immediately; page unload
+ *   saves locally and sends the cloud copy with a beacon.
+ * - On load the local and cloud copies are reconciled: the furthest position
+ *   wins locally, and a local position the cloud missed (e.g. the tab was
+ *   closed before it synced) is pushed back up.
  */
 export function useWatchProgress({
   movieSlug,
@@ -58,67 +67,79 @@ export function useWatchProgress({
   const [progress, setProgress] = useState<WatchProgress | null>(null);
   const [isRestored, setIsRestored] = useState(false);
 
-  // Refs hold the latest pending update and throttle bookkeeping.
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestProgressRef = useRef<WatchProgressUpdate | null>(null);
   const lastSaveAtRef = useRef(0);
+  const restoreRef = useRef(onProgressRestore);
+  restoreRef.current = onProgressRestore;
 
-  // Persist whatever is pending immediately, cancelling any trailing timer.
-  const flush = useCallback(() => {
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-      saveTimeoutRef.current = null;
-    }
+  // Persist whatever is pending, cancelling any trailing timer.
+  const flush = useCallback(
+    (forceCloud = false) => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
 
-    const latestUpdate = latestProgressRef.current;
-    if (latestUpdate) {
+      const latestUpdate = latestProgressRef.current;
+      if (!latestUpdate) {
+        if (forceCloud) flushCloudSync();
+        return;
+      }
+      latestProgressRef.current = null;
+
       saveWatchProgress(movieSlug, episodeSlug, latestUpdate);
       lastSaveAtRef.current = Date.now();
-      // Best-effort cloud sync; the action no-ops for guests.
-      void saveWatchProgressToCloud(movieSlug, episodeSlug, latestUpdate).catch(
-        () => {
-          // Ignore cloud failures — localStorage remains the source of truth.
-        },
-      );
-    }
-  }, [movieSlug, episodeSlug]);
+      queueCloudSync(movieSlug, episodeSlug, latestUpdate, {
+        force: forceCloud,
+      });
+    },
+    [movieSlug, episodeSlug],
+  );
 
-  // Load initial progress on mount or when episode changes.
+  // Load progress on mount or when the episode changes.
   useEffect(() => {
-    // Reset throttle state so the new episode saves promptly and can't
-    // inherit the previous episode's pending position.
     latestProgressRef.current = null;
     lastSaveAtRef.current = 0;
 
     const savedProgress = getWatchProgress(movieSlug, episodeSlug);
     setProgress(savedProgress);
-    // Auto-restore progress if it exists and should be restored
-    if (
-      savedProgress &&
-      shouldRestoreProgress(savedProgress) &&
-      onProgressRestore
-    ) {
-      onProgressRestore(savedProgress.currentTime);
+    let restoredAt = 0;
+    if (savedProgress && shouldRestoreProgress(savedProgress)) {
+      restoreRef.current?.(savedProgress.currentTime);
+      restoredAt = savedProgress.currentTime;
       setIsRestored(true);
     } else {
       setIsRestored(false);
     }
 
-    // Merge cloud progress (logged-in users). Adopt it only when it's ahead of
-    // the local position so switching devices resumes from the furthest point
-    // without ever rewinding. No-ops / returns null for guests.
+    if (!(movieSlug && episodeSlug)) return;
+
     let cancelled = false;
-    void getCloudWatchProgress(movieSlug, episodeSlug)
-      .then((cloud) => {
-        if (cancelled || !cloud) {
+    void fetchCloudProgress(movieSlug, episodeSlug)
+      .then((result) => {
+        if (cancelled || !result?.signedIn) return;
+        const cloud = result.progress;
+        const local = getWatchProgress(movieSlug, episodeSlug);
+        const localTime = local?.currentTime ?? 0;
+
+        // Local is ahead: the last session ended before the cloud caught up.
+        if (
+          local &&
+          local.duration > 0 &&
+          localTime > (cloud?.currentTime ?? 0)
+        ) {
+          queueCloudSync(
+            movieSlug,
+            episodeSlug,
+            { currentTime: localTime, duration: local.duration },
+            { force: true },
+          );
           return;
         }
+        if (!cloud || cloud.currentTime <= localTime) return;
 
-        const localTime = savedProgress?.currentTime ?? 0;
-        if (cloud.currentTime <= localTime) {
-          return;
-        }
-
+        // Cloud is ahead (another device): adopt it without rewinding.
         const merged: WatchProgress = {
           movieSlug,
           episodeSlug,
@@ -130,16 +151,17 @@ export function useWatchProgress({
             cloud.duration,
           ),
         };
-
         setProgress(merged);
-        // Mirror into localStorage so subsequent loads have it immediately.
         saveWatchProgress(movieSlug, episodeSlug, {
           currentTime: cloud.currentTime,
           duration: cloud.duration,
+          lastWatched: cloud.updatedAt,
         });
 
-        if (shouldRestoreProgress(merged) && onProgressRestore) {
-          onProgressRestore(cloud.currentTime);
+        // Only jump if the viewer hasn't already moved past the restore point.
+        const playingAt = latestProgressRef.current?.currentTime ?? restoredAt;
+        if (shouldRestoreProgress(merged) && playingAt <= restoredAt + 5) {
+          restoreRef.current?.(cloud.currentTime);
           setIsRestored(true);
         }
       })
@@ -152,10 +174,9 @@ export function useWatchProgress({
     };
   }, [movieSlug, episodeSlug]);
 
-  // Update progress, throttled to at most one save per SAVE_INTERVAL with a
-  // trailing save so the final position is never dropped.
   const updateProgress = useCallback(
     (update: WatchProgressUpdate) => {
+      if (!(movieSlug && episodeSlug)) return;
       latestProgressRef.current = update;
 
       const elapsed = Date.now() - lastSaveAtRef.current;
@@ -163,21 +184,21 @@ export function useWatchProgress({
         flush();
       } else if (!saveTimeoutRef.current) {
         saveTimeoutRef.current = setTimeout(
-          flush,
+          () => flush(),
           WATCH_PROGRESS_CONFIG.SAVE_INTERVAL - elapsed,
         );
       }
     },
-    [flush],
+    [flush, movieSlug, episodeSlug],
   );
 
-  // Clear progress for current episode
+  const flushProgress = useCallback(() => flush(true), [flush]);
+
   const clearProgress = useCallback(() => {
     removeWatchProgress(movieSlug, episodeSlug);
     setProgress(null);
     setIsRestored(false);
 
-    // Clear any pending saves
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
       saveTimeoutRef.current = null;
@@ -185,50 +206,52 @@ export function useWatchProgress({
     latestProgressRef.current = null;
   }, [movieSlug, episodeSlug]);
 
-  // Get progress for a specific episode in the same movie
   const getProgressForEpisode = useCallback(
-    (targetEpisodeSlug: string) => {
-      return getWatchProgress(movieSlug, targetEpisodeSlug);
-    },
+    (targetEpisodeSlug: string) =>
+      getWatchProgress(movieSlug, targetEpisodeSlug),
     [movieSlug],
   );
 
-  // Get all progress for the current movie
-  const getAllMovieProgress = useCallback(() => {
-    return getMovieWatchProgress(movieSlug);
-  }, [movieSlug]);
+  const getAllMovieProgress = useCallback(
+    () => getMovieWatchProgress(movieSlug),
+    [movieSlug],
+  );
 
-  // Flush pending progress when the tab is hidden or the page is unloaded.
-  // `pagehide` covers F5 / close / back-forward cache; `visibilitychange`
-  // covers tab switches and mobile backgrounding — both more reliable than
-  // effect cleanup, which does not run on a hard refresh.
+  // Tab hidden / page unloading: save locally right away and get the cloud
+  // copy out. `pagehide` covers F5, close and bfcache; `visibilitychange`
+  // covers tab switches and mobile backgrounding. Effect cleanup alone does
+  // not run on a hard refresh.
   useEffect(() => {
-    const handlePageHide = () => flush();
+    const handlePageHide = () => {
+      flush(false);
+      flushCloudSyncOnExit();
+    };
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
-        flush();
+        flush(false);
+        flushCloudSyncOnExit();
       }
     };
 
     window.addEventListener("pagehide", handlePageHide);
     document.addEventListener("visibilitychange", handleVisibilityChange);
-
     return () => {
       window.removeEventListener("pagehide", handlePageHide);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [flush]);
 
-  // Save any pending progress on unmount / episode change (SPA navigation).
+  // Episode change / SPA navigation away: save the outgoing episode.
   useEffect(() => {
     return () => {
-      flush();
+      flush(true);
     };
   }, [flush]);
 
   return {
     progress,
     updateProgress,
+    flushProgress,
     clearProgress,
     getProgressForEpisode,
     getAllMovieProgress,
