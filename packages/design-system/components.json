@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "new-york",
+  "style": "base-nova",
   "rsc": true,
   "tsx": true,
   "tailwind": {
@@ -15,10 +15,10 @@
     "utils": "@repo/design-system/lib/utils",
     "hooks": "@repo/design-system/hooks",
     "lib": "@repo/design-system/lib",
-    "ui": "@repo/design-system/components/ui"
+    "ui": "@repo/design-system/components/base"
   },
   "iconLibrary": "lucide",
   "registries": {
-    "@intentui": "https://intentui.com/r/{name}"
+    "@reui": "https://reui.io/r/{style}/{name}.json"
   }
 }
