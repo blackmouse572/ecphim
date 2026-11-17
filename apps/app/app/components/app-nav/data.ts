@@ -3,7 +3,6 @@ import {
   Books,
   Clock,
   Compass,
-  Crown,
   FilmStrip,
   Flask,
   Gavel,
@@ -16,7 +15,6 @@ import {
   MusicNote,
   SmileyXEyes,
   Sparkle,
-  Trophy,
 } from "@phosphor-icons/react/ssr";
 
 export const CATEGORIES = [
@@ -26,13 +24,13 @@ export const CATEGORIES = [
     icon: Lightning,
   },
   {
-    name: "Tình Cảm",
-    slug: "tinh-cam",
+    name: "Lãng Mạn",
+    slug: "lang-man",
     icon: Heart,
   },
   {
-    name: "Hài Hước",
-    slug: "hai-huoc",
+    name: "Hài",
+    slug: "hai",
     icon: SmileyXEyes,
   },
   {
@@ -41,8 +39,8 @@ export const CATEGORIES = [
     icon: Clock,
   },
   {
-    name: "Tâm Lý",
-    slug: "tam-ly",
+    name: "Drama",
+    slug: "drama",
     icon: Lightbulb,
   },
   {
@@ -54,11 +52,6 @@ export const CATEGORIES = [
     name: "Chiến Tranh",
     slug: "chien-tranh",
     icon: Bomb,
-  },
-  {
-    name: "Thể Thao",
-    slug: "the-thao",
-    icon: Trophy,
   },
   {
     name: "Võ Thuật",
@@ -76,8 +69,8 @@ export const CATEGORIES = [
     icon: Compass,
   },
   {
-    name: "Khoa Học",
-    slug: "khoa-hoc",
+    name: "Khoa Học Viễn Tưởng",
+    slug: "khoa-hoc-vien-tuong",
     icon: Flask,
   },
   {
@@ -86,18 +79,13 @@ export const CATEGORIES = [
     icon: Ghost,
   },
   {
-    name: "Âm Nhạc",
-    slug: "am-nhac",
+    name: "Phim Nhạc",
+    slug: "phim-nhac",
     icon: MusicNote,
   },
   {
-    name: "Thần Thoại",
-    slug: "than-thoai",
-    icon: Crown,
-  },
-  {
-    name: "Tài Liệu",
-    slug: "tai-lieu",
+    name: "Chủ Đề Thực Tế",
+    slug: "chu-de-thuc-te",
     icon: FilmStrip,
   },
   {
@@ -119,15 +107,5 @@ export const CATEGORIES = [
     name: "Học Đường",
     slug: "hoc-duong",
     icon: Books,
-  },
-  {
-    name: "Kinh Điển",
-    slug: "kinh-dien",
-    icon: Books,
-  },
-  {
-    name: "Short Drama",
-    slug: "short-drama",
-    icon: FilmStrip,
   },
 ];

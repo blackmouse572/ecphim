@@ -81,7 +81,10 @@ export type FetchMovieListParams = {
  * `/the-loai/{slug}` or `/quoc-gia/{slug}`, which do honour the rest.
  */
 function resolveListPath(params: FetchMovieListParams): string {
-  if (params.category) return `/the-loai/${params.category}`;
+  // The filter form sends several genres as "a,b", but VSMov takes one genre
+  // per request (a comma list returns nothing), so filter by the first one.
+  const category = params.category?.split(",")[0]?.trim();
+  if (category) return `/the-loai/${category}`;
   if (params.country) return `/quoc-gia/${params.country}`;
   const slug = params.slug || "phim-moi";
   if (slug === "phim-moi" && params.sort_field === "modified.time") {
