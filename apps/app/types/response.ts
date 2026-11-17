@@ -73,6 +73,8 @@ export interface IMovie {
   view: number;
   actor: string[];
   director: string[];
+  /** Tags and SEO phrases. Only movie detail responses carry them. */
+  keywords?: string[];
   category: ICategory[];
   country: ICountry[];
   episodes: IStreamServer[];

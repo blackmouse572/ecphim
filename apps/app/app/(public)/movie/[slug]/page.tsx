@@ -177,12 +177,13 @@ export default async function MovieDetailPage({ params }: Props) {
                     </h4>
                     <div className="space-y-2">
                       {movie.director.map((director) => (
-                        <div
+                        <Link
                           key={director}
-                          className="cursor-pointer font-400 text-body text-white transition-colors hover:text-blue-400"
+                          href={`/tim-kiem?director=${encodeURIComponent(director)}`}
+                          className="block font-400 text-body text-white transition-colors hover:text-blue-400"
                         >
                           {director}
-                        </div>
+                        </Link>
                       ))}
                     </div>
                   </div>
@@ -194,12 +195,13 @@ export default async function MovieDetailPage({ params }: Props) {
                     </h4>
                     <div className="space-y-2">
                       {movie.actor.slice(0, 6).map((actor) => (
-                        <div
+                        <Link
                           key={actor}
-                          className="cursor-pointer font-400 text-body text-white/80 transition-colors hover:text-blue-400"
+                          href={`/tim-kiem?actor=${encodeURIComponent(actor)}`}
+                          className="block font-400 text-body text-white/80 transition-colors hover:text-blue-400"
                         >
                           {actor}
-                        </div>
+                        </Link>
                       ))}
                       {movie.actor.length > 6 && (
                         <div className="font-400 text-body text-white/50">

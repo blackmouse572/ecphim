@@ -1,6 +1,9 @@
 "use client";
 
-import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  FadersHorizontalIcon,
+  MagnifyingGlassIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@repo/design-system/components/base/button";
 import { Kbd } from "@repo/design-system/components/base/kbd";
 import {
@@ -12,6 +15,7 @@ import {
 } from "@repo/design-system/components/ui/command-menu";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { resolveImageUrl } from "../../lib/services/image-url";
@@ -163,6 +167,18 @@ export function GlobalSearch() {
           )}
         </CommandMenuList>
         <CommandMenuFooter>
+          <Link
+            className="inline-flex items-center gap-1.5 rounded-(--radius-squircle-sm) px-1.5 py-1 font-medium text-foreground text-xs hover:bg-muted"
+            href={
+              search.trim()
+                ? `/tim-kiem?q=${encodeURIComponent(search.trim())}`
+                : "/tim-kiem"
+            }
+            onClick={() => setIsOpen(false)}
+          >
+            <FadersHorizontalIcon aria-hidden className="size-3.5" />
+            Tìm kiếm nâng cao
+          </Link>
           <div className="hidden items-center gap-2 px-1.5 text-muted-foreground text-xs sm:flex">
             Sử dụng <Kbd>Enter</Kbd> để xem chi tiết phim. <Kbd>↑</Kbd> và{" "}
             <Kbd>↓</Kbd>
