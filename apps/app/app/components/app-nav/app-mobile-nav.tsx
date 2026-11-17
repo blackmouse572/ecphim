@@ -1,159 +1,132 @@
-import { ListIcon as MenuIcon, XIcon } from "@phosphor-icons/react";
-import { Button } from "@repo/design-system/components/ui/button";
+"use client";
+
+import { ListIcon } from "@phosphor-icons/react/ssr";
 import {
-  Disclosure,
-  DisclosureGroup,
-  DisclosurePanel,
-  DisclosureTrigger,
-} from "@repo/design-system/components/ui/disclosure-group";
-import { buttonStyles } from "@repo/design-system/components/variants/buttonVariants";
-import { cn } from "@repo/design-system/lib/utils";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@repo/design-system/components/base/accordion";
+import { Button } from "@repo/design-system/components/base/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@repo/design-system/components/base/sheet";
 import Link from "next/link";
-import * as React from "react";
+import { useState } from "react";
 import { CATEGORIES } from "./data";
-import { Portal, PortalBackdrop } from "./portal";
+
+const chip =
+  "squircle flex min-h-10 items-center rounded-(--radius-squircle-sm) bg-foreground/5 px-3 text-sm text-foreground/85 outline-none transition-[background-color,transform] duration-100 ease-out hover:bg-foreground/10 focus-visible:ring-3 focus-visible:ring-ring/50 active:scale-[0.97] motion-reduce:active:scale-100";
+
+/**
+ * The phone and tablet menu: a sheet from the right with the browse links up
+ * top and the category and country lists folded underneath. Choosing a link
+ * closes it.
+ */
 export function MobileNav(props: {
-  navLinks: {
-    label: string;
-    href: string;
-  }[];
-  years?: Array<{ name: string; slug: string }>;
+  navLinks: { label: string; href: string }[];
   countries?: Array<{ name: string; slug: string }>;
 }) {
-  const { navLinks, countries, years } = props;
-  const [open, setOpen] = React.useState(false);
+  const { navLinks, countries } = props;
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
 
   return (
-    <div className="lg:hidden">
-      <Button
-        aria-controls="mobile-menu"
-        aria-expanded={open}
-        aria-label={open ? "Đóng menu" : "Mở menu"}
-        onClick={() => setOpen(!open)}
-        size="sq-md"
-        intent="plain"
+    <Sheet onOpenChange={setOpen} open={open}>
+      <SheetTrigger
+        render={
+          <Button
+            aria-label="Mở menu"
+            className="lg:hidden"
+            size="icon-lg"
+            variant="ghost"
+          />
+        }
       >
-        {open ? (
-          <XIcon className="size-4.5" />
-        ) : (
-          <MenuIcon className="size-4.5" />
-        )}
-      </Button>
-      {/** biome-ignore lint/nursery/noLeakedRender: <explanation> */}
-      {open && (
-        <Portal className="top-14" id="mobile-menu">
-          <PortalBackdrop />
-          <div
-            className={cn(
-              "data-[slot=open]:zoom-in-97 relative ease-out data-[slot=open]:animate-in data-[slot=open]:blur-in",
-              "flex size-full flex-col overflow-y-auto p-4",
-            )}
-            data-slot={open ? "open" : "closed"}
+        <ListIcon aria-hidden className="size-5" weight="bold" />
+      </SheetTrigger>
+      <SheetContent
+        className="w-full gap-0 overflow-y-auto overscroll-contain p-0 data-[side=right]:w-full sm:data-[side=right]:max-w-sm"
+        side="right"
+      >
+        <div className="sticky top-0 z-10 flex h-14 items-center bg-popover px-5">
+          <SheetTitle className="font-semibold text-base tracking-[-0.01em]">
+            Menu
+          </SheetTitle>
+        </div>
+
+        <nav aria-label="Duyệt phim" className="grid gap-1 px-3 pb-2">
+          {navLinks.map((link) => (
+            <Link
+              className="squircle flex min-h-11 items-center rounded-(--radius-squircle-sm) px-3 font-medium text-[0.9375rem] outline-none transition-[background-color,transform] duration-100 ease-out hover:bg-foreground/5 focus-visible:ring-3 focus-visible:ring-ring/50 active:scale-[0.98] motion-reduce:active:scale-100"
+              href={link.href}
+              key={link.href}
+              onClick={close}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        <Accordion className="px-5 pb-4">
+          <AccordionItem
+            className="border-foreground/8 border-t"
+            value="category"
           >
-            <div className="flex-1">
-              <DisclosureGroup className="grid gap-y-2">
-                <Disclosure id="discover">
-                  <DisclosureTrigger>Xem gì hôm nay</DisclosureTrigger>
-                  <DisclosurePanel>
-                    {navLinks.map((link) => (
-                      <Button
-                        className="w-full justify-start"
-                        key={link.label}
-                        intent="plain"
-                      >
-                        <Link href={link.href}>{link.label}</Link>
-                      </Button>
-                    ))}
-                  </DisclosurePanel>
-                </Disclosure>
-                <Disclosure id="category">
-                  <DisclosureTrigger>Thể loại</DisclosureTrigger>
-                  <DisclosurePanel className="gap-2 space-x-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      {CATEGORIES.map((link) => {
-                        const IconComponent = link.icon;
-                        return (
-                          <Link
-                            key={link.slug}
-                            href={`/discover?ctg=${link.slug}`}
-                            className={buttonStyles({
-                              intent: "outline",
-                              className: "bg-muted",
-                            })}
-                          >
-                            <IconComponent weight="duotone" />
-                            {link.name}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </DisclosurePanel>
-                </Disclosure>
-                <Disclosure id="country">
-                  <DisclosureTrigger>Quốc gia</DisclosureTrigger>
-                  <DisclosurePanel className="gap-2 space-x-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      {countries?.map((link) => {
-                        return (
-                          <Link
-                            key={link.slug}
-                            href={`/discover?cntry=${link.slug}`}
-                            className={buttonStyles({
-                              intent: "outline",
-                              className: "bg-muted",
-                            })}
-                          >
-                            {link.name}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </DisclosurePanel>
-                </Disclosure>{" "}
-                <Disclosure id="years">
-                  <DisclosureTrigger>Năm</DisclosureTrigger>
-                  <DisclosurePanel className="gap-2 space-x-2">
-                    <div className="grid grid-cols-4 gap-2">
-                      {years?.map((link) => {
-                        return (
-                          <Link
-                            key={link.slug}
-                            href={`/discover?cntry=${link.slug}`}
-                            className={buttonStyles({
-                              intent: "outline",
-                              className: "bg-muted",
-                            })}
-                          >
-                            {link.name}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </DisclosurePanel>
-                </Disclosure>
-              </DisclosureGroup>
-            </div>
-            <div className="mt-12 flex flex-col gap-2">
-              <Button className="w-full">Đăng nhập</Button>
-              <Button
-                aria-controls="mobile-menu"
-                aria-expanded={open}
-                aria-label="Toggle menu"
-                className="bg-muted"
-                onClick={() => setOpen(!open)}
-                intent="outline"
-              >
-                {open ? (
-                  <XIcon className="size-4.5" />
-                ) : (
-                  <MenuIcon className="size-4.5" />
-                )}
-                Đóng
-              </Button>
-            </div>
-          </div>
-        </Portal>
-      )}
-    </div>
+            <AccordionTrigger className="py-4 text-[0.9375rem] hover:no-underline">
+              Thể loại
+            </AccordionTrigger>
+            <AccordionContent className="grid grid-cols-2 gap-2 pb-4 [&_a]:no-underline">
+              {CATEGORIES.map((category) => (
+                <Link
+                  className={chip}
+                  href={`/discover?ctg=${category.slug}`}
+                  key={category.slug}
+                  onClick={close}
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+          {countries?.length ? (
+            <AccordionItem
+              className="border-foreground/8 border-t"
+              value="country"
+            >
+              <AccordionTrigger className="py-4 text-[0.9375rem] hover:no-underline">
+                Quốc gia
+              </AccordionTrigger>
+              <AccordionContent className="grid grid-cols-2 gap-2 pb-4 [&_a]:no-underline">
+                {countries.map((country) => (
+                  <Link
+                    className={chip}
+                    href={`/discover?cntry=${country.slug}`}
+                    key={country.slug}
+                    onClick={close}
+                  >
+                    {country.name}
+                  </Link>
+                ))}
+              </AccordionContent>
+            </AccordionItem>
+          ) : null}
+        </Accordion>
+
+        <div className="mt-auto border-foreground/8 border-t p-5">
+          <Button
+            className="w-full"
+            nativeButton={false}
+            render={<Link href="/sign-in" onClick={close} />}
+            size="xl"
+          >
+            Đăng nhập
+          </Button>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }

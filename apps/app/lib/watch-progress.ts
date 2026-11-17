@@ -33,14 +33,15 @@ export function isVideoWatched(currentTime: number, duration: number): boolean {
 }
 
 /**
- * Check if progress should be saved (duration long enough, meaningful progress)
+ * Check if progress should be saved (duration long enough, meaningful progress).
+ * Finished episodes are saved too, so they can be shown as watched.
  */
 export function shouldSaveProgress(currentTime: number, duration: number): boolean {
   return (
+    Number.isFinite(currentTime) &&
+    Number.isFinite(duration) &&
     duration >= WATCH_PROGRESS_CONFIG.MIN_DURATION &&
-    currentTime > 0 &&
-    currentTime < duration &&
-    !isVideoWatched(currentTime, duration)
+    currentTime > 0
   );
 }
 
@@ -70,13 +71,34 @@ export function getAllWatchProgress(): WatchProgressStorage {
 }
 
 /**
+ * Keep only the most recently watched entries so the stored JSON (which is
+ * parsed and rewritten on every save) stays small.
+ */
+function pruneProgress(progress: WatchProgressStorage): WatchProgressStorage {
+  const keys = Object.keys(progress);
+  if (keys.length <= WATCH_PROGRESS_CONFIG.MAX_ENTRIES) return progress;
+  const kept = keys
+    .sort(
+      (a, b) =>
+        Date.parse(progress[b].lastWatched) - Date.parse(progress[a].lastWatched),
+    )
+    .slice(0, WATCH_PROGRESS_CONFIG.MAX_ENTRIES);
+  const result: WatchProgressStorage = {};
+  for (const key of kept) result[key] = progress[key];
+  return result;
+}
+
+/**
  * Save all watch progress to localStorage
  */
 export function saveAllWatchProgress(progress: WatchProgressStorage): void {
   if (typeof window === 'undefined') return;
   
   try {
-    localStorage.setItem(WATCH_PROGRESS_CONFIG.STORAGE_KEY, JSON.stringify(progress));
+    localStorage.setItem(
+      WATCH_PROGRESS_CONFIG.STORAGE_KEY,
+      JSON.stringify(pruneProgress(progress)),
+    );
   } catch (error) {
     console.error('Failed to save watch progress:', error);
   }
@@ -106,17 +128,56 @@ export function saveWatchProgress(
   const allProgress = getAllWatchProgress();
   const key = getProgressKey(movieSlug, episodeSlug);
   
+  const currentTime = Math.min(update.currentTime, update.duration);
   const progress: WatchProgress = {
     movieSlug,
     episodeSlug,
-    currentTime: update.currentTime,
+    currentTime,
     duration: update.duration,
-    lastWatched: new Date().toISOString(),
-    watchedPercentage: calculateWatchPercentage(update.currentTime, update.duration),
+    lastWatched: update.lastWatched ?? new Date().toISOString(),
+    watchedPercentage: calculateWatchPercentage(currentTime, update.duration),
   };
 
   allProgress[key] = progress;
   saveAllWatchProgress(allProgress);
+}
+
+/**
+ * Record that an episode was opened without knowing the playback position.
+ * Used for iframe (embed) players, whose time can't be read cross-origin, so
+ * "continue watching" still reopens the right episode. Keeps any known
+ * position from an earlier HLS session.
+ */
+export function markEpisodeVisited(movieSlug: string, episodeSlug: string): void {
+  if (!(movieSlug && episodeSlug)) return;
+  const allProgress = getAllWatchProgress();
+  const key = getProgressKey(movieSlug, episodeSlug);
+  const existing = allProgress[key];
+  allProgress[key] = existing
+    ? { ...existing, lastWatched: new Date().toISOString() }
+    : {
+        movieSlug,
+        episodeSlug,
+        currentTime: 0,
+        duration: 0,
+        lastWatched: new Date().toISOString(),
+        watchedPercentage: 0,
+      };
+  saveAllWatchProgress(allProgress);
+}
+
+/**
+ * The episode to resume for a movie: the most recently watched one that is
+ * not finished (embed visits count, they have no known position).
+ */
+export function getResumeEpisode(movieSlug: string): WatchProgress | null {
+  const candidates = getMovieWatchProgress(movieSlug).filter(
+    (p) => p.duration === 0 || !isVideoWatched(p.currentTime, p.duration),
+  );
+  candidates.sort(
+    (a, b) => Date.parse(b.lastWatched) - Date.parse(a.lastWatched),
+  );
+  return candidates[0] ?? null;
 }
 
 /**
