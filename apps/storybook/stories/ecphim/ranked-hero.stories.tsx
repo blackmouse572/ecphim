@@ -1,6 +1,6 @@
 "use client";
 
-import { PlayIcon, PlusIcon } from "@phosphor-icons/react/ssr";
+import { PlayIcon } from "@phosphor-icons/react/ssr";
 import { Badge } from "@repo/design-system/components/base/badge";
 import { Button } from "@repo/design-system/components/base/button";
 import {
@@ -124,7 +124,6 @@ function RankedHero() {
         <MediaTile
           artwork={<Artwork hue={film.hue} />}
           href={`#${film.slug}`}
-          rank={active + 1}
           size="lead"
         >
           <div className="flex flex-wrap gap-2">
@@ -150,15 +149,6 @@ function RankedHero() {
             <Button render={<span />} nativeButton={false} size="xl">
               <PlayIcon data-icon="inline-start" weight="fill" />
               Xem ngay
-            </Button>
-            <Button
-              render={<span />}
-              nativeButton={false}
-              size="xl"
-              variant="overlay"
-            >
-              <PlusIcon data-icon="inline-start" weight="bold" />
-              Danh sách
             </Button>
           </div>
         </MediaTile>

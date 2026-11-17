@@ -1,3 +1,3 @@
 export { CategoriesNavigation } from "./categories-navigation";
-export { TrendingMovies } from "./trending-movies";
 export { MovieCard } from "./movie-card";
+export { TrendingMovies } from "./trending-movies";

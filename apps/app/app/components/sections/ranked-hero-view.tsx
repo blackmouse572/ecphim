@@ -1,6 +1,6 @@
 "use client";
 
-import { PlayIcon, PlusIcon } from "@phosphor-icons/react/ssr";
+import { PlayIcon } from "@phosphor-icons/react/ssr";
 import { Button } from "@repo/design-system/components/base/button";
 import {
   MediaMeta,
@@ -54,6 +54,7 @@ export function RankedHeroView({ films }: { films: RankedFilm[] }) {
           artwork={
             <Image
               alt=""
+              className="motion-safe:fade-in motion-safe:animate-in motion-safe:duration-300"
               fill
               key={film.slug}
               priority={active === 0}
@@ -61,14 +62,13 @@ export function RankedHeroView({ films }: { films: RankedFilm[] }) {
               src={film.backdrop}
             />
           }
-          rank={active + 1}
           render={<Link href={`/movie/${film.slug}`} />}
           size="lead"
         >
           <div className="flex flex-wrap gap-2">
             {film.categories.map((category) => (
               <span
-                className="squircle rounded-lg bg-white/10 px-2.5 py-0.5 font-medium text-white text-xs ring-1 ring-white/15 backdrop-blur-sm"
+                className="squircle rounded-lg bg-white/10 reduce-transparency:bg-neutral-800 px-2.5 py-0.5 font-medium text-white text-xs ring-1 ring-white/15 backdrop-blur-sm reduce-transparency:backdrop-blur-none"
                 key={category.slug}
               >
                 {category.name}
@@ -92,15 +92,6 @@ export function RankedHeroView({ films }: { films: RankedFilm[] }) {
             <Button nativeButton={false} render={<span />} size="xl">
               <PlayIcon data-icon="inline-start" weight="fill" />
               Xem ngay
-            </Button>
-            <Button
-              nativeButton={false}
-              render={<span />}
-              size="xl"
-              variant="overlay"
-            >
-              <PlusIcon data-icon="inline-start" weight="bold" />
-              Chi tiết
             </Button>
           </div>
         </MediaTile>

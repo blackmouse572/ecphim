@@ -78,7 +78,7 @@ function MediaTileRank({
   return (
     <span
       className={cn(
-        "squircle absolute top-3.5 left-4 rounded-lg bg-black/45 px-2 py-0.5 font-bold font-mono text-white text-xs backdrop-blur-sm",
+        "squircle absolute top-3.5 left-4 rounded-lg bg-black/45 reduce-transparency:bg-black px-2 py-0.5 font-bold font-mono text-white text-xs backdrop-blur-sm reduce-transparency:backdrop-blur-none",
         className,
       )}
       data-slot="media-tile-rank"
@@ -97,7 +97,7 @@ function MediaTileTitle({
   return (
     <Tag
       className={cn(
-        "text-balance font-bold text-base leading-tight tracking-tight group-data-[size=lead]/tile:font-extrabold group-data-[size=lead]/tile:text-[clamp(1.75rem,3.6vw,2.75rem)] group-data-[size=lead]/tile:leading-[1.04]",
+        "text-balance font-bold text-base leading-tight tracking-[-0.01em] group-data-[size=lead]/tile:font-bold group-data-[size=lead]/tile:text-[clamp(1.75rem,3.6vw,2.75rem)] group-data-[size=lead]/tile:leading-[1.05] group-data-[size=lead]/tile:tracking-[-0.025em]",
         className,
       )}
       data-slot="media-tile-title"
