@@ -21,9 +21,9 @@ export const buttonStyles = tv({
       secondary:
         "skeuo-raised border-transparent [--btn-bg:var(--color-secondary)] [--btn-fg:var(--color-secondary-fg)] [--btn-icon:var(--color-muted-fg)] [--btn-outline:var(--color-secondary-fg)] [--btn-overlay:var(--color-secondary)] [--btn-ring:var(--color-muted-fg)]/20 hover:brightness-110",
       warning:
-        "border-transparent [--btn-bg:color-mix(in_oklab,var(--color-warning)_16%,transparent)] [--btn-fg:var(--color-warning)] [--btn-icon:var(--color-warning)] [--btn-overlay:color-mix(in_oklab,var(--color-warning)_24%,transparent)]",
+        "skeuo-primary border-transparent [--btn-bg:var(--color-warning)] [--btn-fg:oklch(0.22_0.04_70)] [--btn-icon-active:oklch(0.22_0.04_70)] [--btn-icon:oklch(0.22_0.04_70)]/80 [--btn-overlay:var(--color-warning)] [--skeuo-fg:oklch(0.22_0.04_70)] [--skeuo-text-shadow:0_1px_0_oklch(1_0_0/0.3)] [--skeuo-tint:var(--color-warning)]",
       danger:
-        "border-transparent [--btn-bg:color-mix(in_oklab,var(--color-danger)_14%,transparent)] [--btn-fg:var(--color-danger)] [--btn-icon:var(--color-danger)] [--btn-overlay:color-mix(in_oklab,var(--color-danger)_22%,transparent)]",
+        "skeuo-primary border-transparent [--btn-bg:var(--color-danger)] [--btn-fg:white] [--btn-icon-active:white] [--btn-icon:white]/80 [--btn-overlay:var(--color-danger)] [--skeuo-tint:var(--color-danger)]",
       outline:
         "border-foreground/12 [--btn-bg:transparent] [--btn-icon:var(--color-muted-fg)] [--btn-outline:var(--color-ring)] [--btn-overlay:color-mix(in_oklab,var(--color-foreground)_6%,transparent)] [--btn-ring:var(--color-ring)]/20",
       plain:
