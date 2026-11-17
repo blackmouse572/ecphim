@@ -8,6 +8,7 @@ import {
   fetchMovieDetail,
   fetchMovieImages,
 } from "../../../../../lib/services/movie";
+import { RelatedMovies } from "../../../../components/sections/related-movies";
 import { MovieWatchClientPage } from "./page-client";
 
 type Props = {
@@ -48,6 +49,9 @@ export default async function MovieWatchPage({ params }: Props) {
         movie={{ ...movie, thumb_url: backdrop }}
         episodes={movie.episodes}
       />
+      <div className="bg-zinc-950 pb-8">
+        <RelatedMovies movie={movie} title="Có thể bạn cũng thích" />
+      </div>
     </div>
   );
 }

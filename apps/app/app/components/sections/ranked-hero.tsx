@@ -7,7 +7,7 @@ import type { IMovie } from "@/types/response";
 import { type RankedFilm, RankedHeroView } from "./ranked-hero-view";
 
 /** Plain text from ophim's HTML synopsis (for the description and for SEO). */
-function toPlainText(html: string) {
+export function toPlainText(html: string) {
   return html
     .replace(/<[^>]*>/g, " ")
     .replace(/&nbsp;/g, " ")

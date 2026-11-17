@@ -6,6 +6,7 @@ import {
 import Link from "next/link";
 import type { IMovie } from "@/types/response";
 import { MovieCard } from "./movie-card";
+import { SectionShell } from "./section-shell";
 
 interface TrendingMoviesProps {
   movies: IMovie[];
@@ -26,7 +27,7 @@ export function TrendingMovies({
   }
 
   return (
-    <div className="container mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
+    <SectionShell>
       <MediaRow
         action={
           <Link className={mediaRowActionClassName} href={viewAllUrl}>
@@ -41,6 +42,6 @@ export function TrendingMovies({
           </MediaRowItem>
         ))}
       </MediaRow>
-    </div>
+    </SectionShell>
   );
 }

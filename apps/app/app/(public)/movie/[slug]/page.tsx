@@ -1,274 +1,156 @@
-import { CalendarBlank, Clock, MonitorPlay, Globe } from "@phosphor-icons/react/ssr";
-import { MotionItem, MotionPage } from "@repo/design-system/components/motion";
-import { createMetadata } from "@repo/seo/metadata";
-import Link from "next/link";
 import {
+  JsonLd,
+  type Movie,
+  type TVSeries,
+  type WithContext,
+} from "@repo/seo/json-ld";
+import { createMetadata } from "@repo/seo/metadata";
+import { resolveImageUrl } from "@/lib/services/image-url";
+import {
+  extractBackdropUrl,
+  extractPosterUrl,
   fetchMovieList,
   getMovieDetail,
   getMovieImages,
 } from "@/lib/services/movie";
 import { EpisodeGrid } from "../../../(public-nolayout)/movie/[slug]/watch/components";
-import PureHtmlRender from "../../../components/pure-html-render";
-import { CinematicHeroSection } from "./components/cinematic-hero-section";
+import { toPlainText } from "../../../components/sections/ranked-hero";
+import { RelatedMovies } from "../../../components/sections/related-movies";
+import { MovieFacts } from "./components/movie-facts";
+import { MovieHero } from "./components/movie-hero";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
-// ISR: Revalidate every 24 hours (86400 seconds)
-// First request after interval serves stale content instantly
-// Background revalidation fetches fresh content
+// ISR: rebuilt at most once a day; the first request after that serves the
+// stale page while a fresh one renders in the background.
 export const revalidate = 86400;
 
-/**
- * Pre-generate popular movies at build time for instant static HTML
- * Other movies are generated on-demand via ISR
- */
+/** Pre-render the newest titles at build time; the rest render on demand. */
 export async function generateStaticParams() {
   try {
-    // Fetch trending/popular movies for pre-generation
-    // Adjust the limit based on your build time constraints
     const { items } = await fetchMovieList({ slug: "phim-moi", limit: 50 });
-    return items.map((movie) => ({
-      slug: movie.slug,
-    }));
+    return items.map((movie) => ({ slug: movie.slug }));
   } catch (error) {
     console.error("Failed to generate static params:", error);
-    // Return empty array - on-demand ISR will handle other routes
     return [];
   }
+}
+
+/** A search-result length description, cut at a word. */
+function summary(text: string, max = 158) {
+  if (text.length <= max) return text;
+  return `${text.slice(0, text.lastIndexOf(" ", max))}…`;
 }
 
 export const generateMetadata = async ({ params }: Props) => {
   const { slug } = await params;
   const movie = await getMovieDetail(slug);
+  const synopsis = toPlainText(movie.content ?? "");
+  const year = movie.year ? ` (${movie.year})` : "";
 
   return createMetadata({
-    title: `${movie.name} Chất Lượng Cao - Xem Phim Online Miễn Phí`,
-    description: `${movie.content}`,
+    title: `${movie.name}${year} - Xem phim ${movie.quality || "HD"} Vietsub`,
+    description: summary(
+      synopsis || `Xem ${movie.name} (${movie.origin_name}) online miễn phí.`,
+    ),
+    image: resolveImageUrl(movie.poster_url || movie.thumb_url, undefined, ""),
   });
 };
+
 export default async function MovieDetailPage({ params }: Props) {
   const { slug } = await params;
   const movie = await getMovieDetail(slug);
   const imageData = await getMovieImages(slug).catch(() => undefined);
+  const synopsis = toPlainText(movie.content ?? "");
+
+  const backdrop = imageData
+    ? extractBackdropUrl(imageData)
+    : resolveImageUrl(movie.poster_url, undefined, extractBackdropUrl());
+  const poster = imageData
+    ? extractPosterUrl(imageData, "w342")
+    : resolveImageUrl(movie.thumb_url);
+
+  const hasEpisodes = movie.episodes?.some((s) => s.server_data.length > 0);
+  const isSeries = movie.type === "series" || movie.tmdb?.type === "tv";
+  const rating = movie.imdb?.vote_average || movie.tmdb?.vote_average || 0;
+  const jsonLd: WithContext<Movie | TVSeries> = {
+    "@context": "https://schema.org",
+    "@type": isSeries ? "TVSeries" : "Movie",
+    name: movie.name,
+    alternateName: movie.origin_name || undefined,
+    description: synopsis || undefined,
+    image: poster,
+    dateCreated: movie.year ? String(movie.year) : undefined,
+    genre: movie.category.map((c) => c.name),
+    countryOfOrigin: movie.country.map((c) => ({
+      "@type": "Country" as const,
+      name: c.name,
+    })),
+    director: movie.director
+      ?.filter((name) => name.trim())
+      .map((name) => ({ "@type": "Person" as const, name })),
+    actor: movie.actor
+      ?.filter((name) => name.trim())
+      .slice(0, 10)
+      .map((name) => ({ "@type": "Person" as const, name })),
+    ...(rating > 0 && movie.tmdb?.vote_count > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating" as const,
+            ratingValue: rating,
+            ratingCount: movie.tmdb.vote_count,
+            bestRating: 10,
+          },
+        }
+      : {}),
+  };
 
   return (
-    <MotionPage className="min-h-screen bg-black">
-      <CinematicHeroSection imageData={imageData} movie={movie} />
-      {/* Content Sections */}
-      <section className="bg-gradient-to-b from-transparent to-zinc-950/50 py-24">
-        <div className="container mx-auto max-w-6xl px-6">
-          <div className="grid grid-cols-1 gap-16 lg:grid-cols-[2fr_1fr]">
-            {/* Main Content */}
-            <div className="space-y-16">
-              {/* Synopsis */}
-              <MotionItem>
-                <h3 className="mb-8 font-900 text-headline text-white tracking-tight">
-                  Nội dung phim
-                </h3>
+    <div className="min-h-screen pb-12">
+      <JsonLd code={jsonLd} />
+      <MovieHero
+        backdrop={backdrop}
+        movie={movie}
+        poster={poster}
+        synopsis={synopsis}
+      />
 
-                <PureHtmlRender
-                  html={movie.content}
-                  className="font-200 text-body-lg text-white/80 leading-relaxed"
-                />
-              </MotionItem>
+      <div className="container mx-auto grid max-w-7xl gap-10 px-4 py-6 md:px-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-12">
+        <div className="grid min-w-0 content-start gap-10">
+          {hasEpisodes ? (
+            <section aria-labelledby="episodes" className="grid gap-4">
+              <h2
+                className="font-semibold text-lg tracking-[-0.015em]"
+                id="episodes"
+              >
+                Danh sách tập
+              </h2>
+              <EpisodeGrid movie={movie} />
+            </section>
+          ) : null}
 
-              {/* Episodes */}
-              <MotionItem>
-                <EpisodeGrid movie={movie} />
-              </MotionItem>
-            </div>
-
-            {/* Sidebar Info */}
-            <div className="space-y-12">
-              {/* Movie Details */}
-              <MotionItem delay={0.3}>
-                <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-8 backdrop-blur-sm">
-                  <div className="space-y-6 text-sm">
-                    <div className="flex items-start gap-4">
-                      <MonitorPlay className="mt-0.5 h-5 w-5 shrink-0 text-white/50" />
-                      <div>
-                        <div className="mb-1 font-mono text-white/50 uppercase tracking-wider">
-                          Chất lượng
-                        </div>
-                        <div className="font-400 text-white">
-                          {movie.quality} • {movie.lang}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-4">
-                      <CalendarBlank className="mt-0.5 h-5 w-5 shrink-0 text-white/50" />
-                      <div>
-                        <div className="mb-1 font-mono text-white/50 uppercase tracking-wider">
-                          Xuất bản
-                        </div>
-                        <div className="font-400 text-white">
-                          {new Date(movie.created.time).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-4">
-                      <Clock className="mt-0.5 h-5 w-5 shrink-0 text-white/50" />
-                      <div>
-                        <div className="mb-1 font-mono text-white/50 uppercase tracking-wider">
-                          Thời lượng
-                        </div>
-                        <div className="font-400 text-white">{movie.time}</div>
-                      </div>
-                    </div>
-
-                    {movie.country.length > 0 && (
-                      <div className="flex items-start gap-4">
-                        <Globe className="mt-0.5 h-5 w-5 shrink-0 text-white/50" />
-                        <div className="flex-1">
-                          <div className="mb-2 font-mono text-white/50 uppercase tracking-wider">
-                            Quốc gia
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {movie.country.map((c) => (
-                              <Link
-                                key={c._id}
-                                href={`/discover?cntry=${c.slug}`}
-                                className="inline-block rounded-full border border-white/20 bg-white/5 px-2 py-0.5 font-400 text-white/80 text-xs transition-all hover:border-white/50 hover:bg-white/10 hover:text-white"
-                              >
-                                {c.name}
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {movie.category.length > 0 && (
-                      <div className="flex items-start gap-4">
-                        <div className="mt-0.5 h-5 w-5 shrink-0" />
-                        <div className="flex-1">
-                          <div className="mb-2 font-mono text-white/50 uppercase tracking-wider">
-                            Thể loại
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {movie.category.map((cat) => (
-                              <Link
-                                key={cat._id}
-                                href={`/discover?ctg=${cat.slug}`}
-                                className="inline-block rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 font-400 text-blue-200 text-xs transition-all hover:border-blue-400/60 hover:bg-blue-500/20 hover:text-blue-100"
-                              >
-                                {cat.name}
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </MotionItem>
-
-              {/* Cast & Crew */}
-              <MotionItem delay={0.4}>
-                <div className="space-y-8">
-                  {/* Director */}
-                  <div>
-                    <h4 className="mb-4 font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
-                      Đạo diễn
-                    </h4>
-                    <div className="space-y-2">
-                      {movie.director.map((director) => (
-                        <div
-                          key={director}
-                          className="cursor-pointer font-400 text-body text-white transition-colors hover:text-blue-400"
-                        >
-                          {director}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Cast */}
-                  <div>
-                    <h4 className="mb-4 font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
-                      Dàn Cast
-                    </h4>
-                    <div className="space-y-2">
-                      {movie.actor.slice(0, 6).map((actor) => (
-                        <div
-                          key={actor}
-                          className="cursor-pointer font-400 text-body text-white/80 transition-colors hover:text-blue-400"
-                        >
-                          {actor}
-                        </div>
-                      ))}
-                      {movie.actor.length > 6 && (
-                        <div className="font-400 text-body text-white/50">
-                          +{movie.actor.length - 6} more
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </MotionItem>
-
-              {/* Stats */}
-              <MotionItem delay={0.5}>
-                <div className="rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 p-8 backdrop-blur-sm">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="font-900 text-title text-white">
-                        {movie.view}
-                      </div>
-                      <div className="font-mono text-white/50 text-xs uppercase tracking-wider">
-                        Views
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-900 text-title text-white">
-                        {movie.tmdb.vote_count.toLocaleString()}
-                      </div>
-                      <div className="font-mono text-white/50 text-xs uppercase tracking-wider">
-                        Votes
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-900 text-title text-yellow-400">
-                        {movie.tmdb.vote_average}
-                      </div>
-                      <div className="font-mono text-white/50 text-xs uppercase tracking-wider">
-                        Rating
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </MotionItem>
-
-              {/* Country */}
-              {movie.country.length > 0 && (
-                <MotionItem delay={0.6}>
-                  <div className="space-y-4">
-                    <h4 className="font-900 font-mono text-overline text-white/50 uppercase tracking-[0.3em]">
-                      Quốc gia
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {movie.country.map((c) => (
-                        <Link
-                          key={c._id}
-                          href={`/discover?cntry=${c.slug}`}
-                          className="inline-block rounded-full border border-white/20 bg-white/5 px-3 py-1.5 font-400 text-sm text-white/80 transition-all hover:border-white/50 hover:bg-white/10 hover:text-white"
-                        >
-                          <Globe className="mr-1 inline h-3.5 w-3.5" />
-                          {c.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </MotionItem>
-              )}
-            </div>
-          </div>
+          {/* The hero shows three lines; repeat it in full only if it's longer. */}
+          {synopsis.length > 220 ? (
+            <section aria-labelledby="synopsis" className="grid gap-3">
+              <h2
+                className="font-semibold text-lg tracking-[-0.015em]"
+                id="synopsis"
+              >
+                Nội dung phim
+              </h2>
+              <p className="max-w-[68ch] text-pretty text-foreground/80 leading-relaxed">
+                {synopsis}
+              </p>
+            </section>
+          ) : null}
         </div>
-      </section>
-    </MotionPage>
+
+        <MovieFacts movie={movie} />
+      </div>
+
+      <RelatedMovies movie={movie} />
+    </div>
   );
 }

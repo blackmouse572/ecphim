@@ -148,7 +148,7 @@ function MediaMeta({
       {...props}
     >
       {rating !== undefined && (
-        <span className="inline-flex items-center gap-1 font-bold font-mono text-amber-300 tabular-nums">
+        <span className="relative inline-flex items-center gap-1 font-bold font-mono text-amber-300 tabular-nums">
           <StarIcon aria-hidden className="size-3.5" weight="fill" />
           <span className="sr-only">IMDb </span>
           {rating.toFixed(1)}
