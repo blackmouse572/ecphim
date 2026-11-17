@@ -7,9 +7,10 @@ import {
 } from "@/lib/services/advanced-search-match";
 import type { IMovie } from "@/types/response";
 import {
-  parseSearchParams,
-  searchHref,
-} from "../app/(public)/tim-kiem/search-params";
+  discoverHref,
+  isAdvancedSearch,
+  toAdvancedFilters,
+} from "../app/(public)/discover/advanced-params";
 
 const movie = {
   name: "Màu Xanh Cuối Cùng",
@@ -69,23 +70,39 @@ describe("filter helpers", () => {
     expect(splitTags("a, b ,,c")).toEqual(["a", "b", "c"]);
   });
 
-  it("round-trips the URL", () => {
-    const href = searchHref({ q: "avengers", actor: "Robert", year: 2019 }, 2);
-    expect(href).toBe("/tim-kiem?q=avengers&actor=Robert&year=2019&page=2");
-    const params = Object.fromEntries(
-      new URLSearchParams(href.split("?")[1]).entries(),
+  it("switches Discover to advanced search only for search params", () => {
+    expect(isAdvancedSearch({ clt: "phim-le", ctg: "hai", cntry: "my" })).toBe(
+      false,
     );
-    expect(parseSearchParams(params)).toEqual({
-      filters: {
-        q: "avengers",
-        actor: "Robert",
-        year: 2019,
-        ctg: undefined,
-        cntry: undefined,
-        director: undefined,
-        tag: undefined,
-      },
-      page: 2,
+    expect(isAdvancedSearch({ q: " " })).toBe(false);
+    expect(isAdvancedSearch({ actor: "Robert", ctg: "hai" })).toBe(true);
+  });
+
+  it("maps Discover params to search filters", () => {
+    expect(
+      toAdvancedFilters({
+        q: " avengers ",
+        ctg: "hanh-dong,hai",
+        year: "2019",
+      }),
+    ).toEqual({
+      q: "avengers",
+      ctg: "hanh-dong",
+      cntry: undefined,
+      year: 2019,
+      director: undefined,
+      actor: undefined,
+      tag: undefined,
     });
+  });
+
+  it("builds Discover URLs without empty values or page 1", () => {
+    expect(
+      discoverHref({ q: "avengers", actor: "", ctg: "hai", page: "1" }),
+    ).toBe("/discover?q=avengers&ctg=hai");
+    expect(discoverHref({ director: "Nolan", page: "2" })).toBe(
+      "/discover?director=Nolan&page=2",
+    );
+    expect(discoverHref({})).toBe("/discover");
   });
 });

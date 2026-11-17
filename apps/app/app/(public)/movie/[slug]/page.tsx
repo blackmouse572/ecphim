@@ -179,7 +179,7 @@ export default async function MovieDetailPage({ params }: Props) {
                       {movie.director.map((director) => (
                         <Link
                           key={director}
-                          href={`/tim-kiem?director=${encodeURIComponent(director)}`}
+                          href={`/discover?director=${encodeURIComponent(director)}`}
                           className="block font-400 text-body text-white transition-colors hover:text-blue-400"
                         >
                           {director}
@@ -197,7 +197,7 @@ export default async function MovieDetailPage({ params }: Props) {
                       {movie.actor.slice(0, 6).map((actor) => (
                         <Link
                           key={actor}
-                          href={`/tim-kiem?actor=${encodeURIComponent(actor)}`}
+                          href={`/discover?actor=${encodeURIComponent(actor)}`}
                           className="block font-400 text-body text-white/80 transition-colors hover:text-blue-400"
                         >
                           {actor}

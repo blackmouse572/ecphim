@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/design-system/components/base/select";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   type FormEvent,
   type ReactNode,
@@ -26,67 +26,37 @@ import {
   useState,
   useTransition,
 } from "react";
-import type { AdvancedSearchFilters } from "@/lib/services/advanced-search-match";
-import type { ICountry } from "@/types/response";
-import { searchHref } from "../search-params";
+import {
+  ADVANCED_KEYS,
+  type AdvancedKey,
+  type DiscoverParams,
+  discoverHref,
+} from "../advanced-params";
 
-type Option = { value: string; label: string };
-
-type Props = {
-  filters: AdvancedSearchFilters;
-  genres: { name: string; slug: string }[];
-  countries: ICountry[];
-};
+type FormState = Record<AdvancedKey, string>;
 
 const FIRST_YEAR = 1970;
 
-type TextKey = "q" | "director" | "actor" | "tag";
-type SelectKey = "ctg" | "cntry" | "year";
-type FormState = Record<TextKey | SelectKey, string>;
-
-function toState(filters: AdvancedSearchFilters): FormState {
-  return {
-    q: filters.q ?? "",
-    director: filters.director ?? "",
-    actor: filters.actor ?? "",
-    tag: filters.tag ?? "",
-    ctg: filters.ctg ?? "",
-    cntry: filters.cntry ?? "",
-    year: filters.year ? String(filters.year) : "",
-  };
-}
-
-function toFilters(state: FormState): AdvancedSearchFilters {
-  const year = Number.parseInt(state.year, 10);
-  return {
-    q: state.q.trim() || undefined,
-    director: state.director.trim() || undefined,
-    actor: state.actor.trim() || undefined,
-    tag: state.tag.trim() || undefined,
-    ctg: state.ctg || undefined,
-    cntry: state.cntry || undefined,
-    year: Number.isFinite(year) ? year : undefined,
-  };
-}
-
-export function AdvancedSearchForm({ filters, genres, countries }: Props) {
+/**
+ * The search part of Discover: a title keyword up front, with director,
+ * actor, tag and year underneath. It keeps the genre, country, collection
+ * and sort picked in the filters below.
+ */
+export function SearchBar() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
-  const [state, setState] = useState<FormState>(() => toState(filters));
+  const [state, setState] = useState<FormState>(() => {
+    const initial = {} as FormState;
+    for (const key of ADVANCED_KEYS) initial[key] = searchParams.get(key) ?? "";
+    return initial;
+  });
 
-  const set = (key: keyof FormState) => (value: string) =>
+  const set = (key: AdvancedKey) => (value: string) =>
     setState((prev) => ({ ...prev, [key]: value }));
 
-  const genreOptions: Option[] = [
-    { value: "", label: "Tất cả thể loại" },
-    ...genres.map((g) => ({ value: g.slug, label: g.name })),
-  ];
-  const countryOptions: Option[] = [
-    { value: "", label: "Tất cả quốc gia" },
-    ...countries.map((c) => ({ value: c.slug, label: c.name })),
-  ];
   const thisYear = new Date().getFullYear();
-  const yearOptions: Option[] = [
+  const yearOptions = [
     { value: "", label: "Mọi năm" },
     ...Array.from({ length: thisYear - FIRST_YEAR + 1 }, (_, i) => {
       const year = String(thisYear - i);
@@ -94,22 +64,29 @@ export function AdvancedSearchForm({ filters, genres, countries }: Props) {
     }),
   ];
 
-  const hasValues = Object.values(state).some((v) => v.trim() !== "");
+  const navigate = (next: FormState) => {
+    const params: DiscoverParams = Object.fromEntries(searchParams.entries());
+    for (const key of ADVANCED_KEYS) params[key] = next[key].trim();
+    params.page = undefined;
+    startTransition(() => router.push(discoverHref(params)));
+  };
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
-    startTransition(() => router.push(searchHref(toFilters(state))));
+    navigate(state);
   };
 
-  const onReset = () => {
-    setState(toState({}));
-    startTransition(() => router.push("/tim-kiem"));
+  const hasValues = ADVANCED_KEYS.some((key) => state[key].trim() !== "");
+  const onClear = () => {
+    const empty = { q: "", director: "", actor: "", tag: "", year: "" };
+    setState(empty);
+    navigate(empty);
   };
 
   return (
     <form
-      aria-label="Tìm kiếm nâng cao"
-      className="squircle grid gap-6 rounded-(--radius-squircle-lg) bg-card/60 p-4 ring-1 ring-foreground/8 md:p-6"
+      aria-label="Tìm phim"
+      className="grid gap-5"
       onSubmit={onSubmit}
       role="search"
     >
@@ -125,7 +102,6 @@ export function AdvancedSearchForm({ filters, genres, countries }: Props) {
             autoComplete="off"
             className="h-12 rounded-(--radius-squircle-md) pl-11 text-base md:text-base"
             enterKeyHint="search"
-            name="q"
             onChange={(e) => set("q")(e.target.value)}
             placeholder="Tên phim, ví dụ: Avengers"
             type="search"
@@ -150,7 +126,7 @@ export function AdvancedSearchForm({ filters, genres, countries }: Props) {
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <TextField
           icon={<FilmSlateIcon aria-hidden />}
           label="Đạo diễn"
@@ -170,23 +146,10 @@ export function AdvancedSearchForm({ filters, genres, countries }: Props) {
           icon={<TagIcon aria-hidden />}
           label="Tag"
           onChange={set("tag")}
-          placeholder="Ví dụ: khoa học viễn tưởng, siêu anh hùng"
+          placeholder="Ví dụ: siêu anh hùng"
           value={state.tag}
         />
-        <SelectField
-          label="Thể loại"
-          onChange={set("ctg")}
-          options={genreOptions}
-          value={state.ctg}
-        />
-        <SelectField
-          label="Quốc gia"
-          onChange={set("cntry")}
-          options={countryOptions}
-          value={state.cntry}
-        />
-        <SelectField
-          label="Năm phát hành"
+        <YearField
           onChange={set("year")}
           options={yearOptions}
           value={state.year}
@@ -194,10 +157,10 @@ export function AdvancedSearchForm({ filters, genres, countries }: Props) {
       </div>
 
       {hasValues ? (
-        <div className="flex justify-end">
-          <Button onClick={onReset} size="sm" type="button" variant="ghost">
+        <div className="-mt-1 flex justify-end">
+          <Button onClick={onClear} size="sm" type="button" variant="ghost">
             <XIcon aria-hidden weight="bold" />
-            Xoá bộ lọc
+            Xoá tìm kiếm
           </Button>
         </div>
       ) : null}
@@ -247,21 +210,19 @@ function TextField({
   );
 }
 
-function SelectField({
-  label,
+function YearField({
   value,
   onChange,
   options,
 }: {
-  label: string;
   value: string;
   onChange: (value: string) => void;
-  options: Option[];
+  options: { value: string; label: string }[];
 }) {
   const id = useId();
   return (
     <div className="grid content-start gap-2">
-      <Label id={id}>{label}</Label>
+      <Label id={id}>Năm phát hành</Label>
       <Select
         items={options}
         onValueChange={(next) => onChange((next as string | null) ?? "")}

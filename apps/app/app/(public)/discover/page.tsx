@@ -6,26 +6,25 @@ import { Skeleton } from "@repo/design-system/components/ui/skeleton";
 import { Suspense } from "react";
 import { BGPattern } from "@/app/components/bg-pattern";
 import { fetchCountries } from "../../../lib/services";
+import { type DiscoverParams, isAdvancedSearch } from "./advanced-params";
 import { FiltersForm } from "./components/filters-form";
 import { MoviesGrid } from "./components/movies-grid";
 import { MoviesSkeleton } from "./components/movies-skeleton";
 import { PaginationWrapper } from "./components/pagination-wrapper";
+import { SearchBar } from "./components/search-bar";
+import { SearchResults } from "./components/search-results";
 
 type PageProps = {
-  searchParams: Promise<{
-    clt?: string;
-    ctg?: string;
-    sort_by?: string;
-    sort_order?: string;
-    page?: string;
-    cntry?: string;
-  }>;
+  searchParams: Promise<DiscoverParams>;
 };
 
 export const dynamic = "force-dynamic";
 
 export default async function Page({ searchParams }: PageProps) {
-  const { clt, ctg, sort_by, sort_order, page, cntry } = await searchParams;
+  const params = await searchParams;
+  const { clt, ctg, sort_by, sort_order, page, cntry } = params;
+  // A keyword, person, tag or year switches the grid to advanced search.
+  const advanced = isAdvancedSearch(params);
   const pageNum = page ? parseInt(page) : 1;
   const { items: countries } = await fetchCountries();
   return (
@@ -40,37 +39,51 @@ export default async function Page({ searchParams }: PageProps) {
               mask="fade-edges"
               fill={"#8986ff"}
             />
+            <div className="squircle mb-6 rounded-(--radius-squircle-lg) bg-card/60 p-4 ring-1 ring-foreground/8 md:p-6">
+              <SearchBar key={JSON.stringify(params)} />
+            </div>
             <FiltersForm countries={countries} />
           </MotionFadeIn>
 
-          {/* Movies Grid - with streaming */}
-          <Suspense
-            key={`${clt}-${ctg}-${sort_by}-${sort_order}-${pageNum}-${cntry}`}
-            fallback={<MoviesSkeleton />}
-          >
-            <MoviesGrid
-              clt={clt}
-              ctg={ctg}
-              sort_by={sort_by}
-              sort_order={sort_order}
-              page={pageNum}
-              cntry={cntry}
-            />
-          </Suspense>
-
-          {/* Pagination */}
-          <MotionFadeIn delay={0.8}>
-            <Suspense fallback={<Skeleton className="h-10 w-48" />}>
-              <PaginationWrapper
-                clt={clt}
-                ctg={ctg}
-                sort_by={sort_by}
-                sort_order={sort_order}
-                page={pageNum}
-                cntry={cntry}
-              />
+          {advanced ? (
+            <Suspense
+              fallback={<MoviesSkeleton />}
+              key={JSON.stringify(params)}
+            >
+              <SearchResults params={params} />
             </Suspense>
-          </MotionFadeIn>
+          ) : (
+            <>
+              {/* Movies Grid - with streaming */}
+              <Suspense
+                key={`${clt}-${ctg}-${sort_by}-${sort_order}-${pageNum}-${cntry}`}
+                fallback={<MoviesSkeleton />}
+              >
+                <MoviesGrid
+                  clt={clt}
+                  ctg={ctg}
+                  sort_by={sort_by}
+                  sort_order={sort_order}
+                  page={pageNum}
+                  cntry={cntry}
+                />
+              </Suspense>
+
+              {/* Pagination */}
+              <MotionFadeIn delay={0.8}>
+                <Suspense fallback={<Skeleton className="h-10 w-48" />}>
+                  <PaginationWrapper
+                    clt={clt}
+                    ctg={ctg}
+                    sort_by={sort_by}
+                    sort_order={sort_order}
+                    page={pageNum}
+                    cntry={cntry}
+                  />
+                </Suspense>
+              </MotionFadeIn>
+            </>
+          )}
         </div>
       </section>
     </MotionPage>

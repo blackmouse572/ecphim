@@ -171,8 +171,8 @@ export function GlobalSearch() {
             className="inline-flex items-center gap-1.5 rounded-(--radius-squircle-sm) px-1.5 py-1 font-medium text-foreground text-xs hover:bg-muted"
             href={
               search.trim()
-                ? `/tim-kiem?q=${encodeURIComponent(search.trim())}`
-                : "/tim-kiem"
+                ? `/discover?q=${encodeURIComponent(search.trim())}`
+                : "/discover"
             }
             onClick={() => setIsOpen(false)}
           >

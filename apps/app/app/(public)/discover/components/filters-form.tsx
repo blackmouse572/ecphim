@@ -15,11 +15,12 @@ import {
   TagList,
 } from "@repo/design-system/components/ui/tag-group";
 import { useForm } from "@tanstack/react-form";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { parseAsString, useQueryStates } from "nuqs";
 import { useTransition } from "react";
 import { CATEGORIES } from "@/app/components/app-nav/data";
 import type { ICountry } from "../../../../types/response";
+import { ADVANCED_KEYS } from "../advanced-params";
 
 const collectionLabels = [
   { id: "phim-moi", name: "Phim mới" },
@@ -293,6 +294,7 @@ export function FiltersForm({ countries }: FiltersFormProps) {
   });
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
   const form = useForm({
@@ -306,6 +308,11 @@ export function FiltersForm({ countries }: FiltersFormProps) {
     onSubmit: async ({ value }) => {
       startTransition(() => {
         const params = new URLSearchParams();
+        // Keep the keyword, people, tag and year from the search bar.
+        for (const key of ADVANCED_KEYS) {
+          const current = searchParams.get(key);
+          if (current) params.set(key, current);
+        }
 
         if (value.clt) params.set("clt", value.clt);
         if (value.ctg.length > 0) params.set("ctg", value.ctg.join(","));

@@ -11,20 +11,23 @@ import {
 } from "@repo/design-system/components/ecphim/media-row";
 import Link from "next/link";
 import { MovieCard } from "@/app/components/sections";
+import { advancedSearch } from "@/lib/services/advanced-search";
 import {
-  type AdvancedSearchFilters,
-  advancedSearch,
-} from "@/lib/services/advanced-search";
-import { searchHref } from "../search-params";
+  type DiscoverParams,
+  discoverHref,
+  toAdvancedFilters,
+} from "../advanced-params";
 
 type Props = {
-  filters: AdvancedSearchFilters;
-  page: number;
+  params: DiscoverParams;
 };
 
 const numberFormat = new Intl.NumberFormat("vi-VN");
 
-export async function SearchResults({ filters, page }: Props) {
+export async function SearchResults({ params }: Props) {
+  const filters = toAdvancedFilters(params);
+  const parsedPage = Number.parseInt(params.page ?? "", 10);
+  const page = parsedPage > 0 ? parsedPage : 1;
   let result: Awaited<ReturnType<typeof advancedSearch>>;
   try {
     result = await advancedSearch(filters, page);
@@ -62,7 +65,7 @@ export async function SearchResults({ filters, page }: Props) {
           <InfoIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
           <span>
             {scansLatest
-              ? "Không có tên phim hay thể loại nên đang lọc trong các phim mới cập nhật. "
+              ? "Chưa chọn tên phim, thể loại hay quốc gia nên đang lọc trong các phim mới cập nhật. "
               : ""}
             Đạo diễn, diễn viên và tag được lọc từng trang.
             {hasNext ? " Bấm “Trang sau” để kiểm tra thêm." : ""}
@@ -101,7 +104,7 @@ export async function SearchResults({ filters, page }: Props) {
           {hasPrev ? (
             <Link
               className={buttonVariants({ variant: "secondary", size: "lg" })}
-              href={searchHref(filters, page - 1)}
+              href={discoverHref({ ...params, page: String(page - 1) })}
               scroll={false}
             >
               <ArrowLeftIcon aria-hidden />
@@ -116,7 +119,7 @@ export async function SearchResults({ filters, page }: Props) {
           {hasNext ? (
             <Link
               className={buttonVariants({ variant: "secondary", size: "lg" })}
-              href={searchHref(filters, page + 1)}
+              href={discoverHref({ ...params, page: String(page + 1) })}
               scroll={false}
             >
               Trang sau
