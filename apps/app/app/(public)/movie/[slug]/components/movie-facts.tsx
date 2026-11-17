@@ -91,11 +91,23 @@ export function MovieFacts({ movie }: { movie: IMovie }) {
           </Fact>
         ) : null}
         {directors.length > 0 ? (
-          <Fact label="Đạo diễn">{directors.join(", ")}</Fact>
+          <Fact label="Đạo diễn">
+            {joinLinks(
+              directors.map((name) => ({
+                name,
+                href: `/discover?director=${encodeURIComponent(name)}`,
+              })),
+            )}
+          </Fact>
         ) : null}
         {actors.length > 0 ? (
           <Fact label="Diễn viên">
-            {actors.slice(0, 8).join(", ")}
+            {joinLinks(
+              actors.slice(0, 8).map((name) => ({
+                name,
+                href: `/discover?actor=${encodeURIComponent(name)}`,
+              })),
+            )}
             {actors.length > 8 ? (
               <span className="text-muted-foreground">
                 {" "}
