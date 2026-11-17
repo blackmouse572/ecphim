@@ -1,11 +1,10 @@
 import {
-  MotionFadeIn,
-  MotionItem,
-  MotionList,
-} from "@repo/design-system/components/motion";
+  MediaRow,
+  MediaRowItem,
+  mediaRowActionClassName,
+} from "@repo/design-system/components/ecphim/media-row";
 import Link from "next/link";
 import type { IMovie } from "@/types/response";
-import { BGPattern } from "../bg-pattern";
 import { MovieCard } from "./movie-card";
 
 interface TrendingMoviesProps {
@@ -15,41 +14,33 @@ interface TrendingMoviesProps {
   cdnUrl?: string;
 }
 
+/** A home page row of posters that scrolls sideways. */
 export function TrendingMovies({
   movies,
-  title = "Trending Now",
-  viewAllUrl = "/browse",
+  title = "Phim mới",
+  viewAllUrl = "/discover",
   cdnUrl,
 }: TrendingMoviesProps) {
-  return (
-    <section className="relative py-24">
-      <BGPattern
-        className="max-h-[50vh]"
-        variant="vertical-lines"
-        size={60}
-        mask="fade-bottom"
-      />
-      <div className="px- container mx-auto max-w-7xl">
-        <MotionFadeIn>
-          <div className="relative mb-12 flex items-center justify-between">
-            <h2 className="font-900 text-headline text-white">{title}</h2>
-            <Link
-              href={viewAllUrl}
-              className="border-white/20 border-b pb-1 font-400 text-body text-white/60 transition-colors hover:border-white/60 hover:text-white"
-            >
-              Xem tất cả
-            </Link>
-          </div>
-        </MotionFadeIn>
+  if (movies.length === 0) {
+    return null;
+  }
 
-        <MotionList className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-4">
-          {movies.map((movie, index) => (
-            <MotionItem whileInView key={movie._id} delay={index * 0.05}>
-              <MovieCard movie={movie} cdnUrl={cdnUrl} />
-            </MotionItem>
-          ))}
-        </MotionList>
-      </div>
-    </section>
+  return (
+    <div className="container mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
+      <MediaRow
+        action={
+          <Link className={mediaRowActionClassName} href={viewAllUrl}>
+            Xem tất cả
+          </Link>
+        }
+        title={title}
+      >
+        {movies.map((movie) => (
+          <MediaRowItem key={movie._id}>
+            <MovieCard cdnUrl={cdnUrl} movie={movie} />
+          </MediaRowItem>
+        ))}
+      </MediaRow>
+    </div>
   );
 }

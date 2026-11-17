@@ -1,5 +1,8 @@
 import { EmptyIcon } from "@phosphor-icons/react/ssr";
-import { MotionItem, MotionList } from "@repo/design-system/components/motion";
+import {
+  MediaRow,
+  MediaRowItem,
+} from "@repo/design-system/components/ecphim/media-row";
 import {
   Card,
   CardContent,
@@ -76,12 +79,12 @@ export async function MoviesGrid({
   }
 
   return (
-    <MotionList className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-6">
-      {items.map((movie, index) => (
-        <MotionItem key={movie._id} delay={index * 0.02}>
-          <MovieCard movie={movie} cdnUrl={APP_DOMAIN_CDN_IMAGE} />
-        </MotionItem>
+    <MediaRow layout="grid">
+      {items.map((movie) => (
+        <MediaRowItem key={movie._id}>
+          <MovieCard cdnUrl={APP_DOMAIN_CDN_IMAGE} movie={movie} />
+        </MediaRowItem>
       ))}
-    </MotionList>
+    </MediaRow>
   );
 }
