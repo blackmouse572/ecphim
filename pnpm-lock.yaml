@@ -7,6 +7,9 @@ settings:
 overrides:
   parse5: ^7.2.1
   zod: ^3.24.4
+  better-auth>zod: ^4.3.5
+  '@better-auth/core>zod': ^4.3.5
+  better-call>zod: ^4.3.5
 
 importers:
 
@@ -7280,7 +7283,7 @@ packages:
   better-call@1.1.8:
     resolution: {integrity: sha512-XMQ2rs6FNXasGNfMjzbyroSwKwYbZ/T3IxruSS6U2MJRsSYh3wYtG3o6H00ZlKZ/C/UPOAD97tqgQJNsxyeTXw==}
     peerDependencies:
-      zod: ^3.24.4
+      zod: ^4.3.5
     peerDependenciesMeta:
       zod:
         optional: true
@@ -12962,6 +12965,9 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
+  zod@4.6.7:
+    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -13975,11 +13981,11 @@ snapshots:
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
       '@standard-schema/spec': 1.1.0
-      better-call: 1.1.8(zod@3.25.76)
+      better-call: 1.1.8(zod@4.6.7)
       jose: 6.2.2
       kysely: 0.28.20
       nanostores: 1.5.5
-      zod: 3.25.76
+      zod: 4.6.7
 
   '@better-auth/telemetry@1.4.17(@better-auth/core@1.4.17(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@3.25.76))(jose@6.2.2)(kysely@0.28.20)(nanostores@1.5.5))':
     dependencies:
@@ -19813,12 +19819,12 @@ snapshots:
       '@better-fetch/fetch': 1.1.21
       '@noble/ciphers': 2.4.0
       '@noble/hashes': 2.4.0
-      better-call: 1.1.8(zod@3.25.76)
+      better-call: 1.1.8(zod@4.6.7)
       defu: 6.1.4
       jose: 6.2.2
       kysely: 0.28.20
       nanostores: 1.5.5
-      zod: 3.25.76
+      zod: 4.6.7
     optionalDependencies:
       '@prisma/client': 7.1.0(prisma@7.1.0(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(typescript@5.9.3))(typescript@5.9.3)
       mysql2: 3.15.3
@@ -19828,14 +19834,14 @@ snapshots:
       react-dom: 19.2.1(react@19.2.1)
       vitest: 4.1.1(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jsdom@27.4.0(@noble/hashes@2.4.0)(bufferutil@4.1.0))(msw@2.12.14(@types/node@24.10.1)(typescript@5.9.3))(vite@8.0.2(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@24.10.1)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.46.1)(yaml@2.8.3))
 
-  better-call@1.1.8(zod@3.25.76):
+  better-call@1.1.8(zod@4.6.7):
     dependencies:
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
       rou3: 0.7.12
       set-cookie-parser: 2.7.3
     optionalDependencies:
-      zod: 3.25.76
+      zod: 4.6.7
 
   bidi-js@1.0.3:
     dependencies:
@@ -26579,5 +26585,7 @@ snapshots:
       zod: 3.25.76
 
   zod@3.25.76: {}
+
+  zod@4.6.7: {}
 
   zwitch@2.0.4: {}
