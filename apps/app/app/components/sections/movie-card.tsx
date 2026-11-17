@@ -28,9 +28,33 @@ async function resolvePoster(movie: IMovie, cdnUrl?: string) {
   }
 }
 
+/**
+ * The details a card can show. VSMov list items often have no genre, episode,
+ * quality or score, so only show what we have. Without a genre, fall back to
+ * the TMDB type (tv = series, movie = single), and hide a zero rating.
+ */
+function cardMeta(movie: IMovie) {
+  const rating = movie.imdb?.vote_average || movie.tmdb?.vote_average || 0;
+  const typeLabel =
+    movie.tmdb?.type === "tv"
+      ? "Phim bộ"
+      : movie.tmdb?.type === "movie"
+        ? "Phim lẻ"
+        : "";
+  return {
+    rating: rating > 0 ? rating : undefined,
+    year: movie.year || undefined,
+    items: [
+      movie.category?.[0]?.name || typeLabel,
+      movie.episode_current,
+    ].filter((item): item is string => Boolean(item)),
+  };
+}
+
 /** A poster card for one movie: maps the API movie onto the design system. */
 export async function MovieCard({ movie, cdnUrl }: MovieCardProps) {
   const poster = await resolvePoster(movie, cdnUrl);
+  const { rating, year, items } = cardMeta(movie);
 
   return (
     <PosterCard
@@ -47,9 +71,9 @@ export async function MovieCard({ movie, cdnUrl }: MovieCardProps) {
       meta={
         <MediaMeta
           className="text-muted-foreground"
-          items={movie.episode_current ? [movie.episode_current] : []}
-          rating={movie.imdb?.vote_average || undefined}
-          year={movie.year}
+          items={items}
+          rating={rating}
+          year={year}
         />
       }
       render={<Link href={`/movie/${movie.slug}`} />}
