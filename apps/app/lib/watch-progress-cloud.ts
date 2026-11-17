@@ -2,6 +2,7 @@
 
 import { currentUser } from "@repo/auth/server";
 import { database } from "@repo/database";
+import { parseWatchProgressInput } from "@/lib/watch-progress-input";
 import type { WatchProgressUpdate } from "@/types/watch-progress";
 
 // Cloud-synced watch progress via server actions. We deliberately avoid an
@@ -17,10 +18,9 @@ export async function saveWatchProgressToCloud(
   episodeSlug: string,
   update: WatchProgressUpdate,
 ) {
-  if (!(movieSlug && episodeSlug)) {
-    return null;
-  }
-  if (!(update.duration > 0) || update.currentTime <= 0) {
+  // Server action arguments come straight from the client: range-check them.
+  const input = parseWatchProgressInput({ movieSlug, episodeSlug, ...update });
+  if (!input || input.currentTime <= 0) {
     return null;
   }
 

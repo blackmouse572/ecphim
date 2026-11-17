@@ -1,8 +1,52 @@
-/** biome-ignore-all lint/style/noNonNullAssertion: not null env */
 "use client";
 
-import { createBrowserClient } from "@supabase/ssr";
-export type AuthClient = ReturnType<typeof createClient>;
+import { createAuthClient } from "better-auth/react";
+import { AUTH_BASE_PATH } from "./config";
+
+// Same origin as the app, so only the base path needs to be set.
+export const authClient = createAuthClient({
+  basePath: AUTH_BASE_PATH,
+});
+
+export type AuthClient = typeof authClient;
+
+export type AuthError = { code?: string; message: string };
+export type AuthResult = { error: AuthError | null };
+
+type BetterAuthError = {
+  code?: string;
+  message?: string;
+  statusText?: string;
+} | null;
+
+// better-auth error codes -> Vietnamese copy for the auth pages.
+const errorMessages: Record<string, string> = {
+  INVALID_EMAIL_OR_PASSWORD: "Email hoặc mật khẩu không đúng.",
+  INVALID_PASSWORD: "Mật khẩu hiện tại không đúng.",
+  EMAIL_NOT_VERIFIED:
+    "Email chưa được xác nhận. Chúng tôi vừa gửi lại liên kết xác nhận, hãy kiểm tra hộp thư.",
+  USER_ALREADY_EXISTS: "Email này đã được đăng ký.",
+  USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "Email này đã được đăng ký.",
+  PASSWORD_TOO_SHORT: "Mật khẩu quá ngắn.",
+  PASSWORD_TOO_LONG: "Mật khẩu quá dài.",
+  INVALID_TOKEN: "Liên kết không hợp lệ hoặc đã hết hạn.",
+  CREDENTIAL_ACCOUNT_NOT_FOUND:
+    "Tài khoản này đăng nhập bằng Google nên chưa có mật khẩu.",
+};
+
+const toResult = (error: BetterAuthError): AuthResult => {
+  if (!error) {
+    return { error: null };
+  }
+
+  const message =
+    (error.code && errorMessages[error.code]) ||
+    error.message ||
+    error.statusText ||
+    "Đã có lỗi xảy ra. Vui lòng thử lại.";
+
+  return { error: { code: error.code, message } };
+};
 
 type SignInWithPasswordInput = {
   email: string;
@@ -10,10 +54,14 @@ type SignInWithPasswordInput = {
 };
 
 type SignInWithGoogleInput = {
+  /** Where to land after Google sign-in completes. */
   redirectTo: string;
+  /** Where to land if it fails. */
+  errorRedirectTo?: string;
 };
 
 type SignUpWithPasswordInput = SignInWithPasswordInput & {
+  /** Where the email verification link lands after verifying. */
   emailRedirectTo?: string;
   name: string;
 };
@@ -23,73 +71,77 @@ type UpdateProfileInput = {
   name: string;
 };
 
-export const createClient = () =>
-  createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+export const createClient = (): AuthClient => authClient;
 
 export const getCurrentUser = async (client: AuthClient) => {
-  const {
-    data: { user },
-  } = await client.auth.getUser();
+  const { data } = await client.getSession();
 
-  return user;
+  return data?.user ?? null;
 };
 
-export const signInWithPassword = (
+export const signInWithPassword = async (
   client: AuthClient,
   input: SignInWithPasswordInput,
-) => client.auth.signInWithPassword(input);
+) => toResult((await client.signIn.email(input)).error);
 
-export const signInWithGoogle = (
+export const signInWithGoogle = async (
   client: AuthClient,
-  { redirectTo }: SignInWithGoogleInput,
+  { redirectTo, errorRedirectTo }: SignInWithGoogleInput,
 ) =>
-  client.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo,
-    },
-  });
+  toResult(
+    (
+      await client.signIn.social({
+        provider: "google",
+        callbackURL: redirectTo,
+        errorCallbackURL: errorRedirectTo,
+      })
+    ).error,
+  );
 
-export const signUpWithPassword = (
+export const signUpWithPassword = async (
   client: AuthClient,
-  { emailRedirectTo, name, ...input }: SignUpWithPasswordInput,
+  { emailRedirectTo, ...input }: SignUpWithPasswordInput,
 ) =>
-  client.auth.signUp({
-    ...input,
-    options: {
-      emailRedirectTo,
-      data: {
-        name,
-      },
-    },
-  });
+  toResult(
+    (await client.signUp.email({ ...input, callbackURL: emailRedirectTo }))
+      .error,
+  );
 
-export const sendPasswordResetEmail = (
+/** Emails a reset link that lands on `redirectTo?token=...`. */
+export const sendPasswordResetEmail = async (
   client: AuthClient,
   email: string,
   redirectTo: string,
+) => toResult((await client.requestPasswordReset({ email, redirectTo })).error);
+
+/** Sets a new password from the token in a reset link. */
+export const resetPassword = async (
+  client: AuthClient,
+  { token, newPassword }: { token: string; newPassword: string },
+) => toResult((await client.resetPassword({ token, newPassword })).error);
+
+/** Changes the signed-in user's password. */
+export const changePassword = async (
+  client: AuthClient,
+  {
+    currentPassword,
+    newPassword,
+  }: { currentPassword: string; newPassword: string },
 ) =>
-  client.auth.resetPasswordForEmail(email, {
-    redirectTo,
-  });
+  toResult(
+    (
+      await client.changePassword({
+        currentPassword,
+        newPassword,
+        revokeOtherSessions: true,
+      })
+    ).error,
+  );
 
-export const updatePassword = (client: AuthClient, password: string) =>
-  client.auth.updateUser({
-    password,
-  });
-
-export const updateProfile = (
+export const updateProfile = async (
   client: AuthClient,
   { avatar, name }: UpdateProfileInput,
-) =>
-  client.auth.updateUser({
-    data: {
-      avatar,
-      name,
-    },
-  });
+) => toResult((await client.updateUser({ name, image: avatar ?? null })).error);
 
-export const signOut = (client: AuthClient) => client.auth.signOut();
+export const signOut = async (client: AuthClient) =>
+  toResult((await client.signOut()).error);

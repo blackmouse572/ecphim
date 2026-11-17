@@ -13,13 +13,14 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@repo/auth/client", () => ({
-  createClient: () => ({ auth: {} }),
+  createClient: () => ({}),
+  changePassword: vi.fn(async () => ({ error: null })),
+  resetPassword: vi.fn(async () => ({ error: null })),
   getCurrentUser: vi.fn(async () => null),
   sendPasswordResetEmail: vi.fn(async () => ({ error: null })),
   signInWithGoogle: vi.fn(async () => ({ error: null })),
   signInWithPassword: vi.fn(async () => ({ error: null })),
   signOut: vi.fn(async () => ({ error: null })),
   signUpWithPassword: vi.fn(async () => ({ error: null })),
-  updatePassword: vi.fn(async () => ({ error: null })),
   updateProfile: vi.fn(async () => ({ error: null })),
 }));

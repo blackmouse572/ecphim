@@ -1,11 +1,7 @@
 "use client";
 
-import {
-  createClient,
-  getCurrentUser,
-  signOut,
-  updatePassword,
-} from "@repo/auth/client";
+import { MIN_PASSWORD_LENGTH } from "@repo/auth/config";
+import { createClient, resetPassword } from "@repo/auth/client";
 import { Button } from "@repo/design-system/components/ui/button";
 import {
   Card,
@@ -18,10 +14,15 @@ import {
 import { Input } from "@repo/design-system/components/ui/input";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useState } from "react";
 
+const invalidLinkMessage =
+  "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.";
+
+// better-auth redirects here with ?token=... or ?error=INVALID_TOKEN.
 const errorMessages: Record<string, string> = {
-  invalid_or_expired_link: "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
+  INVALID_TOKEN: invalidLinkMessage,
+  invalid_or_expired_link: invalidLinkMessage,
 };
 
 export const ResetPassword = () => {
@@ -29,46 +30,28 @@ export const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
-  const [isReady, setIsReady] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [supabase] = useState(createClient);
+  const [authClient] = useState(createClient);
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadUser = async () => {
-      const user = await getCurrentUser(supabase);
-
-      if (!isMounted) {
-        return;
-      }
-
-      setIsReady(Boolean(user));
-    };
-
-    void loadUser();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [supabase]);
+  const token = searchParams.get("token");
+  const isReady = Boolean(token);
 
   const urlError = searchParams.get("error");
-  const errorMessage = error ?? (urlError ? errorMessages[urlError] ?? urlError : null);
+  const errorMessage =
+    error ?? (urlError ? (errorMessages[urlError] ?? urlError) : null);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
 
-    if (!isReady) {
+    if (!token) {
       setError("Hãy mở liên kết đặt lại mật khẩu từ email của bạn.");
       return;
     }
 
-    if (password.length < 6) {
-      setError("Mật khẩu phải có ít nhất 6 ký tự.");
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Mật khẩu phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự.`);
       return;
     }
 
@@ -79,7 +62,10 @@ export const ResetPassword = () => {
 
     setIsPending(true);
 
-    const { error: updateError } = await updatePassword(supabase, password);
+    const { error: updateError } = await resetPassword(authClient, {
+      token,
+      newPassword: password,
+    });
 
     if (updateError) {
       setError(updateError.message);
@@ -90,10 +76,8 @@ export const ResetPassword = () => {
     setIsSuccess(true);
     setIsPending(false);
 
-    // End the recovery session so the user re-authenticates with the new
-    // password. Without this they'd stay logged in and /sign-in (guest-only)
-    // would bounce them straight to /account.
-    await signOut(supabase);
+    // Resetting revokes every session, so the user signs in with the new
+    // password.
     router.replace("/sign-in");
     router.refresh();
   };
@@ -120,8 +104,12 @@ export const ResetPassword = () => {
           )}
           {!isReady && !isSuccess && (
             <div className="rounded-lg border px-3 py-2 text-muted-foreground text-sm">
-              Hãy mở liên kết đặt lại mật khẩu trong email, hoặc yêu cầu liên kết mới tại{" "}
-              <Link className="text-primary hover:underline" href="/forgot-password">
+              Hãy mở liên kết đặt lại mật khẩu trong email, hoặc yêu cầu liên
+              kết mới tại{" "}
+              <Link
+                className="text-primary hover:underline"
+                href="/forgot-password"
+              >
                 trang quên mật khẩu
               </Link>
               .
@@ -129,7 +117,7 @@ export const ResetPassword = () => {
           )}
           <Input
             autoComplete="new-password"
-            minLength={6}
+            minLength={MIN_PASSWORD_LENGTH}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="Mật khẩu mới"
             required
@@ -138,7 +126,7 @@ export const ResetPassword = () => {
           />
           <Input
             autoComplete="new-password"
-            minLength={6}
+            minLength={MIN_PASSWORD_LENGTH}
             onChange={(event) => setConfirmPassword(event.target.value)}
             placeholder="Xác nhận mật khẩu mới"
             required

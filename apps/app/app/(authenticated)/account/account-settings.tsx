@@ -1,10 +1,7 @@
 "use client";
 
-import {
-  createClient,
-  updatePassword,
-  updateProfile,
-} from "@repo/auth/client";
+import { MIN_PASSWORD_LENGTH } from "@repo/auth/config";
+import { createClient, changePassword, updateProfile } from "@repo/auth/client";
 import type { AuthProfile } from "@repo/auth/typed";
 import { Avatar } from "@repo/design-system/components/ui/avatar";
 import { Button } from "@repo/design-system/components/ui/button";
@@ -28,13 +25,16 @@ type AccountSettingsProps = {
 };
 
 export const AccountSettings = ({ initialProfile }: AccountSettingsProps) => {
-  const [supabase] = useState(createClient);
+  const [authClient] = useState(createClient);
   const router = useRouter();
   const [name, setName] = useState(initialProfile.name);
-  const [selectedAvatar, setSelectedAvatar] = useState(initialProfile.avatar ?? "");
+  const [selectedAvatar, setSelectedAvatar] = useState(
+    initialProfile.avatar ?? "",
+  );
   const [profileError, setProfileError] = useState<string | null>(null);
   const [securityError, setSecurityError] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSavingPassword, setIsSavingPassword] = useState(false);
@@ -57,7 +57,7 @@ export const AccountSettings = ({ initialProfile }: AccountSettingsProps) => {
 
     setIsSavingProfile(true);
 
-    const { error } = await updateProfile(supabase, {
+    const { error } = await updateProfile(authClient, {
       name: trimmedName,
       avatar: selectedAvatar || null,
     });
@@ -77,8 +77,10 @@ export const AccountSettings = ({ initialProfile }: AccountSettingsProps) => {
     event.preventDefault();
     setSecurityError(null);
 
-    if (password.length < 6) {
-      setSecurityError("Mật khẩu phải có ít nhất 6 ký tự.");
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setSecurityError(
+        `Mật khẩu phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự.`,
+      );
       return;
     }
 
@@ -89,7 +91,10 @@ export const AccountSettings = ({ initialProfile }: AccountSettingsProps) => {
 
     setIsSavingPassword(true);
 
-    const { error } = await updatePassword(supabase, password);
+    const { error } = await changePassword(authClient, {
+      currentPassword,
+      newPassword: password,
+    });
 
     if (error) {
       setSecurityError(error.message);
@@ -97,6 +102,7 @@ export const AccountSettings = ({ initialProfile }: AccountSettingsProps) => {
       return;
     }
 
+    setCurrentPassword("");
     setPassword("");
     setConfirmPassword("");
     toast.success("Đã cập nhật mật khẩu.");
@@ -123,7 +129,9 @@ export const AccountSettings = ({ initialProfile }: AccountSettingsProps) => {
             <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
               <Avatar
                 alt={name}
-                initials={avatarPreview?.initials ?? initialProfile.name.slice(0, 2)}
+                initials={
+                  avatarPreview?.initials ?? initialProfile.name.slice(0, 2)
+                }
                 size="4xl"
                 src={avatarPreview?.imagePath ?? null}
               />
@@ -137,14 +145,19 @@ export const AccountSettings = ({ initialProfile }: AccountSettingsProps) => {
                   type="text"
                   value={name}
                 />
-                <Input disabled type="email" value={initialProfile.email ?? ""} />
+                <Input
+                  disabled
+                  type="email"
+                  value={initialProfile.email ?? ""}
+                />
               </div>
             </div>
             <div className="space-y-3">
               <div>
                 <p className="font-medium text-sm">Avatar mặc định</p>
                 <p className="text-muted-foreground text-sm">
-                  Đây là danh sách placeholder để bạn thay thế bằng avatar thật sau này.
+                  Đây là danh sách placeholder để bạn thay thế bằng avatar thật
+                  sau này.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -173,7 +186,11 @@ export const AccountSettings = ({ initialProfile }: AccountSettingsProps) => {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full sm:w-auto" isPending={isSavingProfile} type="submit">
+            <Button
+              className="w-full sm:w-auto"
+              isPending={isSavingProfile}
+              type="submit"
+            >
               Lưu thông tin
             </Button>
           </CardFooter>
@@ -184,7 +201,7 @@ export const AccountSettings = ({ initialProfile }: AccountSettingsProps) => {
         <CardHeader>
           <CardTitle>Mật khẩu</CardTitle>
           <CardDescription>
-            Đổi mật khẩu cho phiên đăng nhập hiện tại.
+            Đổi mật khẩu. Các thiết bị khác sẽ bị đăng xuất.
           </CardDescription>
         </CardHeader>
         <form className="space-y-6" onSubmit={handlePasswordSubmit}>
@@ -195,8 +212,16 @@ export const AccountSettings = ({ initialProfile }: AccountSettingsProps) => {
               </div>
             )}
             <Input
+              autoComplete="current-password"
+              onChange={(event) => setCurrentPassword(event.target.value)}
+              placeholder="Mật khẩu hiện tại"
+              required
+              type="password"
+              value={currentPassword}
+            />
+            <Input
               autoComplete="new-password"
-              minLength={6}
+              minLength={MIN_PASSWORD_LENGTH}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Mật khẩu mới"
               required
@@ -205,7 +230,7 @@ export const AccountSettings = ({ initialProfile }: AccountSettingsProps) => {
             />
             <Input
               autoComplete="new-password"
-              minLength={6}
+              minLength={MIN_PASSWORD_LENGTH}
               onChange={(event) => setConfirmPassword(event.target.value)}
               placeholder="Xác nhận mật khẩu mới"
               required
@@ -214,7 +239,11 @@ export const AccountSettings = ({ initialProfile }: AccountSettingsProps) => {
             />
           </CardContent>
           <CardFooter>
-            <Button className="w-full" isPending={isSavingPassword} type="submit">
+            <Button
+              className="w-full"
+              isPending={isSavingPassword}
+              type="submit"
+            >
               Cập nhật mật khẩu
             </Button>
           </CardFooter>
