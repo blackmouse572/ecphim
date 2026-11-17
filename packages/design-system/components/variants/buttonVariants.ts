@@ -9,22 +9,25 @@ export const buttonStyles = tv({
     "*:data-[slot=icon]:-mx-0.5 *:data-[slot=icon]:shrink-0 *:data-[slot=icon]:self-center *:data-[slot=icon]:text-(--btn-icon) focus-visible:*:data-[slot=icon]:text-(--btn-icon-active)/80 hover:*:data-[slot=icon]:text-(--btn-icon-active)/90 forced-colors:[--btn-icon:ButtonText] forced-colors:hover:[--btn-icon:ButtonText]",
     "*:data-[slot=loader]:-mx-0.5 *:data-[slot=loader]:shrink-0 *:data-[slot=loader]:self-center *:data-[slot=loader]:text-(--btn-icon)",
     "pending:opacity-50 disabled:opacity-50 disabled:forced-colors:text-[GrayText]",
+    // Redesign (styles/ecphim.css): squircle corners and instant press feedback.
+    "squircle pressed:scale-[0.97] transition-[transform,background-color,box-shadow,filter] duration-100 ease-out active:scale-[0.97] motion-reduce:pressed:scale-100 motion-reduce:active:scale-100",
     "*:data-[slot=color-swatch]:-mx-0.5 *:data-[slot=color-swatch]:shrink-0 *:data-[slot=color-swatch]:self-center *:data-[slot=color-swatch]:[--color-swatch-size:--spacing(5)]",
   ],
   variants: {
     intent: {
+      // Skeuomorphic depth only on the main pressable controls (see ecphim.css).
       primary:
-        "[--btn-bg:var(--color-primary)] [--btn-fg:var(--color-primary-fg)] [--btn-icon-active:var(--primary-fg)]/80 [--btn-icon:var(--primary-fg)]/60 [--btn-overlay:color-mix(in_oklab,var(--color-primary-fg)_10%,var(--color-primary)_90%)]",
+        "skeuo-primary border-transparent [--btn-bg:var(--color-primary)] [--btn-fg:white] [--btn-icon-active:white] [--btn-icon:white]/80 [--btn-overlay:var(--color-primary)]",
       secondary:
-        "[--btn-bg:var(--color-secondary)] [--btn-fg:var(--color-secondary-fg)] [--btn-icon:var(--color-muted-fg)] [--btn-outline:var(--color-secondary-fg)] [--btn-overlay:color-mix(in_oklab,var(--color-secondary-fg)_10%,var(--color-secondary)_90%)] [--btn-ring:var(--color-muted-fg)]/20",
+        "skeuo-raised border-transparent [--btn-bg:var(--color-secondary)] [--btn-fg:var(--color-secondary-fg)] [--btn-icon:var(--color-muted-fg)] [--btn-outline:var(--color-secondary-fg)] [--btn-overlay:var(--color-secondary)] [--btn-ring:var(--color-muted-fg)]/20 hover:brightness-110",
       warning:
-        "[--btn-bg:var(--color-warning)] [--btn-fg:var(--color-warning-fg)] [--btn-icon:var(--color-warning-fg)]/60 [--btn-overlay:color-mix(in_oklab,var(--color-white)_10%,var(--color-warning)_90%)]",
+        "skeuo-primary border-transparent [--btn-bg:var(--color-warning)] [--btn-fg:oklch(0.22_0.04_70)] [--btn-icon-active:oklch(0.22_0.04_70)] [--btn-icon:oklch(0.22_0.04_70)]/80 [--btn-overlay:var(--color-warning)] [--skeuo-fg:oklch(0.22_0.04_70)] [--skeuo-text-shadow:0_1px_0_oklch(1_0_0/0.3)] [--skeuo-tint:var(--color-warning)]",
       danger:
-        "[--btn-bg:var(--color-danger)] [--btn-fg:var(--color-danger-fg)] [--btn-icon:color-mix(in_oklab,var(--color-danger-fg)_60%,var(--danger)_40%)] [--btn-overlay:color-mix(in_oklab,var(--color-white)_10%,var(--color-danger)_90%)]",
+        "skeuo-primary border-transparent [--btn-bg:var(--color-danger)] [--btn-fg:white] [--btn-icon-active:white] [--btn-icon:white]/80 [--btn-overlay:var(--color-danger)] [--skeuo-tint:var(--color-danger)]",
       outline:
-        "border-border [--btn-bg:transparent] [--btn-icon:var(--color-muted-fg)] [--btn-outline:var(--color-ring)] [--btn-overlay:var(--color-secondary)] [--btn-ring:var(--color-ring)]/20",
+        "border-foreground/12 [--btn-bg:transparent] [--btn-icon:var(--color-muted-fg)] [--btn-outline:var(--color-ring)] [--btn-overlay:color-mix(in_oklab,var(--color-foreground)_6%,transparent)] [--btn-ring:var(--color-ring)]/20",
       plain:
-        "border-transparent [--btn-bg:transparent] [--btn-icon:var(--color-muted-fg)] [--btn-outline:var(--color-ring)] [--btn-overlay:var(--color-secondary)] [--btn-ring:var(--color-ring)]/20",
+        "border-transparent [--btn-bg:transparent] [--btn-icon:var(--color-muted-fg)] [--btn-outline:var(--color-ring)] [--btn-overlay:color-mix(in_oklab,var(--color-foreground)_6%,transparent)] [--btn-ring:var(--color-ring)]/20",
     },
     size: {
       xs: [
@@ -81,7 +84,7 @@ export const buttonStyles = tv({
 
     isCircle: {
       true: "rounded-full",
-      false: "rounded-lg",
+      false: "rounded-(--radius-squircle-sm)",
     },
   },
   defaultVariants: {

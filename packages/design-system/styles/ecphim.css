@@ -49,33 +49,41 @@
   corner-shape: squircle;
 }
 
-/* Primary call to action: a lit gradient with a bevel and a soft glow in the brand color. */
+/* Primary call to action: a lit gradient with a bevel and a soft glow in the brand color.
+ * Set --skeuo-tint to reuse it in another color (danger, warning). */
 @utility skeuo-primary {
   background-image: linear-gradient(
     180deg,
-    color-mix(in oklch, var(--primary), white 18%),
-    color-mix(in oklch, var(--primary), black 8%)
+    color-mix(in oklch, var(--skeuo-tint, var(--primary)), white 18%),
+    color-mix(in oklch, var(--skeuo-tint, var(--primary)), black 8%)
   );
-  color: oklch(0.99 0 0);
-  text-shadow: 0 -1px 0 color-mix(in oklch, var(--primary), black 45%);
+  color: var(--skeuo-fg, oklch(0.99 0 0));
+  text-shadow: var(
+    --skeuo-text-shadow,
+    0 -1px 0 color-mix(in oklch, var(--skeuo-tint, var(--primary)), black 45%)
+  );
   box-shadow:
     inset 0 1px 0 oklch(1 0 0 / 0.4),
-    inset 0 -2px 0 color-mix(in oklch, var(--primary), black 35%),
-    0 0 0 1px color-mix(in oklch, var(--primary), black 25%),
-    0 6px 16px -4px color-mix(in oklch, var(--primary) 60%, transparent),
+    inset 0 -2px 0
+    color-mix(in oklch, var(--skeuo-tint, var(--primary)), black 35%),
+    0 0 0 1px color-mix(in oklch, var(--skeuo-tint, var(--primary)), black 25%),
+    0 6px 16px -4px
+    color-mix(in oklch, var(--skeuo-tint, var(--primary)) 60%, transparent),
     var(--skeuo-drop);
   &:hover {
     background-image: linear-gradient(
       180deg,
-      color-mix(in oklch, var(--primary), white 26%),
-      color-mix(in oklch, var(--primary), white 2%)
+      color-mix(in oklch, var(--skeuo-tint, var(--primary)), white 26%),
+      color-mix(in oklch, var(--skeuo-tint, var(--primary)), white 2%)
     );
   }
   &:active,
   &[data-pressed] {
     box-shadow:
-      inset 0 2px 4px color-mix(in oklch, var(--primary), black 50%),
-      0 0 0 1px color-mix(in oklch, var(--primary), black 25%);
+      inset 0 2px 4px
+      color-mix(in oklch, var(--skeuo-tint, var(--primary)), black 50%),
+      0 0 0 1px
+      color-mix(in oklch, var(--skeuo-tint, var(--primary)), black 25%);
   }
 }
 
