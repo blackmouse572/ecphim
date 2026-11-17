@@ -15,7 +15,7 @@ import {
 } from "@/lib/services/movie";
 import { EpisodeGrid } from "../../../(public-nolayout)/movie/[slug]/watch/components";
 import { toPlainText } from "../../../components/sections/ranked-hero";
-import { TrendingMovies } from "../../../components/sections/trending-movies";
+import { RelatedMovies } from "../../../components/sections/related-movies";
 import { MovieFacts } from "./components/movie-facts";
 import { MovieHero } from "./components/movie-hero";
 
@@ -71,18 +71,6 @@ export default async function MovieDetailPage({ params }: Props) {
   const poster = imageData
     ? extractPosterUrl(imageData, "w342")
     : resolveImageUrl(movie.thumb_url);
-
-  // "More like this": the newest titles in the film's first genre.
-  const genre = movie.category[0];
-  const related = genre
-    ? await fetchMovieList({
-        category: genre.slug,
-        limit: 16,
-        sort_field: "modified.time",
-      })
-        .then((list) => list.items.filter((item) => item.slug !== movie.slug))
-        .catch(() => [])
-    : [];
 
   const hasEpisodes = movie.episodes?.some((s) => s.server_data.length > 0);
   const isSeries = movie.type === "series" || movie.tmdb?.type === "tv";
@@ -162,13 +150,7 @@ export default async function MovieDetailPage({ params }: Props) {
         <MovieFacts movie={movie} />
       </div>
 
-      {genre ? (
-        <TrendingMovies
-          movies={related.slice(0, 15)}
-          title={`Phim ${genre.name.toLowerCase()} khác`}
-          viewAllUrl={`/discover?ctg=${genre.slug}`}
-        />
-      ) : null}
+      <RelatedMovies movie={movie} />
     </div>
   );
 }
