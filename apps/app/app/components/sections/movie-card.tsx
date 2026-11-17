@@ -106,7 +106,7 @@ export async function MovieCard({ movie, cdnUrl }: MovieCardProps) {
               )}
               <QualityTag movie={movie} />
             </>
-          )}
+          ) : null}
         </div>
       </div>
     </Link>
