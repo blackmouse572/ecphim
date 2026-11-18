@@ -236,6 +236,7 @@ export function normalizeMovie(
     view: toNumber(raw.view),
     actor: raw.actor ?? [],
     director: raw.director ?? [],
+    keywords: raw.keywords ?? [],
     category: (raw.category ?? []).map(normalizeTaxonomy),
     country: (raw.country ?? []).map(normalizeTaxonomy),
     episodes: normalizeEpisodes(episodes),
