@@ -1,20 +1,16 @@
 "use client";
 
-import { MIN_PASSWORD_LENGTH } from "@repo/auth/config";
 import { createClient, resetPassword } from "@repo/auth/client";
-import { Button } from "@repo/design-system/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@repo/design-system/components/ui/card";
-import { Input } from "@repo/design-system/components/ui/input";
-import Link from "next/link";
+import { MIN_PASSWORD_LENGTH } from "@repo/auth/config";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import {
+  AuthAlert,
+  AuthCard,
+  AuthField,
+  AuthLink,
+  AuthSubmit,
+} from "../components/auth-ui";
 
 const invalidLinkMessage =
   "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.";
@@ -83,63 +79,46 @@ export const ResetPassword = () => {
   };
 
   return (
-    <Card className="mx-auto w-full max-w-md bg-background shadow-primary/50 shadow-sm">
-      <CardHeader>
-        <CardTitle>Đặt lại mật khẩu</CardTitle>
-        <CardDescription>
-          Chọn mật khẩu mới để khôi phục tài khoản.
-        </CardDescription>
-      </CardHeader>
-      <form className="space-y-6" onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          {errorMessage && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-destructive text-sm">
-              {errorMessage}
-            </div>
-          )}
-          {isSuccess && (
-            <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-primary text-sm">
-              Mật khẩu đã được cập nhật. Đang chuyển đến trang đăng nhập...
-            </div>
-          )}
-          {!isReady && !isSuccess && (
-            <div className="rounded-lg border px-3 py-2 text-muted-foreground text-sm">
-              Hãy mở liên kết đặt lại mật khẩu trong email, hoặc yêu cầu liên
-              kết mới tại{" "}
-              <Link
-                className="text-primary hover:underline"
-                href="/forgot-password"
-              >
-                trang quên mật khẩu
-              </Link>
-              .
-            </div>
-          )}
-          <Input
-            autoComplete="new-password"
-            minLength={MIN_PASSWORD_LENGTH}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Mật khẩu mới"
-            required
-            type="password"
-            value={password}
-          />
-          <Input
-            autoComplete="new-password"
-            minLength={MIN_PASSWORD_LENGTH}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-            placeholder="Xác nhận mật khẩu mới"
-            required
-            type="password"
-            value={confirmPassword}
-          />
-        </CardContent>
-        <CardFooter>
-          <Button className="w-full" isPending={isPending} type="submit">
-            Cập nhật mật khẩu
-          </Button>
-        </CardFooter>
+    <AuthCard
+      description="Chọn mật khẩu mới để khôi phục tài khoản."
+      title="Đặt lại mật khẩu"
+    >
+      {errorMessage ? <AuthAlert>{errorMessage}</AuthAlert> : null}
+      {isSuccess ? (
+        <AuthAlert tone="success">
+          Mật khẩu đã được cập nhật. Đang chuyển đến trang đăng nhập...
+        </AuthAlert>
+      ) : null}
+      {!isReady && !isSuccess ? (
+        <AuthAlert tone="info">
+          Hãy mở liên kết đặt lại mật khẩu trong email, hoặc yêu cầu liên kết
+          mới tại{" "}
+          <AuthLink href="/forgot-password">trang quên mật khẩu</AuthLink>.
+        </AuthAlert>
+      ) : null}
+      <form className="grid gap-4" onSubmit={handleSubmit}>
+        <AuthField
+          autoComplete="new-password"
+          label="Mật khẩu mới"
+          minLength={MIN_PASSWORD_LENGTH}
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder={`Ít nhất ${MIN_PASSWORD_LENGTH} ký tự`}
+          required
+          type="password"
+          value={password}
+        />
+        <AuthField
+          autoComplete="new-password"
+          label="Xác nhận mật khẩu mới"
+          minLength={MIN_PASSWORD_LENGTH}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+          placeholder="Nhập lại mật khẩu mới"
+          required
+          type="password"
+          value={confirmPassword}
+        />
+        <AuthSubmit pending={isPending}>Cập nhật mật khẩu</AuthSubmit>
       </form>
-    </Card>
+    </AuthCard>
   );
 };

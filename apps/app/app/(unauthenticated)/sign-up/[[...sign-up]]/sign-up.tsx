@@ -1,22 +1,11 @@
 "use client";
 
-import { MIN_PASSWORD_LENGTH } from "@repo/auth/config";
 import {
   createClient,
   signInWithGoogle,
   signUpWithPassword,
 } from "@repo/auth/client";
-import { Button } from "@repo/design-system/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@repo/design-system/components/ui/card";
-import { Input } from "@repo/design-system/components/ui/input";
-import Link from "next/link";
+import { MIN_PASSWORD_LENGTH } from "@repo/auth/config";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useMemo, useState } from "react";
 import {
@@ -24,7 +13,15 @@ import {
   getAuthCallbackUrl,
   getSafeNextPath,
 } from "@/lib/auth/redirects";
-import { GoogleLogoIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  AuthAlert,
+  AuthCard,
+  AuthDivider,
+  AuthField,
+  AuthLink,
+  AuthSubmit,
+  GoogleButton,
+} from "../../components/auth-ui";
 
 type SignUpProps = {
   i18n?: {
@@ -113,77 +110,65 @@ export const SignUp = (props: SignUpProps) => {
   };
 
   return (
-    <Card className="mx-auto w-full max-w-md bg-background shadow-primary/50 shadow-sm">
-      <CardHeader>
-        <CardTitle>{"Đăng ký"}</CardTitle>
-        <CardDescription>
-          Đã có tài khoản?{" "}
-          <Link href="/sign-in" className="text-primary hover:underline">
-            Đăng nhập
-          </Link>
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSignUp} className="space-y-6">
-        <CardContent className="space-y-4">
-          {error && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-destructive text-sm">
-              {error}
-            </div>
-          )}
-          <Button
-            className="w-full"
-            intent="outline"
-            isPending={googleLoading}
-            onClick={handleGoogleSignIn}
-            type="button"
-          >
-            <GoogleLogoIcon weight="bold" />
-            Tiếp tục với Google
-          </Button>
-          <div className="flex items-center gap-3 text-muted-foreground text-sm">
-            <div className="h-px flex-1 bg-border" />
-            <span>hoặc</span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-          <Input
-            onChange={(e) => setName(e.target.value)}
-            placeholder={props.i18n?.namePlaceholder || "Họ và tên"}
-            required
-            type="text"
-            value={name}
-          />
-          <Input
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder={props.i18n?.emailPlaceholder || "Email"}
-            required
-            type="email"
-            value={email}
-          />
-          <Input
-            minLength={MIN_PASSWORD_LENGTH}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder={props.i18n?.passwordPlaceholder || "Mật khẩu"}
-            required
-            type="password"
-            value={password}
-          />
-          <Input
-            minLength={MIN_PASSWORD_LENGTH}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder={
-              props.i18n?.confirmPasswordPlaceholder || "Xác nhận mật khẩu"
-            }
-            required
-            type="password"
-            value={confirmPassword}
-          />
-        </CardContent>
-        <CardFooter>
-          <Button isPending={loading} type="submit" className={"w-full"}>
-            {props.i18n?.signUpButton || "Đăng ký"}
-          </Button>
-        </CardFooter>
+    <AuthCard
+      description={
+        <>
+          Đã có tài khoản? <AuthLink href="/sign-in">Đăng nhập</AuthLink>
+        </>
+      }
+      title="Tạo tài khoản"
+    >
+      {error ? <AuthAlert>{error}</AuthAlert> : null}
+      <GoogleButton onClick={handleGoogleSignIn} pending={googleLoading} />
+      <AuthDivider />
+      <form className="grid gap-4" onSubmit={handleSignUp}>
+        <AuthField
+          autoComplete="name"
+          label="Họ và tên"
+          onChange={(e) => setName(e.target.value)}
+          placeholder={props.i18n?.namePlaceholder || "Nguyễn Văn A"}
+          required
+          type="text"
+          value={name}
+        />
+        <AuthField
+          autoComplete="email"
+          label="Email"
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder={props.i18n?.emailPlaceholder || "ban@email.com"}
+          required
+          type="email"
+          value={email}
+        />
+        <AuthField
+          autoComplete="new-password"
+          label="Mật khẩu"
+          minLength={MIN_PASSWORD_LENGTH}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder={
+            props.i18n?.passwordPlaceholder ||
+            `Ít nhất ${MIN_PASSWORD_LENGTH} ký tự`
+          }
+          required
+          type="password"
+          value={password}
+        />
+        <AuthField
+          autoComplete="new-password"
+          label="Xác nhận mật khẩu"
+          minLength={MIN_PASSWORD_LENGTH}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder={
+            props.i18n?.confirmPasswordPlaceholder || "Nhập lại mật khẩu"
+          }
+          required
+          type="password"
+          value={confirmPassword}
+        />
+        <AuthSubmit pending={loading}>
+          {props.i18n?.signUpButton || "Đăng ký"}
+        </AuthSubmit>
       </form>
-    </Card>
+    </AuthCard>
   );
 };

@@ -1,51 +1,65 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@repo/design-system/components/ui/card";
+import { EnvelopeSimpleIcon } from "@phosphor-icons/react";
+import { Button } from "@repo/design-system/components/base/button";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { AuthCard } from "../components/auth-ui";
 
 const VerifyEmailContent = () => {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
 
   return (
-    <Card className="mx-auto w-full max-w-md bg-background shadow-primary/50 shadow-sm">
-      <CardHeader>
-        <CardTitle>Kiểm tra hộp thư</CardTitle>
-        <CardDescription>
-          Đã gửi liên kết xác nhận{email ? ` tới ${email}` : ""}.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3 text-muted-foreground text-sm">
+    <AuthCard
+      description={
+        <>
+          Đã gửi liên kết xác nhận
+          {email ? (
+            <>
+              {" "}
+              tới <span className="font-medium text-foreground">{email}</span>
+            </>
+          ) : null}
+          .
+        </>
+      }
+      title="Kiểm tra hộp thư"
+    >
+      <div
+        aria-hidden
+        className="squircle -mt-2 mx-auto grid size-14 place-items-center rounded-(--radius-squircle-md) bg-primary/12 text-primary ring-1 ring-primary/25"
+      >
+        <EnvelopeSimpleIcon className="size-7" />
+      </div>
+      <div className="grid gap-2 text-center text-muted-foreground text-sm">
         <p>
           Mở email từ EcPhim và nhấn liên kết xác nhận để hoàn tất đăng ký. Liên
           kết có hiệu lực trong 1 giờ.
         </p>
         <p>Sau khi xác nhận, hệ thống sẽ tự động đưa bạn quay lại ứng dụng.</p>
-      </CardContent>
-      <CardFooter className="gap-3">
-        <Link
-          className="inline-flex flex-1 items-center justify-center rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground"
-          href="/sign-in"
+      </div>
+      <div className="grid gap-2.5 sm:grid-cols-2">
+        <Button
+          className="w-full"
+          nativeButton={false}
+          render={<Link href="/sign-in" />}
+          size="xl"
         >
           Đến trang đăng nhập
-        </Link>
-        <Link
-          className="inline-flex flex-1 items-center justify-center rounded-lg border px-4 py-2 font-medium"
-          href="/"
+        </Button>
+        <Button
+          className="w-full"
+          nativeButton={false}
+          render={<Link href="/" />}
+          size="xl"
+          variant="secondary"
         >
           Về trang chủ
-        </Link>
-      </CardFooter>
-    </Card>
+        </Button>
+      </div>
+    </AuthCard>
   );
 };
 
