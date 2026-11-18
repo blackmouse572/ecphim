@@ -18,7 +18,11 @@ import { Input } from "@repo/design-system/components/ui/input";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useMemo, useState } from "react";
-import { getAuthCallbackUrl, getSafeNextPath } from "@/lib/auth/redirects";
+import {
+  AUTH_ERROR_PATH,
+  getAuthCallbackUrl,
+  getSafeNextPath,
+} from "@/lib/auth/redirects";
 import { GoogleLogoIcon } from "@phosphor-icons/react/dist/ssr";
 
 export type SignInProps = {
@@ -30,8 +34,10 @@ export type SignInProps = {
 };
 
 const defaultErrorMessages: Record<string, string> = {
-  invalid_or_expired_link: "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
-  unable_to_complete_authentication: "Không thể hoàn tất đăng nhập. Vui lòng thử lại.",
+  invalid_or_expired_link:
+    "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
+  unable_to_complete_authentication:
+    "Không thể hoàn tất đăng nhập. Vui lòng thử lại.",
 };
 
 export const SignIn = (props: SignInProps) => {
@@ -40,7 +46,7 @@ export const SignIn = (props: SignInProps) => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [supabase] = useState(createClient);
+  const [authClient] = useState(createClient);
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = useMemo(
@@ -52,7 +58,8 @@ export const SignIn = (props: SignInProps) => {
     [nextPath],
   );
   const urlError = searchParams.get("error");
-  const errorMessage = error ?? (urlError ? defaultErrorMessages[urlError] ?? urlError : null);
+  const errorMessage =
+    error ?? (urlError ? (defaultErrorMessages[urlError] ?? urlError) : null);
 
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -60,7 +67,7 @@ export const SignIn = (props: SignInProps) => {
     setLoading(true);
     setError(null);
 
-    const { error: loginError } = await signInWithPassword(supabase, {
+    const { error: loginError } = await signInWithPassword(authClient, {
       email,
       password,
     });
@@ -79,8 +86,9 @@ export const SignIn = (props: SignInProps) => {
     setGoogleLoading(true);
     setError(null);
 
-    const { error: googleError } = await signInWithGoogle(supabase, {
+    const { error: googleError } = await signInWithGoogle(authClient, {
       redirectTo: googleRedirectTo,
+      errorRedirectTo: AUTH_ERROR_PATH,
     });
 
     if (googleError) {
@@ -114,7 +122,7 @@ export const SignIn = (props: SignInProps) => {
             onClick={handleGoogleSignIn}
             type="button"
           >
-            <GoogleLogoIcon weight="bold"/>
+            <GoogleLogoIcon weight="bold" />
             Tiếp tục với Google
           </Button>
           <div className="flex items-center gap-3 text-muted-foreground text-sm">

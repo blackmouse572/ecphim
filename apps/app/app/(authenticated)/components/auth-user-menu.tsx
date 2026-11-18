@@ -23,7 +23,7 @@ type AuthUserMenuProps = {
 };
 
 export const AuthUserMenu = ({ user }: AuthUserMenuProps) => {
-  const [supabase] = useState(createClient);
+  const [authClient] = useState(createClient);
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
   const avatarOption = useMemo(
@@ -34,7 +34,7 @@ export const AuthUserMenu = ({ user }: AuthUserMenuProps) => {
   const handleSignOut = async () => {
     setIsPending(true);
 
-    const { error } = await signOut(supabase);
+    const { error } = await signOut(authClient);
 
     if (error) {
       setIsPending(false);
@@ -61,7 +61,9 @@ export const AuthUserMenu = ({ user }: AuthUserMenuProps) => {
             src={avatarOption?.imagePath ?? null}
           />
           <span className="min-w-0 flex-1 text-left">
-            <span className="block truncate font-medium text-sm">{user.name}</span>
+            <span className="block truncate font-medium text-sm">
+              {user.name}
+            </span>
             <span className="block truncate text-muted-foreground text-xs">
               {user.email}
             </span>

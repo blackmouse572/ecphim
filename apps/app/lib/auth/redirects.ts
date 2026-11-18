@@ -1,4 +1,5 @@
-const defaultAppOrigin = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const defaultAppOrigin =
+  process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 export const getSafeNextPath = (
   nextPath: string | null | undefined,
@@ -34,10 +35,10 @@ export const getSafeNextPath = (
 const getAppOrigin = () =>
   typeof window === "undefined" ? defaultAppOrigin : window.location.origin;
 
-export const getAuthCallbackUrl = (nextPath: string) => {
-  const url = new URL("/api/callback", getAppOrigin());
+// Absolute URL better-auth sends the user to after an email link or Google
+// sign-in completes. better-auth only follows URLs on trusted origins.
+export const getAuthCallbackUrl = (nextPath: string) =>
+  new URL(getSafeNextPath(nextPath), getAppOrigin()).toString();
 
-  url.searchParams.set("next", getSafeNextPath(nextPath));
-
-  return url.toString();
-};
+export const AUTH_ERROR_PATH =
+  "/sign-in?error=unable_to_complete_authentication";

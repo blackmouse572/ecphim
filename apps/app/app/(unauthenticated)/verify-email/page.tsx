@@ -26,11 +26,10 @@ const VerifyEmailContent = () => {
       </CardHeader>
       <CardContent className="space-y-3 text-muted-foreground text-sm">
         <p>
-          Mở email từ Supabase và xác nhận tài khoản để hoàn tất đăng ký.
+          Mở email từ EcPhim và nhấn liên kết xác nhận để hoàn tất đăng ký. Liên
+          kết có hiệu lực trong 1 giờ.
         </p>
-        <p>
-          Sau khi xác nhận, hệ thống sẽ tự động đưa bạn quay lại ứng dụng.
-        </p>
+        <p>Sau khi xác nhận, hệ thống sẽ tự động đưa bạn quay lại ứng dụng.</p>
       </CardContent>
       <CardFooter className="gap-3">
         <Link

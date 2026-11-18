@@ -1,5 +1,6 @@
 "use client";
 
+import { MIN_PASSWORD_LENGTH } from "@repo/auth/config";
 import {
   createClient,
   signInWithGoogle,
@@ -18,7 +19,11 @@ import { Input } from "@repo/design-system/components/ui/input";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useMemo, useState } from "react";
-import { getAuthCallbackUrl, getSafeNextPath } from "@/lib/auth/redirects";
+import {
+  AUTH_ERROR_PATH,
+  getAuthCallbackUrl,
+  getSafeNextPath,
+} from "@/lib/auth/redirects";
 import { GoogleLogoIcon } from "@phosphor-icons/react/dist/ssr";
 
 type SignUpProps = {
@@ -43,12 +48,15 @@ export const SignUp = (props: SignUpProps) => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [supabase] = useState(createClient);
+  const [authClient] = useState(createClient);
   const nextPath = useMemo(
     () => getSafeNextPath(searchParams.get("next")),
     [searchParams],
   );
-  const emailRedirectTo = useMemo(() => getAuthCallbackUrl(nextPath), [nextPath]);
+  const emailRedirectTo = useMemo(
+    () => getAuthCallbackUrl(nextPath),
+    [nextPath],
+  );
 
   const handleSignUp = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -56,21 +64,23 @@ export const SignUp = (props: SignUpProps) => {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError(props.i18n?.passwordNotMatchError || "Mật khẩu xác nhận không khớp");
-      setLoading(false);
-      return;
-    }
-
-    if (password.length < 6) {
       setError(
-        props.i18n?.passwordMinLengthError ||
-          "Mật khẩu phải có ít nhất 6 ký tự",
+        props.i18n?.passwordNotMatchError || "Mật khẩu xác nhận không khớp",
       );
       setLoading(false);
       return;
     }
 
-    const { error: loginError } = await signUpWithPassword(supabase, {
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(
+        props.i18n?.passwordMinLengthError ||
+          `Mật khẩu phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự`,
+      );
+      setLoading(false);
+      return;
+    }
+
+    const { error: loginError } = await signUpWithPassword(authClient, {
       email,
       name,
       password,
@@ -91,8 +101,9 @@ export const SignUp = (props: SignUpProps) => {
     setGoogleLoading(true);
     setError(null);
 
-    const { error: googleError } = await signInWithGoogle(supabase, {
+    const { error: googleError } = await signInWithGoogle(authClient, {
       redirectTo: emailRedirectTo,
+      errorRedirectTo: AUTH_ERROR_PATH,
     });
 
     if (googleError) {
@@ -126,7 +137,7 @@ export const SignUp = (props: SignUpProps) => {
             onClick={handleGoogleSignIn}
             type="button"
           >
-            <GoogleLogoIcon weight="bold"/>
+            <GoogleLogoIcon weight="bold" />
             Tiếp tục với Google
           </Button>
           <div className="flex items-center gap-3 text-muted-foreground text-sm">
@@ -149,7 +160,7 @@ export const SignUp = (props: SignUpProps) => {
             value={email}
           />
           <Input
-            minLength={6}
+            minLength={MIN_PASSWORD_LENGTH}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={props.i18n?.passwordPlaceholder || "Mật khẩu"}
             required
@@ -157,7 +168,7 @@ export const SignUp = (props: SignUpProps) => {
             value={password}
           />
           <Input
-            minLength={6}
+            minLength={MIN_PASSWORD_LENGTH}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder={
               props.i18n?.confirmPasswordPlaceholder || "Xác nhận mật khẩu"

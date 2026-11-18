@@ -20,7 +20,7 @@ export const ForgotPassword = () => {
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [supabase] = useState(createClient);
+  const [authClient] = useState(createClient);
   const redirectTo = useMemo(() => getAuthCallbackUrl("/reset-password"), []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -29,7 +29,7 @@ export const ForgotPassword = () => {
     setError(null);
 
     const { error: resetError } = await sendPasswordResetEmail(
-      supabase,
+      authClient,
       email,
       redirectTo,
     );

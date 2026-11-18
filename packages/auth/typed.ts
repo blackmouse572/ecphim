@@ -1,15 +1,14 @@
-import type { User, UserMetadata } from "@supabase/supabase-js";
+// Plain types and helpers, safe to import from client and server code.
 
-export type { User } from "@supabase/supabase-js";
-
-export type AuthUserMetadata = UserMetadata & {
-  activeOrganizationId?: string | null;
-  avatar?: string | null;
-  name?: string | null;
-  // OAuth providers (e.g. Google) populate these instead of avatar/name.
-  avatar_url?: string | null;
-  picture?: string | null;
-  full_name?: string | null;
+/** The user shape better-auth returns (see the User model in schema.prisma). */
+export type User = {
+  id: string;
+  email: string;
+  emailVerified: boolean;
+  name: string;
+  image?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type AuthProfile = {
@@ -20,35 +19,20 @@ export type AuthProfile = {
 };
 
 const getEmailName = (email: string | null | undefined) =>
-  email?.split("@").at(0)?.trim() ?? "User";
-
-export const getUserMetadata = (
-  user: User | null | undefined,
-): AuthUserMetadata => (user?.user_metadata ?? {}) as AuthUserMetadata;
+  email?.split("@").at(0)?.trim() || "User";
 
 export const getUserProfile = (
-  user: User | null | undefined,
+  user: Pick<User, "id" | "email" | "name" | "image"> | null | undefined,
 ): AuthProfile | null => {
   if (!user) {
     return null;
   }
 
-  const metadata = getUserMetadata(user);
-  const name =
-    metadata.name?.trim() ||
-    metadata.full_name?.trim() ||
-    getEmailName(user.email);
-  const avatar =
-    metadata.avatar?.trim() ||
-    metadata.avatar_url?.trim() ||
-    metadata.picture?.trim() ||
-    null;
-
   return {
     id: user.id,
     email: user.email ?? null,
-    name,
-    avatar,
+    name: user.name?.trim() || getEmailName(user.email),
+    avatar: user.image?.trim() || null,
   };
 };
 
@@ -59,10 +43,7 @@ export const getUserInitials = (name: string | null | undefined) => {
     return "U";
   }
 
-  const parts = trimmedName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2);
+  const parts = trimmedName.split(/\s+/).filter(Boolean).slice(0, 2);
 
   // Array.from splits by code point so emoji / astral names don't break.
   return parts.map((part) => Array.from(part)[0]?.toUpperCase() ?? "").join("");

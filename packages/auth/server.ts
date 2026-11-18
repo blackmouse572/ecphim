@@ -1,55 +1,75 @@
-/** biome-ignore-all lint/suspicious/useIterableCallbackReturn: <explanation> */
-/** biome-ignore-all lint/style/noNonNullAssertion: <explanation> */
-/** biome-ignore-all lint/complexity/noForEach: <explanation> */
 import "server-only";
 
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { database } from "@repo/database";
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { nextCookies } from "better-auth/next-js";
+import { headers } from "next/headers";
 import { cache } from "react";
-import { getUserMetadata, getUserProfile } from "./typed";
+import { AUTH_BASE_PATH, MIN_PASSWORD_LENGTH } from "./config";
+import { sendResetPasswordEmail, sendVerificationEmail } from "./emails";
+import { keys } from "./keys";
+import { getUserProfile } from "./typed";
 
-export const createClient = async () => {
-  const cookieStore = await cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
+const env = keys();
+
+const baseURL = env.BETTER_AUTH_URL ?? env.NEXT_PUBLIC_APP_URL;
+
+const trustedOrigins = [env.NEXT_PUBLIC_APP_URL, env.BETTER_AUTH_URL].filter(
+  (origin): origin is string => Boolean(origin),
+);
+
+const socialProviders =
+  env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+    ? {
+        google: {
+          clientId: env.GOOGLE_CLIENT_ID,
+          clientSecret: env.GOOGLE_CLIENT_SECRET,
         },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            );
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
-        },
-      },
+      }
+    : undefined;
+
+export const serverAuth = betterAuth({
+  appName: "EcPhim",
+  basePath: AUTH_BASE_PATH,
+  baseURL,
+  secret: env.BETTER_AUTH_SECRET,
+  trustedOrigins: trustedOrigins.length > 0 ? trustedOrigins : undefined,
+  database: prismaAdapter(database, {
+    provider: "postgresql",
+  }),
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+    minPasswordLength: MIN_PASSWORD_LENGTH,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendResetPasswordEmail(user.email, url);
     },
-  );
-};
-
-export const currentSession = cache(async () => {
-  const supabase = await createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  return session;
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    sendOnSignIn: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendVerificationEmail(user.email, url);
+    },
+  },
+  socialProviders,
+  // Lets server actions set auth cookies (sign-in, sign-out, profile updates).
+  plugins: [nextCookies()],
 });
 
-// Helper function to get the current user
+export const currentSession = cache(async () =>
+  serverAuth.api.getSession({
+    headers: await headers(),
+  }),
+);
+
 export const currentUser = cache(async () => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  const session = await currentSession();
+
+  return session?.user ?? null;
 });
 
 export const currentProfile = cache(async () => {
@@ -58,55 +78,22 @@ export const currentProfile = cache(async () => {
   return getUserProfile(user);
 });
 
-export const updateCurrentUserProfile = async ({
-  avatar,
-  name,
-}: {
-  avatar?: string | null;
-  name: string;
-}) => {
-  const supabase = await createClient();
-
-  return supabase.auth.updateUser({
-    data: {
-      avatar,
-      name,
-    },
-  });
-};
-
-export const updateCurrentUserPassword = async (password: string) => {
-  const supabase = await createClient();
-
-  return supabase.auth.updateUser({
-    password,
-  });
-};
-
-export const sendCurrentUserPasswordReset = async (redirectTo: string) => {
-  const user = await currentUser();
-
-  if (!user?.email) {
-    throw new Error("Current user does not have an email address.");
-  }
-
-  const supabase = await createClient();
-
-  return supabase.auth.resetPasswordForEmail(user.email, {
-    redirectTo,
-  });
-};
-
 // Helper function to get the current user's active organization
 export const auth = async () => {
   const user = await currentUser();
+
   if (!user) {
     return { userId: null, orgId: null };
   }
-  // Get active organization from user metadata
-  const orgId = getUserMetadata(user).activeOrganizationId ?? null;
+
+  // No explicit org switcher yet: the first membership is the active one.
+  const membership = await database.organizationMember.findFirst({
+    where: { userId: user.id },
+    orderBy: { createdAt: "asc" },
+  });
+
   return {
     userId: user.id,
-    orgId,
+    orgId: membership?.organizationId ?? null,
   };
 };

@@ -2,6 +2,7 @@ import { MotionPage } from "@repo/design-system/components/motion";
 import { fetchHomeMovies, fetchMovieList } from "@/lib/services/movie";
 import { PublicLayout } from "./components/public-layout";
 import {
+  ContinueWatching,
   CountryShelf,
   NewEpisodes,
   Spotlight,
@@ -50,6 +51,7 @@ export default async function HomePage() {
     <PublicLayout>
       <MotionPage className="min-h-screen bg-linear-to-br from-black via-zinc-950 to-black pb-10">
         <RankedHero movies={movies} />
+        <ContinueWatching />
         <NewEpisodes movies={newEpisodes} />
         <TrendingMovies
           movies={cinema}
