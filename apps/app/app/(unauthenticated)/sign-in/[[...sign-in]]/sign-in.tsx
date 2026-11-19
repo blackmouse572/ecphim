@@ -5,17 +5,6 @@ import {
   signInWithGoogle,
   signInWithPassword,
 } from "@repo/auth/client";
-import { Button } from "@repo/design-system/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@repo/design-system/components/ui/card";
-import { Input } from "@repo/design-system/components/ui/input";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useMemo, useState } from "react";
 import {
@@ -23,7 +12,15 @@ import {
   getAuthCallbackUrl,
   getSafeNextPath,
 } from "@/lib/auth/redirects";
-import { GoogleLogoIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  AuthAlert,
+  AuthCard,
+  AuthDivider,
+  AuthField,
+  AuthLink,
+  AuthSubmit,
+  GoogleButton,
+} from "../../components/auth-ui";
 
 export type SignInProps = {
   i18n?: {
@@ -98,67 +95,45 @@ export const SignIn = (props: SignInProps) => {
   };
 
   return (
-    <Card className="mx-auto w-full max-w-md bg-background shadow-primary/50 shadow-sm">
-      <CardHeader>
-        <CardTitle>{props.i18n?.login || "Đăng nhập"}</CardTitle>
-        <CardDescription>
-          Chưa có tài khoản?{" "}
-          <Link href="/sign-up" className="text-primary hover:underline">
-            Đăng ký
-          </Link>
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSignIn} className="space-y-4">
-        <CardContent className="space-y-4">
-          {errorMessage && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-destructive text-sm">
-              {errorMessage}
-            </div>
-          )}
-          <Button
-            className="w-full"
-            intent="outline"
-            isPending={googleLoading}
-            onClick={handleGoogleSignIn}
-            type="button"
-          >
-            <GoogleLogoIcon weight="bold" />
-            Tiếp tục với Google
-          </Button>
-          <div className="flex items-center gap-3 text-muted-foreground text-sm">
-            <div className="h-px flex-1 bg-border" />
-            <span>hoặc</span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-          <Input
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder={props.i18n?.emailPlaceholder || "Email"}
-            required
-            type="email"
-            value={email}
-          />
-          <Input
+    <AuthCard
+      description={
+        <>
+          Chưa có tài khoản? <AuthLink href="/sign-up">Đăng ký</AuthLink>
+        </>
+      }
+      title={props.i18n?.login || "Đăng nhập"}
+    >
+      {errorMessage ? <AuthAlert>{errorMessage}</AuthAlert> : null}
+      <GoogleButton onClick={handleGoogleSignIn} pending={googleLoading} />
+      <AuthDivider />
+      <form className="grid gap-4" onSubmit={handleSignIn}>
+        <AuthField
+          autoComplete="email"
+          label="Email"
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder={props.i18n?.emailPlaceholder || "ban@email.com"}
+          required
+          type="email"
+          value={email}
+        />
+        <div className="grid gap-1.5">
+          <AuthField
+            autoComplete="current-password"
+            label="Mật khẩu"
             onChange={(e) => setPassword(e.target.value)}
             placeholder={props.i18n?.passwordPlaceholder || "Mật khẩu"}
             required
             type="password"
             value={password}
           />
-          <div className="text-end text-muted-foreground text-sm">
-            <Link
-              href="/forgot-password"
-              className="text-primary hover:underline"
-            >
-              Quên mật khẩu?
-            </Link>
+          <div className="text-end text-sm">
+            <AuthLink href="/forgot-password">Quên mật khẩu?</AuthLink>
           </div>
-        </CardContent>
-        <CardFooter>
-          <Button isPending={loading} type="submit" className="w-full">
-            {props.i18n?.login || "Đăng nhập"}
-          </Button>
-        </CardFooter>
+        </div>
+        <AuthSubmit pending={loading}>
+          {props.i18n?.login || "Đăng nhập"}
+        </AuthSubmit>
       </form>
-    </Card>
+    </AuthCard>
   );
 };

@@ -1,19 +1,15 @@
 "use client";
 
 import { createClient, sendPasswordResetEmail } from "@repo/auth/client";
-import { Button } from "@repo/design-system/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@repo/design-system/components/ui/card";
-import { Input } from "@repo/design-system/components/ui/input";
-import Link from "next/link";
 import { type FormEvent, useMemo, useState } from "react";
 import { getAuthCallbackUrl } from "@/lib/auth/redirects";
+import {
+  AuthAlert,
+  AuthCard,
+  AuthField,
+  AuthLink,
+  AuthSubmit,
+} from "../components/auth-ui";
 
 export const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -45,47 +41,34 @@ export const ForgotPassword = () => {
   };
 
   return (
-    <Card className="mx-auto w-full max-w-md bg-background shadow-primary/50 shadow-sm">
-      <CardHeader>
-        <CardTitle>Quên mật khẩu</CardTitle>
-        <CardDescription>
-          Nhập email để nhận liên kết đặt lại mật khẩu.
-        </CardDescription>
-      </CardHeader>
-      <form className="space-y-6" onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          {error && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-destructive text-sm">
-              {error}
-            </div>
-          )}
-          {isSubmitted && (
-            <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-primary text-sm">
-              Đã gửi liên kết đặt lại mật khẩu tới {email}.
-            </div>
-          )}
-          <Input
-            autoComplete="email"
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="Email"
-            required
-            type="email"
-            value={email}
-          />
-          <p className="text-muted-foreground text-sm">
-            Quay lại{" "}
-            <Link className="text-primary hover:underline" href="/sign-in">
-              đăng nhập
-            </Link>
-            .
-          </p>
-        </CardContent>
-        <CardFooter>
-          <Button className="w-full" isPending={isPending} type="submit">
-            Gửi liên kết đặt lại mật khẩu
-          </Button>
-        </CardFooter>
+    <AuthCard
+      description="Nhập email của bạn, chúng tôi sẽ gửi liên kết để đặt lại mật khẩu."
+      title="Quên mật khẩu"
+    >
+      {error ? <AuthAlert>{error}</AuthAlert> : null}
+      {isSubmitted ? (
+        <AuthAlert tone="success">
+          Đã gửi liên kết đặt lại mật khẩu tới {email}. Hãy kiểm tra hộp thư (và
+          mục thư rác).
+        </AuthAlert>
+      ) : null}
+      <form className="grid gap-4" onSubmit={handleSubmit}>
+        <AuthField
+          autoComplete="email"
+          label="Email"
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="ban@email.com"
+          required
+          type="email"
+          value={email}
+        />
+        <AuthSubmit pending={isPending}>
+          Gửi liên kết đặt lại mật khẩu
+        </AuthSubmit>
       </form>
-    </Card>
+      <p className="text-center text-muted-foreground text-sm">
+        Nhớ ra rồi? <AuthLink href="/sign-in">Quay lại đăng nhập</AuthLink>
+      </p>
+    </AuthCard>
   );
 };
